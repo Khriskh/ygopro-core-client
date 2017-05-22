@@ -100,11 +100,11 @@ bool Game::Initialize() {
 	env->addStaticText(L"", rect<s32>(10, 240, 270, 260), false, false, wMainMenu);
 	env->addStaticText(L"", rect<s32>(10, 260, 270, 280), false, false, wMainMenu);
 
-	env->addStaticText(L"https://www.facebook.com/ygoproes", rect<s32>(10, 300, 270, 320), false, false, wMainMenu);
-	env->addStaticText(L"https://www.facebook.com/groups/ygoprospanish", rect<s32>(10, 320, 270, 340), false, false, wMainMenu);
+	env->addStaticText(L"www.facebook.com/ygoproes", rect<s32>(10, 300, 270, 320), false, false, wMainMenu);
+	env->addStaticText(L"www.facebook.com/groups/ygoprospanish", rect<s32>(10, 320, 270, 340), false, false, wMainMenu);
 
-	env->addStaticText(L"https://www.youtube.com/christian06", rect<s32>(10, 340, 270, 360), false, false, wMainMenu);
-	env->addStaticText(L"https://ygoproes.wordpress.com", rect<s32>(10, 360, 270, 380), false, false, wMainMenu);
+	env->addStaticText(L"www.youtube.com/christian06", rect<s32>(10, 340, 270, 360), false, false, wMainMenu);
+	env->addStaticText(L"www.ygoproes.wordpress.com", rect<s32>(10, 360, 270, 380), false, false, wMainMenu);
 
 	env->addStaticText(L"", rect<s32>(300, 30, 550, 390), false, true, wMainMenu);
 
