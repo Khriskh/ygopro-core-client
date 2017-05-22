@@ -49,7 +49,6 @@ protected:
 	unsigned char hand_result[2];
 	unsigned char last_response;
 	std::set<DuelPlayer*> observers;
-	std::set<DuelPlayer*> recorders;
 	Replay last_replay;
 	bool match_mode;
 	int match_kill;

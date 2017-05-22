@@ -3,10 +3,8 @@
 #include "data_manager.h"
 #include <event2/thread.h>
 
-int enable_log = 1;
+int enable_log = 0;
 bool exit_on_return = false;
-bool runasserver = true;
-bool keep_on_return = false;
 bool open_file = false;
 wchar_t open_file_name[256] = L"";
 
@@ -26,7 +24,6 @@ void GetParameterW(wchar_t* param, const char* arg) {
 	BufferIO::DecodeUTF8(arg, param);
 #endif
 }
-/*
 void ClickButton(irr::gui::IGUIElement* btn) {
 	irr::SEvent event;
 	event.EventType = irr::EET_GUI_EVENT;
@@ -34,7 +31,7 @@ void ClickButton(irr::gui::IGUIElement* btn) {
 	event.GUIEvent.Caller = btn;
 	ygo::mainGame->device->postEventFromUser(event);
 }
-*/
+
 int main(int argc, char* argv[]) {
 #ifdef _WIN32
 	wchar_t exepath[MAX_PATH];
@@ -53,40 +50,6 @@ int main(int argc, char* argv[]) {
 	evthread_use_pthreads();
 #endif //_WIN32
 	ygo::Game _game;
-	if (runasserver){
-		ygo::aServerPort=7911;
-		ygo::aServerPort=atoi(argv[1]);
-		ygo::lflist=atoi(argv[2]);
-		ygo::start_hand=0;
-		ygo::replay_mode=0;
-		if (argc>2) {
-			ygo::rule=atoi(argv[3]);
-			ygo::mode=atoi(argv[4]);
-			if (argv[5][0]=='T')
-				ygo::duel_rule=2;
-			else
-				ygo::duel_rule=3;
-			if (argv[6][0]=='T')
-				ygo::no_check_deck=true;
-			else
-				ygo::no_check_deck=false;
-			if (argv[7][0]=='T')
-				ygo::no_shuffle_deck=true;
-			else
-				ygo::no_shuffle_deck=false;
-			ygo::start_lp=atoi(argv[8]);
-			ygo::start_hand=atoi(argv[9]);
-			ygo::draw_count=atoi(argv[10]);
-			ygo::time_limit=atoi(argv[11]);
-			if (argc>12)
-				ygo::replay_mode=atoi(argv[12]);
-		}
-		ygo::mainGame = &_game;
-		ygo::mainGame->MainServerLoop(ygo::mode, ygo::lflist);
-		
-		return 0;
-	}
-	/*
 	ygo::mainGame = &_game;
 	if(!ygo::mainGame->Initialize())
 		return 0;
@@ -181,8 +144,7 @@ int main(int argc, char* argv[]) {
 #ifdef _WIN32
 	WSACleanup();
 #else
-	
+
 #endif //_WIN32
-	*/
 	return EXIT_SUCCESS;
 }
