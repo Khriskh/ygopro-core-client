@@ -190,11 +190,11 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			// additional check for each location
 			if(handler->current.location == LOCATION_HAND) {
 				if(handler->data.type & TYPE_MONSTER) {
-					if((handler->data.type & TYPE_PENDULUM)) {
-						if(!pduel->game_field->is_location_useable(playerid, LOCATION_PZONE, 0)
-								&& !pduel->game_field->is_location_useable(playerid, LOCATION_PZONE, 1))
-							return FALSE;
-					}
+					if(!(handler->data.type & TYPE_PENDULUM))
+						return FALSE;
+					if(!pduel->game_field->is_location_useable(playerid, LOCATION_PZONE, 0)
+							&& !pduel->game_field->is_location_useable(playerid, LOCATION_PZONE, 1))
+						return FALSE;
 				} else if(!(handler->data.type & TYPE_FIELD)
 						&& pduel->game_field->get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_TOFIELD) <= 0)
 					return FALSE;
@@ -204,7 +204,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if(handler->equiping_target)
 					return FALSE;
 				if(handler->get_status(STATUS_SET_TURN)) {
-					if((handler->data.type & TYPE_SPELL) && ((handler->data.type & TYPE_QUICKPLAY) || handler->is_affected_by_effect(EFFECT_BECOME_QUICK)))
+					if((handler->data.type & TYPE_SPELL) && (handler->data.type & TYPE_QUICKPLAY))
 						return FALSE;
 				}
 			}
@@ -214,7 +214,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if(handler->data.type & TYPE_TRAP)
 					ecode = EFFECT_TRAP_ACT_IN_HAND;
 				else if((handler->data.type & TYPE_SPELL) && pduel->game_field->infos.turn_player != playerid) {
-					if((handler->data.type & TYPE_QUICKPLAY) || handler->is_affected_by_effect(EFFECT_BECOME_QUICK))
+					if(handler->data.type & TYPE_QUICKPLAY)
 						ecode = EFFECT_QP_ACT_IN_NTPHAND;
 					else
 						return FALSE;
@@ -648,7 +648,7 @@ int32 effect::get_speed() {
 		if(handler->data.type & TYPE_MONSTER)
 			return 0;
 		else if(handler->data.type & TYPE_SPELL) {
-			if((handler->data.type & TYPE_QUICKPLAY) || handler->is_affected_by_effect(EFFECT_BECOME_QUICK))
+			if(handler->data.type & TYPE_QUICKPLAY)
 				return 2;
 			return 1;
 		} else {
