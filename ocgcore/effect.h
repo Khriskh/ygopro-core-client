@@ -316,7 +316,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_EXTRA_RELEASE			153
 #define EFFECT_TRIBUTE_LIMIT			154
 #define EFFECT_EXTRA_RELEASE_SUM		155
-//#define EFFECT_TRIPLE_TRIBUTE			156
+#define EFFECT_TRIPLE_TRIBUTE			156
 #define EFFECT_PUBLIC					160
 #define EFFECT_COUNTER_PERMIT			0x10000
 #define EFFECT_COUNTER_LIMIT			0x20000
@@ -372,6 +372,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_USE_EXTRA_SZONE			262
 #define EFFECT_MAX_MZONE				263
 #define EFFECT_MAX_SZONE				264
+#define EFFECT_BECOME_LINKED_ZONE		265
 #define EFFECT_HAND_LIMIT				270
 #define EFFECT_DRAW_COUNT				271
 #define EFFECT_SPIRIT_DONOT_RETURN		280
@@ -416,6 +417,19 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CHANGE_FUSION_ATTRIBUTE	351
 #define EFFECT_EXTRA_FUSION_MATERIAL	352
 #define EFFECT_TUNER_MATERIAL_LIMIT		353
+
+#define EFFECT_CANNOT_LOSE_DECK			400
+#define EFFECT_CANNOT_LOSE_LP			401
+#define EFFECT_CANNOT_LOSE_EFFECT		402
+#define EFFECT_BP_FIRST_TURN			403
+#define EFFECT_UNSTOPPABLE_ATTACK		404
+#define EFFECT_ALLOW_NEGATIVE			405
+#define EFFECT_SELF_ATTACK				406
+#define EFFECT_BECOME_QUICK				407
+#define EFFECT_LEVEL_RANK				408
+#define EFFECT_RANK_LEVEL				409
+#define EFFECT_LEVEL_RANK_S				410
+#define EFFECT_RANK_LEVEL_S				411
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

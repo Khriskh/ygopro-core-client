@@ -196,6 +196,7 @@ public:
 	uint32 get_link_marker();
 	int32 is_link_marker(uint32 dir);
 	uint32 get_linked_zone();
+	uint32 get_free_linked_zone();
 	void get_linked_cards(card_set* cset);
 	uint32 get_mutual_linked_zone();
 	int32 is_position(int32 pos);
@@ -255,9 +256,10 @@ public:
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
 	effect* is_affected_by_effect(int32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
+	int32 get_card_effect(int32 code);
 	effect* check_control_effect();
 	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf);
-	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf);
+	void fusion_filter_valid(group* fusion_m, card* cg, uint32 chkf, effect_set* eset);
 	int32 check_fusion_substitute(card* fcard);
 
 	int32 check_unique_code(card* pcard);

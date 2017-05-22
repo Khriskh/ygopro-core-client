@@ -1,17 +1,23 @@
 #include "config.h"
 #include "game.h"
-#include "image_manager.h"
+//#include "image_manager.h"
 #include "data_manager.h"
 #include "deck_manager.h"
 #include "replay.h"
-#include "materials.h"
-#include "duelclient.h"
+//#include "materials.h"
+//#include "duelclient.h"
 #include "netserver.h"
-#include "single_mode.h"
+//#include "single_mode.h"
+
+#ifdef _WIN32
+#define strcasecmp _stricmp
+#include "dirent.h"
+#endif // _WIN32
 
 #ifndef _WIN32
 #include <sys/types.h>
 #include <dirent.h>
+#include <unistd.h>
 #endif
 
 const unsigned short PRO_VERSION = 0x133D;
@@ -20,6 +26,54 @@ namespace ygo {
 
 Game* mainGame;
 
+unsigned short aServerPort;
+unsigned int lflist;
+unsigned char rule;
+unsigned char mode;
+bool enable_priority;
+bool no_check_deck;
+bool no_shuffle_deck;
+unsigned int start_lp;
+unsigned short time_limit;
+unsigned short replay_mode;
+unsigned char start_hand;
+unsigned char draw_count;
+
+void Game::MainServerLoop(int bDuel_mode, int lflist) {
+	deckManager.LoadLFList();
+    dataManager.LoadDB("cards.cdb");
+	
+	//load expansions
+	DIR * dir;
+	struct dirent * dirp;
+	const char *foldername = "./expansions/";
+	if((dir = opendir(foldername)) != NULL) {
+		while((dirp = readdir(dir)) != NULL) {
+			size_t len = strlen(dirp->d_name);
+			if(len < 5 || strcasecmp(dirp->d_name + len - 4, ".cdb") != 0)
+				continue;
+			char *filepath = (char *)malloc(sizeof(char)*(len + strlen(foldername)));
+			strncpy(filepath, foldername, strlen(foldername)+1);
+			strncat(filepath, dirp->d_name, len);
+			dataManager.LoadDB(filepath);
+			free(filepath);
+		}
+		closedir(dir);
+	}
+	
+    aServerPort = NetServer::StartServer(aServerPort);
+    NetServer::Initduel(bDuel_mode, lflist);
+    printf("%u\n", aServerPort);
+    fflush(stdout);
+	while(NetServer::net_evbase) {
+#ifdef WIN32
+        Sleep(200);
+#else
+	usleep(200000);
+#endif
+    }
+}
+/*
 bool Game::Initialize() {
 	srand(time(0));
 	LoadConfig();
@@ -76,12 +130,6 @@ bool Game::Initialize() {
 		hWnd = reinterpret_cast<HWND>(exposedData.D3D9.HWnd);
 	else
 		hWnd = reinterpret_cast<HWND>(exposedData.OpenGLWin32.HWnd);
-	if(hWnd) {
-		LONG style = GetWindowLong(hWnd, GWL_STYLE);
-		style |= WS_MINIMIZEBOX;
-		SetWindowLong(hWnd, GWL_STYLE, style);
-		SendMessage(hWnd, WM_NCPAINT, 1, 0);
-	}
 #endif
 	SetWindowsIcon();
 	//main menu
@@ -140,13 +188,7 @@ bool Game::Initialize() {
 	ebTimeLimit = env->addEditBox(strbuf, rect<s32>(140, 115, 220, 140), true, wCreateHost);
 	ebTimeLimit->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	env->addStaticText(dataManager.GetSysString(1228), rect<s32>(20, 150, 320, 170), false, false, wCreateHost);
-	env->addStaticText(dataManager.GetSysString(1236), rect<s32>(20, 180, 220, 200), false, false, wCreateHost);
-	cbDuelRule = env->addComboBox(rect<s32>(140, 175, 300, 200), wCreateHost);
-	cbDuelRule->addItem(dataManager.GetSysString(1260));
-	cbDuelRule->addItem(dataManager.GetSysString(1261));
-	cbDuelRule->addItem(dataManager.GetSysString(1262));
-	cbDuelRule->addItem(dataManager.GetSysString(1263));
-	cbDuelRule->setSelected(DEFAULT_DUEL_RULE);
+	chkEnablePriority = env->addCheckBox(false, rect<s32>(20, 180, 360, 200), wCreateHost, -1, dataManager.GetSysString(1236));
 	chkNoCheckDeck = env->addCheckBox(false, rect<s32>(20, 210, 170, 230), wCreateHost, -1, dataManager.GetSysString(1229));
 	chkNoShuffleDeck = env->addCheckBox(false, rect<s32>(180, 210, 360, 230), wCreateHost, -1, dataManager.GetSysString(1230));
 	env->addStaticText(dataManager.GetSysString(1231), rect<s32>(20, 240, 320, 260), false, false, wCreateHost);
@@ -249,19 +291,17 @@ bool Game::Initialize() {
 	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLog, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
 	//system
 	irr::gui::IGUITab* tabSystem = wInfos->addTab(dataManager.GetSysString(1273));
-	chkMAutoPos = env->addCheckBox(false, rect<s32>(20, 20, 280, 45), tabSystem, -1, dataManager.GetSysString(1274));
-	chkMAutoPos->setChecked(gameConf.chkMAutoPos != 0);
-	chkSTAutoPos = env->addCheckBox(false, rect<s32>(20, 50, 280, 75), tabSystem, -1, dataManager.GetSysString(1278));
-	chkSTAutoPos->setChecked(gameConf.chkSTAutoPos != 0);
-	chkRandomPos = env->addCheckBox(false, rect<s32>(40, 80, 300, 105), tabSystem, -1, dataManager.GetSysString(1275));
+	chkAutoPos = env->addCheckBox(false, rect<s32>(20, 20, 280, 45), tabSystem, -1, dataManager.GetSysString(1274));
+	chkAutoPos->setChecked(gameConf.chkAutoPos != 0);
+	chkRandomPos = env->addCheckBox(false, rect<s32>(40, 50, 300, 75), tabSystem, -1, dataManager.GetSysString(1275));
 	chkRandomPos->setChecked(gameConf.chkRandomPos != 0);
-	chkAutoChain = env->addCheckBox(false, rect<s32>(20, 110, 280, 135), tabSystem, -1, dataManager.GetSysString(1276));
+	chkAutoChain = env->addCheckBox(false, rect<s32>(20, 80, 280, 105), tabSystem, -1, dataManager.GetSysString(1276));
 	chkAutoChain->setChecked(gameConf.chkAutoChain != 0);
-	chkWaitChain = env->addCheckBox(false, rect<s32>(20, 140, 280, 165), tabSystem, -1, dataManager.GetSysString(1277));
+	chkWaitChain = env->addCheckBox(false, rect<s32>(20, 110, 280, 135), tabSystem, -1, dataManager.GetSysString(1277));
 	chkWaitChain->setChecked(gameConf.chkWaitChain != 0);
-	chkIgnore1 = env->addCheckBox(false, rect<s32>(20, 200, 280, 225), tabSystem, -1, dataManager.GetSysString(1290));
+	chkIgnore1 = env->addCheckBox(false, rect<s32>(20, 170, 280, 195), tabSystem, -1, dataManager.GetSysString(1290));
 	chkIgnore1->setChecked(gameConf.chkIgnore1 != 0);
-	chkIgnore2 = env->addCheckBox(false, rect<s32>(20, 230, 280, 255), tabSystem, -1, dataManager.GetSysString(1291));
+	chkIgnore2 = env->addCheckBox(false, rect<s32>(20, 200, 280, 225), tabSystem, -1, dataManager.GetSysString(1291));
 	chkIgnore2->setChecked(gameConf.chkIgnore2 != 0);
 	chkHideSetname = env->addCheckBox(false, rect<s32>(20, 260, 280, 285), tabSystem, -1, dataManager.GetSysString(1354));
 	chkHideSetname->setChecked(gameConf.chkHideSetname != 0);
@@ -448,7 +488,7 @@ bool Game::Initialize() {
 	cbCardType->addItem(dataManager.GetSysString(1312));
 	cbCardType->addItem(dataManager.GetSysString(1313));
 	cbCardType->addItem(dataManager.GetSysString(1314));
-	cbCardType2 = env->addComboBox(rect<s32>(125, 25 / 6, 200, 20 + 25 / 6), wFilter, COMBOBOX_SECONDTYPE);
+	cbCardType2 = env->addComboBox(rect<s32>(125, 25 / 6, 200, 20 + 25 / 6), wFilter, -1);
 	cbCardType2->setMaxSelectionRows(10);
 	cbCardType2->addItem(dataManager.GetSysString(1310), 0);
 	env->addStaticText(dataManager.GetSysString(1315), rect<s32>(205, 2 + 25 / 6, 280, 22 + 25 / 6), false, false, wFilter);
@@ -481,10 +521,10 @@ bool Game::Initialize() {
 	ebDefense = env->addEditBox(L"", rect<s32>(260, 40 + 75 / 6, 340, 60 + 75 / 6), true, wFilter);
 	ebDefense->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	env->addStaticText(dataManager.GetSysString(1324), rect<s32>(10, 62 + 100 / 6, 80, 82 + 100 / 6), false, false, wFilter);
-	ebStar = env->addEditBox(L"", rect<s32>(60, 60 + 100 / 6, 100, 80 + 100 / 6), true, wFilter);
+	ebStar = env->addEditBox(L"", rect<s32>(60, 60 + 100 / 6, 190, 80 + 100 / 6), true, wFilter);
 	ebStar->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
-	env->addStaticText(dataManager.GetSysString(1336), rect<s32>(101, 62 + 100 / 6, 150, 82 + 100 / 6), false, false, wFilter);
-	ebScale = env->addEditBox(L"", rect<s32>(150, 60 + 100 / 6, 190, 80 + 100 / 6), true, wFilter);
+	env->addStaticText(dataManager.GetSysString(1336), rect<s32>(10, 82 + 125 / 6, 80, 102 + 125 / 6), false, false, wFilter);
+	ebScale = env->addEditBox(L"", rect<s32>(60, 80 + 125 / 6, 190, 100 + 125 / 6), true, wFilter);
 	ebScale->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	env->addStaticText(dataManager.GetSysString(1325), rect<s32>(205, 62 + 100 / 6, 280, 82 + 100 / 6), false, false, wFilter);
 	ebCardName = env->addEditBox(L"", rect<s32>(260, 60 + 100 / 6, 390, 80 + 100 / 6), true, wFilter, EDITBOX_KEYWORD);
@@ -503,23 +543,6 @@ bool Game::Initialize() {
 	btnCategoryOK = env->addButton(rect<s32>(135, 175, 235, 200), wCategories, BUTTON_CATEGORY_OK, dataManager.GetSysString(1211));
 	for(int i = 0; i < 32; ++i)
 		chkCategory[i] = env->addCheckBox(false, recti(10 + (i % 4) * 90, 10 + (i / 4) * 20, 100 + (i % 4) * 90, 30 + (i / 4) * 20), wCategories, -1, dataManager.GetSysString(1100 + i));
-	btnMarksFilter = env->addButton(rect<s32>(60, 80 + 125 / 6, 190, 100 + 125 / 6), wFilter, BUTTON_MARKS_FILTER, dataManager.GetSysString(1374));
-	wLinkMarks = env->addWindow(rect<s32>(700, 30, 820, 150), false, dataManager.strBuffer);
-	wLinkMarks->getCloseButton()->setVisible(false);
-	wLinkMarks->setDrawTitlebar(false);
-	wLinkMarks->setDraggable(false);
-	wLinkMarks->setVisible(false);
-	btnMarksOK = env->addButton(recti(45, 45, 75, 75), wLinkMarks, BUTTON_MARKERS_OK, dataManager.GetSysString(1211));
-	btnMark[0] = env->addButton(recti(10, 10, 40, 40), wLinkMarks, -1, L"\u2196");
-	btnMark[1] = env->addButton(recti(45, 10, 75, 40), wLinkMarks, -1, L"\u2191");
-	btnMark[2] = env->addButton(recti(80, 10, 110, 40), wLinkMarks, -1, L"\u2197");
-	btnMark[3] = env->addButton(recti(10, 45, 40, 75), wLinkMarks, -1, L"\u2190");
-	btnMark[4] = env->addButton(recti(80, 45, 110, 75), wLinkMarks, -1, L"\u2192");
-	btnMark[5] = env->addButton(recti(10, 80, 40, 110), wLinkMarks, -1, L"\u2199");
-	btnMark[6] = env->addButton(recti(45, 80, 75, 110), wLinkMarks, -1, L"\u2193");
-	btnMark[7] = env->addButton(recti(80, 80, 110, 110), wLinkMarks, -1, L"\u2198");
-	for(int i=0;i<8;i++)
-		btnMark[i]->setIsPushButton(true);
 	//replay window
 	wReplay = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1202));
 	wReplay->getCloseButton()->setVisible(false);
@@ -568,9 +591,6 @@ bool Game::Initialize() {
 	wChat->setDrawTitlebar(false);
 	wChat->setVisible(false);
 	ebChatInput = env->addEditBox(L"", rect<s32>(3, 2, 710, 22), true, wChat, EDITBOX_CHAT);
-	//swap
-	btnSpectatorSwap = env->addButton(rect<s32>(205, 100, 295, 135), 0, BUTTON_REPLAY_SWAP, dataManager.GetSysString(1346));
-	btnSpectatorSwap->setVisible(false);
 	//chain buttons
 	btnChainIgnore = env->addButton(rect<s32>(205, 100, 295, 135), 0, BUTTON_CHAIN_IGNORE, dataManager.GetSysString(1292));
 	btnChainAlways = env->addButton(rect<s32>(205, 140, 295, 175), 0, BUTTON_CHAIN_ALWAYS, dataManager.GetSysString(1293));
@@ -605,6 +625,8 @@ bool Game::Initialize() {
 	hideChatTimer = 0;
 	return true;
 }
+*/
+/*
 void Game::MainLoop() {
 	wchar_t cap[256];
 	camera = smgr->addCameraSceneNode(0);
@@ -697,6 +719,8 @@ void Game::MainLoop() {
 	SaveConfig();
 //	device->drop();
 }
+*/
+/*
 void Game::BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 right, f32 bottom, f32 top, f32 znear, f32 zfar) {
 	for(int i = 0; i < 16; ++i)
 		mProjection[i] = 0;
@@ -902,8 +926,7 @@ void Game::LoadConfig() {
 	gameConf.lastport[0] = 0;
 	gameConf.roompass[0] = 0;
 	//settings
-	gameConf.chkMAutoPos = 0;
-	gameConf.chkSTAutoPos = 1;
+	gameConf.chkAutoPos = 1;
 	gameConf.chkRandomPos = 0;
 	gameConf.chkAutoChain = 0;
 	gameConf.chkWaitChain = 0;
@@ -914,7 +937,6 @@ void Game::LoadConfig() {
 	gameConf.control_mode = 0;
 	gameConf.draw_field_spell = 1;
 	gameConf.separate_clear_button = 1;
-	gameConf.auto_search_limit = -1;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -947,10 +969,8 @@ void Game::LoadConfig() {
 		} else if(!strcmp(strbuf, "roompass")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
 			BufferIO::CopyWStr(wstr, gameConf.roompass, 20);
-		} else if(!strcmp(strbuf, "automonsterpos")) {
-			gameConf.chkMAutoPos = atoi(valbuf);
-		} else if(!strcmp(strbuf, "autospellpos")) {
-			gameConf.chkSTAutoPos = atoi(valbuf);
+		} else if(!strcmp(strbuf, "autopos")) {
+			gameConf.chkAutoPos = atoi(valbuf);
 		} else if(!strcmp(strbuf, "randompos")) {
 			gameConf.chkRandomPos = atoi(valbuf);
 		} else if(!strcmp(strbuf, "autochain")) {
@@ -971,8 +991,6 @@ void Game::LoadConfig() {
 			gameConf.draw_field_spell = atoi(valbuf);
 		} else if(!strcmp(strbuf, "separate_clear_button")) {
 			gameConf.separate_clear_button = atoi(valbuf);
-		} else if(!strcmp(strbuf, "auto_search_limit")) {
-			gameConf.auto_search_limit = atoi(valbuf);
 		} else {
 			// options allowing multiple words
 			sscanf(linebuf, "%s = %240[^\n]", strbuf, valbuf);
@@ -1014,8 +1032,7 @@ void Game::SaveConfig() {
 	BufferIO::EncodeUTF8(gameConf.lastport, linebuf);
 	fprintf(fp, "lastport = %s\n", linebuf);
 	//settings
-	fprintf(fp, "automonsterpos = %d\n", ((mainGame->chkMAutoPos->isChecked()) ? 1 : 0));
-	fprintf(fp, "autospellpos = %d\n", ((mainGame->chkSTAutoPos->isChecked()) ? 1 : 0));
+	fprintf(fp, "autopos = %d\n", ((mainGame->chkAutoPos->isChecked()) ? 1 : 0));
 	fprintf(fp, "randompos = %d\n", ((mainGame->chkRandomPos->isChecked()) ? 1 : 0));
 	fprintf(fp, "autochain = %d\n", ((mainGame->chkAutoChain->isChecked()) ? 1 : 0));
 	fprintf(fp, "waitchain = %d\n", ((mainGame->chkWaitChain->isChecked()) ? 1 : 0));
@@ -1027,8 +1044,6 @@ void Game::SaveConfig() {
 	fprintf(fp, "control_mode = %d\n", gameConf.control_mode);
 	fprintf(fp, "draw_field_spell = %d\n", gameConf.draw_field_spell);
 	fprintf(fp, "separate_clear_button = %d\n", gameConf.separate_clear_button);
-	fprintf(fp, "#auto_search_limit >= 0: Start search automatically when the user enters N chars\n");
-	fprintf(fp, "auto_search_limit = %d\n", gameConf.auto_search_limit);
 	fclose(fp);
 }
 void Game::ShowCardInfo(int code) {
@@ -1062,30 +1077,19 @@ void Game::ShowCardInfo(int code) {
 	if(cd.type & TYPE_MONSTER) {
 		myswprintf(formatBuffer, L"[%ls] %ls/%ls", dataManager.FormatType(cd.type), dataManager.FormatRace(cd.race), dataManager.FormatAttribute(cd.attribute));
 		stInfo->setText(formatBuffer);
-		if(!(cd.type & TYPE_LINK)) {
-			wchar_t* form = L"\u2605";
-			if(cd.type & TYPE_XYZ) form = L"\u2606";
-			myswprintf(formatBuffer, L"[%ls%d] ", form, cd.level);
-			wchar_t adBuffer[16];
-			if(cd.attack < 0 && cd.defense < 0)
-				myswprintf(adBuffer, L"?/?");
-			else if(cd.attack < 0)
-				myswprintf(adBuffer, L"?/%d", cd.defense);
-			else if(cd.defense < 0)
-				myswprintf(adBuffer, L"%d/?", cd.attack);
-			else
-				myswprintf(adBuffer, L"%d/%d", cd.attack, cd.defense);
-			wcscat(formatBuffer, adBuffer);
-		} else {
-			myswprintf(formatBuffer, L"[LINK-%d] ", cd.level);
-			wchar_t adBuffer[16];
-			if(cd.attack < 0)
-				myswprintf(adBuffer, L"?/-   ");
-			else
-				myswprintf(adBuffer, L"%d/-   ", cd.attack);
-			wcscat(formatBuffer, adBuffer);
-			wcscat(formatBuffer, dataManager.FormatLinkMarker(cd.link_marker));
-		}
+		int form = 0x2605;
+		if(cd.type & TYPE_XYZ) ++form;
+		myswprintf(formatBuffer, L"[%c%d] ", form, cd.level);
+		wchar_t adBuffer[16];
+		if(cd.attack < 0 && cd.defense < 0)
+			myswprintf(adBuffer, L"?/?");
+		else if(cd.attack < 0)
+			myswprintf(adBuffer, L"?/%d", cd.defense);
+		else if(cd.defense < 0)
+			myswprintf(adBuffer, L"%d/?", cd.attack);
+		else
+			myswprintf(adBuffer, L"%d/%d", cd.attack, cd.defense);
+		wcscat(formatBuffer, adBuffer);
 		if(cd.type & TYPE_PENDULUM) {
 			wchar_t scaleBuffer[16];
 			myswprintf(scaleBuffer, L"   %d/%d", cd.lscale, cd.rscale);
@@ -1141,32 +1145,13 @@ void Game::AddChatMsg(wchar_t* msg, int player) {
 		chatMsg[0].append(L"[System]: ");
 		break;
 	case 9: //error message
-		chatMsg[0].append(L"[Script Error]: ");
+		chatMsg[0].append(L"[Script error:] ");
 		break;
 	default: //from watcher or unknown
 		if(player < 11 || player > 19)
 			chatMsg[0].append(L"[---]: ");
 	}
 	chatMsg[0].append(msg);
-}
-void Game::AddDebugMsg(char* msg)
-{
-	if (enable_log & 0x1) {
-		wchar_t wbuf[1024];
-		BufferIO::DecodeUTF8(msg, wbuf);
-		mainGame->AddChatMsg(wbuf, 9);
-	}
-	if (enable_log & 0x2) {
-		FILE* fp = fopen("error.log", "at");
-		if (!fp)
-			return;
-		time_t nowtime = time(NULL);
-		struct tm *localedtime = localtime(&nowtime);
-		char timebuf[40];
-		strftime(timebuf, 40, "%Y-%m-%d %H:%M:%S", localedtime);
-		fprintf(fp, "[%s][Script Error]: %s\n", timebuf, msg);
-		fclose(fp);
-	}
 }
 void Game::ClearTextures() {
 	matManager.mCard.setTexture(0, 0);
@@ -1206,7 +1191,6 @@ void Game::CloseDuelWindow() {
 	stHintMsg->setVisible(false);
 	btnSideOK->setVisible(false);
 	btnLeaveGame->setVisible(false);
-	btnSpectatorSwap->setVisible(false);
 	btnChainIgnore->setVisible(false);
 	btnChainAlways->setVisible(false);
 	btnChainWhenAvail->setVisible(false);
@@ -1219,12 +1203,14 @@ void Game::CloseDuelWindow() {
 	ClearTextures();
 	closeDoneSignal.Set();
 }
+*/
 int Game::LocalPlayer(int player) {
 	return dInfo.isFirst ? player : 1 - player;
 }
 const wchar_t* Game::LocalName(int local_player) {
 	return local_player == 0 ? dInfo.hostname : dInfo.clientname;
 }
+/*
 void Game::SetWindowsIcon() {
 #ifdef _WIN32
 	HINSTANCE hInstance = (HINSTANCE)GetModuleHandleW(NULL);
@@ -1245,5 +1231,6 @@ void Game::FlashWindow() {
 	FlashWindowEx(&fi);
 #endif
 }
+*/
 
 }

@@ -13,7 +13,53 @@ char NetServer::net_server_read[0x2000];
 char NetServer::net_server_write[0x2000];
 unsigned short NetServer::last_sent = 0;
 
-bool NetServer::StartServer(unsigned short port) {
+
+void NetServer::Initduel(int bDuel_mode, int lflist)
+{
+		CTOS_CreateGame* pkt = new CTOS_CreateGame;
+		pkt->info.mode=MODE_SINGLE;
+		
+		if(bDuel_mode == MODE_SINGLE) {
+			duel_mode = new SingleDuel(false);
+			duel_mode->etimer = event_new(net_evbase, 0, EV_TIMEOUT | EV_PERSIST, SingleDuel::SingleTimer, duel_mode);
+		} else if(bDuel_mode == MODE_MATCH) {
+			duel_mode = new SingleDuel(true);
+			duel_mode->etimer = event_new(net_evbase, 0, EV_TIMEOUT | EV_PERSIST, SingleDuel::SingleTimer, duel_mode);
+		} else if(bDuel_mode == MODE_TAG) {
+			duel_mode = new TagDuel();
+			duel_mode->etimer = event_new(net_evbase, 0, EV_TIMEOUT | EV_PERSIST, TagDuel::TagTimer, duel_mode);
+		}
+
+		if(pkt->info.rule > 3)
+			pkt->info.rule = 0;
+		if(pkt->info.mode > 2)
+			pkt->info.mode = 0;
+		unsigned int hash = 0;
+
+		pkt->info.lflist = deckManager._lfList[lflist].hash;
+
+		for(auto lfit = deckManager._lfList.begin(); lfit != deckManager._lfList.end(); ++lfit) {
+			if(pkt->info.lflist == lfit->hash) {
+				hash = pkt->info.lflist;
+				break;
+			}
+		}
+
+		if(!hash)
+			pkt->info.lflist = deckManager._lfList[0].hash;
+		
+		if(lflist == -1)
+			pkt->info.lflist = 0;
+		duel_mode->host_info = pkt->info;
+		BufferIO::CopyWStr(pkt->name, duel_mode->name, 20);
+		BufferIO::CopyWStr(pkt->pass, duel_mode->pass, 20);
+//		duel_mode->JoinGame(dp, 0, true);
+//		StartBroadcast();
+}
+
+
+
+unsigned short NetServer::StartServer(unsigned short port) {
 	if(net_evbase)
 		return false;
 	net_evbase = event_base_new();
@@ -32,9 +78,13 @@ bool NetServer::StartServer(unsigned short port) {
 		net_evbase = 0;
 		return false;
 	}
+	evutil_socket_t fd=evconnlistener_get_fd(listener);
+	socklen_t addrlen=sizeof(struct sockaddr);
+	struct sockaddr_in addr;
+	getsockname(fd,(struct sockaddr*)&addr,&addrlen);
 	evconnlistener_set_error_cb(listener, ServerAcceptError);
 	Thread::NewThread(ServerThread, net_evbase);
-	return true;
+	return ntohs(addr.sin_port);
 }
 bool NetServer::StartBroadcast() {
 	if(!net_evbase)

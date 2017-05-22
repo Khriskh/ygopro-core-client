@@ -702,6 +702,16 @@ uint32 field::get_linked_zone(int32 playerid) {
 				zones |= 1u << (2 - i * 2);
 		}
 	}
+	effect_set eset;
+	uint32 value;
+	filter_field_effect(EFFECT_BECOME_LINKED_ZONE, &eset);
+	for (int32 i = 0; i < eset.size(); ++i) {
+		value = eset[i]->get_value();
+		if (value) {
+			zones |= (value >> (16 * playerid)) & 0x7f;
+		}
+	}
+	eset.clear();
 	return zones;
 }
 int32 field::check_extra_link(int32 playerid) {
@@ -1489,6 +1499,18 @@ effect* field::is_player_affected_by_effect(uint8 playerid, uint32 code) {
 	}
 	return 0;
 }
+int32 field::get_player_effect(uint8 playerid, uint32 code) {
+	int32 i = 0;
+	auto rg = effects.aura_effect.equal_range(code);
+	for (; rg.first != rg.second; ++rg.first) {
+		effect* peffect = rg.first->second;
+		if (peffect->is_target_player(playerid) && peffect->is_available()) {
+			interpreter::effect2value(pduel->lua->current_state, peffect);
+			i++;
+		}
+	}
+	return i;
+}
 int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
 	uint32 rcount = 0;
 	for(auto cit = player[playerid].list_mzone.begin(); cit != player[playerid].list_mzone.end(); ++cit) {
@@ -1568,7 +1590,9 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 				continue;
 			if(release_list)
 				release_list->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			if(pcard->is_affected_by_effect(EFFECT_TRIPLE_TRIBUTE, target))
+				pcard->release_param = 3;
+			else if (pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
 				pcard->release_param = 2;
 			else
 				pcard->release_param = 1;
@@ -1580,23 +1604,27 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 		card* pcard = *cit;
 		if(!pcard || !pcard->is_releasable_by_summon(p, target))
 			continue;
-		if(mg && !mg->has_card(pcard))
+		if (mg && !mg->has_card(pcard))
 			continue;
-		if(ex || pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
+		if (ex || pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
 			if(ex_list)
 				ex_list->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			if(pcard->is_affected_by_effect(EFFECT_TRIPLE_TRIBUTE, target))
+				pcard->release_param = 3;
+			else if (pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
 				pcard->release_param = 2;
 			else
 				pcard->release_param = 1;
 			rcount += pcard->release_param;
 		} else {
 			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
-			if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (peffect->reset_count & 0xf00) == 0))
+			if (!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (peffect->reset_count & 0xf00) == 0))
 				continue;
-			if(ex_list_sum)
+			if (ex_list_sum)
 				ex_list_sum->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			if(pcard->is_affected_by_effect(EFFECT_TRIPLE_TRIBUTE, target))
+				pcard->release_param = 3;
+			else if (pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
 				pcard->release_param = 2;
 			else
 				pcard->release_param = 1;
@@ -2079,6 +2107,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 	card_vector* pv = NULL;
 	int32 atype = 0;
 	card_vector must_be_attack;
+	card_vector attack_tg;
 	card_vector only_be_attack;
 	effect_set eset;
 	// find the universal set pv
@@ -2117,7 +2146,21 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 			return atype;
 	} else {
 		atype = 4;
-		pv = &player[1 - p].list_mzone;
+		for (uint32 i = 0; i < 7; ++i) {
+			card* atarget = player[1 - p].list_mzone[i];
+			if (atarget != core.attacker) {
+					attack_tg.push_back(atarget);
+			}
+		}
+		if(is_player_affected_by_effect(p, EFFECT_SELF_ATTACK) && (!pcard->is_affected_by_effect(EFFECT_ATTACK_ALL) || !&attack_tg)) {
+			for (uint32 i = 0; i < 7; ++i) {
+				card* atarget = player[p].list_mzone[i];
+				if (atarget != core.attacker) {
+					attack_tg.push_back(atarget);
+				}
+			}
+		}
+		pv = &attack_tg;
 	}
 	// extra count
 	int32 ct1 = 0, ct2 = 0;
@@ -2233,7 +2276,8 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 			continue;
 		if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
 			continue;
-		mcount++;
+		if(atarget->current.controler != p)
+			mcount++;
 		if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
 			continue;
 		if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
@@ -2253,6 +2297,7 @@ bool field::confirm_attack_target() {
 	card_vector* pv = NULL;
 	int32 atype = 0;
 	card_vector must_be_attack;
+	card_vector attack_tg;
 	card_vector only_be_attack;
 	effect_set eset;
 	
@@ -2290,7 +2335,21 @@ bool field::confirm_attack_target() {
 			return false;
 	} else {
 		atype = 4;
-		pv = &player[1 - p].list_mzone;
+		for (uint32 i = 0; i < 7; ++i) {
+			card* atarget = player[1 - p].list_mzone[i];
+			if (atarget != core.attacker) {
+				attack_tg.push_back(atarget);
+			}
+		}
+		if(is_player_affected_by_effect(p, EFFECT_SELF_ATTACK) && (!pcard->is_affected_by_effect(EFFECT_ATTACK_ALL) || !&attack_tg)) {
+			for (uint32 i = 0; i < 7; ++i) {
+				card* atarget = player[p].list_mzone[i];
+				if (atarget != core.attacker) {
+					attack_tg.push_back(atarget);
+				}
+			}
+		}
+		pv = &attack_tg;
 	}
 	// extra count
 	int32 ct1 = 0, ct2 = 0;
@@ -2343,6 +2402,8 @@ bool field::confirm_attack_target() {
 	for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
 		card* atarget = *cit;
 		if(!atarget)
+			continue;
+		if(atarget->current.controler == core.attacker->current.controler)
 			continue;
 		if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
 			continue;
@@ -2929,6 +2990,9 @@ int32 field::is_player_can_spsummon(effect* peffect, uint32 sumtype, uint8 sumpo
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		if (pduel->lua->check_condition(eset[i]->target, 7))
 			return FALSE;
+		sumpos &= ~eset[i]->get_value();
+		if(sumpos == 0)
+			return FALSE;
 	}
 	if(!check_spsummon_once(pcard, playerid))
 		return FALSE;
@@ -3176,7 +3240,7 @@ int32 field::check_chain_target(uint8 chaincount, card * pcard) {
 	return pduel->lua->check_condition(peffect->target, 10);
 }
 int32 field::is_able_to_enter_bp() {
-	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1)
+	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1 || is_player_affected_by_effect(infos.turn_player, EFFECT_BP_FIRST_TURN))
 	        && infos.phase < PHASE_BATTLE_START
 	        && !is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP);
 }
