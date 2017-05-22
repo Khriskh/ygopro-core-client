@@ -3,7 +3,7 @@ skip_tags: true
 
 environment:
   access_token:
-    secure: 51c3a80e630ffa8c996e77691e296f6dc96d9fcb
+    secure: e981cb61045de0220b223553a91103f4e1314d8f
 
 install:
   - git submodule update --init --recursive
