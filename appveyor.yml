@@ -1,9 +1,4 @@
 version: '{build}'
-skip_tags: true
-
-environment:
-  access_token: 
-    secure: a96157f2d66bfbb0b1f20e63e0adf69183eba49b
 
 install:
   - git submodule update --init --recursive
@@ -60,33 +55,8 @@ after_build:
   - xcopy /E ygopro-starter-pack-master\* .
   - 7z a ygopro-ver.233.7z ygopro.exe LICENSE README.md lflist.conf strings.conf system.conf cards.cdb script textures deck single pics replay -xr!.git*
 
-  - git config --global credential.helper store
-  - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-  - bash -c "git tag -d latest ; exit 0"
-  - git tag latest HEAD
-  - git push -f origin latest
-
-test: off
-
 artifacts:
   - path: ygopro.exe
     name: ygopro
   - path: ygopro-ver.233.7z
     name: ygopro-ver.233
-
-deploy:
-    release: latest
-    description: 'Automatic Build by Appveyor'
-    provider: GitHub
-    auth_token: $(access_token)
-    force_update: true
-    on:
-        branch: master
-
-cache:
-  - premake-5.0.0-alpha11-windows.zip
-  - libevent-2.0.22-stable.tar.gz
-  - freetype-2.7.1.tar.bz2
-  - irrlicht-1.8.4.zip
-  - lua-5.2.4.tar.gz
-  - sqlite-amalgamation-3170000.zip

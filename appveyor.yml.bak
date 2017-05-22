@@ -2,8 +2,8 @@ version: '{build}'
 skip_tags: true
 
 environment:
-  access_token: a96157f2d66bfbb0b1f20e63e0adf69183eba49b
-    secure: DOOS4g7CT8ctOgiMr62K56qQ1FO6s2ESpqNZlhf8F4nomemvvwxV/pRj9nbKmtjR
+  access_token: 
+    secure: a96157f2d66bfbb0b1f20e63e0adf69183eba49b
 
 install:
   - git submodule update --init --recursive
