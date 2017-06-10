@@ -1114,10 +1114,10 @@ int32 scriptlib::card_is_has_effect(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 code = lua_tointeger(L, 2);
-	if(pcard && pcard->is_affected_by_effect(code))
-		lua_pushboolean(L, 1);
+	if(pcard)
+		interpreter::effect2value(L, pcard->is_affected_by_effect(code));
 	else
-		lua_pushboolean(L, 0);
+		lua_pushnil(L);
 	return 1;
 }
 int32 scriptlib::card_reset_effect(lua_State *L) {
@@ -1435,9 +1435,12 @@ int32 scriptlib::card_is_msetable(lua_State *L) {
 		peffect = *(effect**)lua_touserdata(L, 3);
 	}
 	uint32 minc = 0;
-	if(lua_gettop(L) > 3)
+	if(lua_gettop(L) >= 4)
 		minc = lua_tointeger(L, 4);
-	lua_pushboolean(L, pcard->is_setable_mzone(p, ign, peffect, minc));
+	uint32 zone = 0x1f;
+	if(lua_gettop(L) >= 5)
+		zone = lua_tointeger(L, 5);
+	lua_pushboolean(L, pcard->is_setable_mzone(p, ign, peffect, minc, zone));
 	return 1;
 }
 int32 scriptlib::card_is_ssetable(lua_State *L) {
@@ -1519,9 +1522,12 @@ int32 scriptlib::card_is_can_be_summoned(lua_State *L) {
 		peffect = *(effect**)lua_touserdata(L, 3);
 	}
 	uint32 minc = 0;
-	if(lua_gettop(L) > 3)
+	if(lua_gettop(L) >= 4)
 		minc = lua_tointeger(L, 4);
-	lua_pushboolean(L, pcard->is_can_be_summoned(p, ign, peffect, minc));
+	uint32 zone = 0x1f;
+	if(lua_gettop(L) >= 5)
+		zone = lua_tointeger(L, 5);
+	lua_pushboolean(L, pcard->is_can_be_summoned(p, ign, peffect, minc, zone));
 	return 1;
 }
 int32 scriptlib::card_is_can_be_special_summoned(lua_State *L) {

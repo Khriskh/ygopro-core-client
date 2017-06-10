@@ -45,8 +45,8 @@ field::field(duel* pduel) {
 	infos.phase = 0;
 	infos.turn_player = 0;
 	for (int32 i = 0; i < 2; ++i) {
-		cost[i].count = 0;
-		cost[i].amount = 0;
+		//cost[i].count = 0;
+		//cost[i].amount = 0;
 		core.hint_timing[i] = 0;
 		player[i].lp = 8000;
 		player[i].start_count = 5;
@@ -115,7 +115,7 @@ field::~field() {
 }
 void field::reload_field_info() {
 	pduel->write_buffer8(MSG_RELOAD_FIELD);
-	pduel->write_buffer8(core.duel_rule - 1);
+	pduel->write_buffer8(core.duel_rule);
 	for(int32 playerid = 0; playerid < 2; ++playerid) {
 		pduel->write_buffer32(player[playerid].lp);
 		for(auto cit = player[playerid].list_mzone.begin(); cit != player[playerid].list_mzone.end(); ++cit) {
@@ -1609,9 +1609,9 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 int32 field::get_summon_count_limit(uint8 playerid) {
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_SET_SUMMON_COUNT_LIMIT, &eset);
-	int32 count = 1, c;
+	int32 count = 1;
 	for(int32 i = 0; i < eset.size(); ++i) {
-		c = eset[i]->get_value();
+		int32 c = eset[i]->get_value();
 		if(c > count)
 			count = c;
 	}
@@ -2024,11 +2024,12 @@ int32 field::check_lp_cost(uint8 playerid, uint32 lp) {
 	e.reason_player = playerid;
 	if(effect_replace_check(EFFECT_LPCOST_REPLACE, e))
 		return TRUE;
-	cost[playerid].amount += val;
-	if(cost[playerid].amount <= player[playerid].lp)
+	//cost[playerid].amount += val;
+	if(val <= player[playerid].lp)
 		return TRUE;
 	return FALSE;
 }
+/*
 void field::save_lp_cost() {
 	for(uint8 playerid = 0; playerid < 2; ++playerid) {
 		if(cost[playerid].count < 8)
@@ -2043,6 +2044,7 @@ void field::restore_lp_cost() {
 			cost[playerid].amount = cost[playerid].lpstack[cost[playerid].count];
 	}
 }
+*/
 uint32 field::get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype) {
 	uint8 c = s;
 	uint32 count = 0;
@@ -2621,7 +2623,7 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 	}
 	return FALSE;
 }
-int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer) {
+int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone) {
 	int32 ex = FALSE;
 	if(toplayer == 1 - pcard->current.controler)
 		ex = TRUE;
@@ -2631,14 +2633,15 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 		max = m;
 	if(min > max)
 		return FALSE;
+	zone &= 0x1f;
 	int32 s;
 	if(toplayer == pcard->current.controler) {
-		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE);
+		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE, zone);
 		if(ct <= 0) {
 			if(max <= 0)
 				return FALSE;
 			for(auto it = release_list.begin(); it != release_list.end(); ++it) {
-				if((*it)->current.sequence < 5)
+				if((zone >> (*it)->current.sequence) & 1)
 					ct++;
 			}
 			if(ct <= 0)

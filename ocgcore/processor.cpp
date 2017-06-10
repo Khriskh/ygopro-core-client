@@ -195,7 +195,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_SELECT_TRIBUTE: {
-		if (select_tribute_cards(it->step, it->arg1 & 0xff, (it->arg1 >> 16) & 0xff, (it->arg2) & 0xff, (it->arg2 >> 16) & 0xff))
+		if (select_tribute_cards(it->step, it->arg1 & 0xff, (it->arg1 >> 16) & 0xff, (it->arg2) & 0xff, (it->arg2 >> 16) & 0xff, it->arg3))
 			core.units.pop_front();
 		else
 			it->step++;
@@ -352,7 +352,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_SUMMON_RULE: {
-		if (summon(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff))
+		if (summon(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff))
 			core.units.pop_front();
 		else
 			it->step++;
@@ -380,7 +380,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_MSET: {
-		if (mset(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff))
+		if (mset(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff))
 			core.units.pop_front();
 		else
 			it->step++;
@@ -703,7 +703,7 @@ int32 field::process() {
 	}
 	case PROCESSOR_SELECT_TRIBUTE_S: {
 		if(it->step == 0) {
-			add_process(PROCESSOR_SELECT_TRIBUTE, 0, it->peffect, it->ptarget, it->arg1, it->arg2);
+			add_process(PROCESSOR_SELECT_TRIBUTE, 0, it->peffect, it->ptarget, it->arg1, it->arg2, it->arg3);
 			it->step++;
 		} else {
 			group* pgroup = pduel->new_group();
@@ -1165,10 +1165,10 @@ int32 field::execute_operation(uint16 step, effect * triggering_effect, uint8 tr
 				shuffle(0, LOCATION_DECK);
 			if(core.shuffle_deck_check[1])
 				shuffle(1, LOCATION_DECK);
-			cost[0].count = 0;
-			cost[1].count = 0;
-			cost[0].amount = 0;
-			cost[1].amount = 0;
+			//cost[0].count = 0;
+			//cost[1].count = 0;
+			//cost[0].amount = 0;
+			//cost[1].amount = 0;
 		}
 		core.shuffle_check_disabled = FALSE;
 		return TRUE;
@@ -2717,7 +2717,7 @@ int32 field::process_idle_command(uint16 step) {
 	case 8: {
 		card* target = core.msetable_cards[returns.ivalue[0] >> 16];
 		core.summon_cancelable = TRUE;
-		add_process(PROCESSOR_MSET, 0, 0, (group*)target, target->current.controler, 0);
+		mset(target->current.controler, target, 0, FALSE, 0);
 		core.units.begin()->step = -1;
 		return FALSE;
 	}
