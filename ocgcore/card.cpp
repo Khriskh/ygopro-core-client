@@ -1293,6 +1293,19 @@ uint32 card::get_mutual_linked_zone() {
 	}
 	return zones;
 }
+int32 card::is_link_state() {
+	if(current.location != LOCATION_MZONE)
+		return FALSE;
+	card_set cset;
+	get_linked_cards(&cset);
+	if(cset.size())
+		return TRUE;
+	int32 p = current.controler;
+	uint32 linked_zone = pduel->game_field->get_linked_zone(p);
+	if((linked_zone >> current.sequence) & 1)
+		return TRUE;
+	return FALSE;
+}
 int32 card::is_position(int32 pos) {
 	return current.position & pos;
 }
@@ -1997,7 +2010,7 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 		filter_effect(EFFECT_TO_GRAVE_REDIRECT, &es);
 	else if(destination == LOCATION_REMOVED)
 		filter_effect(EFFECT_REMOVE_REDIRECT, &es);
-	else 
+	else
 		return 0;
 	for(int32 i = 0; i < es.size(); ++i) {
 		redirect = es[i]->get_value(this, 0);
@@ -2235,7 +2248,7 @@ void card::filter_immune_effect() {
 	}
 	immune_effect.sort();
 }
-// for all disable-related peffect of this, 
+// for all disable-related peffect of this,
 // 1. put all cards in the target of peffect into effects.disable_check_set, effects.disable_check_list
 // 2. add equiping_target of peffect into effects.disable_check_set, effects.disable_check_list
 void card::filter_disable_related_cards() {
