@@ -84,8 +84,8 @@ bool Game::Initialize() {
 	SetWindowsIcon();
 	//main menu
 	wchar_t strbuf[256];
-	myswprintf(strbuf, L"YGOPro 233 Test Version:%X.%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
-	wMainMenu = env->addWindow(rect<s32>(370, 200, 950, 600), false, strbuf);
+	myswprintf(strbuf, L"YGOPro Link Version:%X.%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
+	wMainMenu = env->addWindow(rect<s32>(370, 200, 650, 540), false, strbuf);
 	wMainMenu->getCloseButton()->setVisible(false);
 	btnLanMode = env->addButton(rect<s32>(10, 30, 270, 60), wMainMenu, BUTTON_LAN_MODE, dataManager.GetSysString(1200));
 	btnServerMode = env->addButton(rect<s32>(10, 65, 270, 95), wMainMenu, BUTTON_SINGLE_MODE, dataManager.GetSysString(1201));
@@ -94,15 +94,15 @@ bool Game::Initialize() {
 	btnDeckEdit = env->addButton(rect<s32>(10, 135, 270, 165), wMainMenu, BUTTON_DECK_EDIT, dataManager.GetSysString(1204));
 	btnModeExit = env->addButton(rect<s32>(10, 170, 270, 200), wMainMenu, BUTTON_MODE_EXIT, dataManager.GetSysString(1210));
 
-	env->addStaticText(L"此版本为23333服内测版本，", rect<s32>(10, 220, 270, 240), false, false, wMainMenu);
-	env->addStaticText(L"遇到问题请务必反馈，群：275986039。", rect<s32>(10, 240, 270, 260), false, false, wMainMenu);
-	env->addStaticText(L"不要觉得会有别人报告，别人也会这么想。", rect<s32>(10, 260, 270, 280), false, false, wMainMenu);
+	env->addStaticText(L"Thanks to:", rect<s32>(10, 220, 270, 240), false, false, wMainMenu);
+	env->addStaticText(L"Fluorohydride", rect<s32>(10, 240, 270, 260), false, false, wMainMenu);
+	env->addStaticText(L"Mercury233", rect<s32>(10, 260, 270, 280), false, false, wMainMenu);
 
-	env->addStaticText(L"此版本会不定期更新，", rect<s32>(10, 300, 270, 320), false, false, wMainMenu);
-	env->addStaticText(L"建议随时在233服官网下载最新版本！", rect<s32>(10, 320, 270, 340), false, false, wMainMenu);
+	env->addStaticText(L"SUBSCRIBE TO:", rect<s32>(10, 300, 270, 320), false, false, wMainMenu);
+	env->addStaticText(L"www.youtube.com/Christian06", rect<s32>(10, 320, 270, 340), false, false, wMainMenu);
 
-	env->addStaticText(L"网址：", rect<s32>(10, 340, 270, 360), false, false, wMainMenu);
-	env->addStaticText(L"http://mercury233.me/ygosrv233/", rect<s32>(10, 360, 270, 380), false, false, wMainMenu);
+	env->addStaticText(L"", rect<s32>(10, 340, 270, 360), false, false, wMainMenu);
+	env->addStaticText(L"", rect<s32>(10, 360, 270, 380), false, false, wMainMenu);
 
 	env->addStaticText(L"已知问题：\n\n\
 特殊同调和特殊超量没有正确检查是否\n\
