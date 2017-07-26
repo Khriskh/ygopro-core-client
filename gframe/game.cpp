@@ -14,7 +14,7 @@
 #include <dirent.h>
 #endif
 
-const unsigned short PRO_VERSION = 0x233B;
+const unsigned short PRO_VERSION = 0x233C;
 
 namespace ygo {
 
@@ -44,6 +44,7 @@ bool Game::Initialize() {
 	ignore_chain = false;
 	chain_when_avail = false;
 	is_building = false;
+	bgm_scene = -1;
 	memset(&dInfo, 0, sizeof(DuelInfo));
 	memset(chatTiming, 0, sizeof(chatTiming));
 	deckManager.LoadLFList();
@@ -84,7 +85,7 @@ bool Game::Initialize() {
 	SetWindowsIcon();
 	//main menu
 	wchar_t strbuf[256];
-	myswprintf(strbuf, L"YGOPro 233 Test Version:%X.%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
+	myswprintf(strbuf, L"YGOPro Link 233 Test Version:%X.%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
 	wMainMenu = env->addWindow(rect<s32>(370, 200, 650, 585), false, strbuf);
 	wMainMenu->getCloseButton()->setVisible(false);
 	btnLanMode = env->addButton(rect<s32>(10, 30, 270, 60), wMainMenu, BUTTON_LAN_MODE, dataManager.GetSysString(1200));
@@ -102,7 +103,7 @@ bool Game::Initialize() {
 	env->addStaticText(L"facebook.com/groups/ygoprospanish", rect<s32>(10, 320, 270, 340), false, false, wMainMenu);
 
 	env->addStaticText(L"facebook.com/ygoproes", rect<s32>(10, 340, 270, 360), false, false, wMainMenu);
-	env->addStaticText(L"ygoproes.wordpress.com ", rect<s32>(10, 360, 270, 380), false, false, wMainMenu);
+	env->addStaticText(L"ygoproes.wordpress.com", rect<s32>(10, 360, 270, 380), false, false, wMainMenu);
 
 	env->addStaticText(L"", rect<s32>(300, 30, 550, 390), false, true, wMainMenu);
 
@@ -204,8 +205,11 @@ bool Game::Initialize() {
 	env->addStaticText(dataManager.GetSysString(1254), rect<s32>(10, 235, 110, 255), false, false, wHostPrepare);
 	cbDeckSelect = env->addComboBox(rect<s32>(120, 230, 270, 255), wHostPrepare);
 	cbDeckSelect->setMaxSelectionRows(10);
+	btnHostPrepReady = env->addButton(rect<s32>(170, 180, 270, 205), wHostPrepare, BUTTON_HP_READY, dataManager.GetSysString(1218));
+	btnHostPrepNotReady = env->addButton(rect<s32>(170, 180, 270, 205), wHostPrepare, BUTTON_HP_NOTREADY, dataManager.GetSysString(1219));
+	btnHostPrepNotReady->setVisible(false);
 	btnHostPrepStart = env->addButton(rect<s32>(230, 280, 340, 305), wHostPrepare, BUTTON_HP_START, dataManager.GetSysString(1215));
-	btnHostPrepCancel = env->addButton(rect<s32>(350, 280, 460, 305), wHostPrepare, BUTTON_HP_CANCEL, dataManager.GetSysString(1212));
+	btnHostPrepCancel = env->addButton(rect<s32>(350, 280, 460, 305), wHostPrepare, BUTTON_HP_CANCEL, dataManager.GetSysString(1210));
 	//img
 	wCardImg = env->addStaticText(L"", rect<s32>(1, 1, 199, 273), true, false, 0, -1, true);
 	wCardImg->setBackgroundColor(0xc0c0c0c0);
@@ -285,26 +289,29 @@ bool Game::Initialize() {
 	chkIgnoreDeckChanges = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, -1, dataManager.GetSysString(1357));
 	chkIgnoreDeckChanges->setChecked(gameConf.chkIgnoreDeckChanges != 0);
 	posY += 30;
-	chkAutoSearch = env->addCheckBox(false, rect<s32>(posX, posY, posX + 225, posY + 25), tabSystem, CHECKBOX_AUTO_SEARCH, dataManager.GetSysString(1358));
+	chkAutoSearch = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, CHECKBOX_AUTO_SEARCH, dataManager.GetSysString(1358));
 	chkAutoSearch->setChecked(gameConf.auto_search_limit >= 0);
 	posY += 30;
-	chkEnableSound = env->addCheckBox(gameConf.enablesound, rect<s32>(posX, posY, posX + 100, posY + 25), tabSystem, -1, dataManager.GetSysString(1380));
-	chkEnableSound->setChecked(gameConf.enablesound);
-	srcSoundVolume = env->addScrollBar(true, rect<s32>(posX+105, posY, posX + 260, posY + 25), tabSystem, SCROLL_VOLUME);
-	srcSoundVolume->setMax(100);
-	srcSoundVolume->setMin(0);
-	srcSoundVolume->setPos(gameConf.soundvolume * 100);
-	srcSoundVolume->setLargeStep(1);
-	srcSoundVolume->setSmallStep(1);
+	chkEnableSound = env->addCheckBox(gameConf.enable_sound, rect<s32>(posX, posY, posX + 120, posY + 25), tabSystem, -1, dataManager.GetSysString(1380));
+	chkEnableSound->setChecked(gameConf.enable_sound);
+	scrSoundVolume = env->addScrollBar(true, rect<s32>(posX + 126, posY + 4, posX + 260, posY + 21), tabSystem, SCROLL_VOLUME);
+	scrSoundVolume->setMax(100);
+	scrSoundVolume->setMin(0);
+	scrSoundVolume->setPos(gameConf.sound_volume * 100);
+	scrSoundVolume->setLargeStep(1);
+	scrSoundVolume->setSmallStep(1);
 	posY += 30;
-	chkEnableMusic = env->addCheckBox(gameConf.enablemusic, rect<s32>(posX, posY, posX + 100, posY + 25), tabSystem, CHECKBOX_ENABLE_MUSIC, dataManager.GetSysString(1381));
-	chkEnableMusic->setChecked(gameConf.enablemusic);
-	srcMusicVolume = env->addScrollBar(true, rect<s32>(posX+105, posY, posX + 260, posY + 25), tabSystem, SCROLL_VOLUME);
-	srcMusicVolume->setMax(100);
-	srcMusicVolume->setMin(0);
-	srcMusicVolume->setPos(gameConf.musicvolume * 100);
-	srcMusicVolume->setLargeStep(1);
-	srcMusicVolume->setSmallStep(1);
+	chkEnableMusic = env->addCheckBox(gameConf.enable_music, rect<s32>(posX, posY, posX + 120, posY + 25), tabSystem, CHECKBOX_ENABLE_MUSIC, dataManager.GetSysString(1381));
+	chkEnableMusic->setChecked(gameConf.enable_music);
+	scrMusicVolume = env->addScrollBar(true, rect<s32>(posX + 126, posY + 4, posX + 260, posY + 21), tabSystem, SCROLL_VOLUME);
+	scrMusicVolume->setMax(100);
+	scrMusicVolume->setMin(0);
+	scrMusicVolume->setPos(gameConf.music_volume * 100);
+	scrMusicVolume->setLargeStep(1);
+	scrMusicVolume->setSmallStep(1);
+	posY += 30;
+	chkMusicMode = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, -1, dataManager.GetSysString(1382));
+	chkMusicMode->setChecked(gameConf.music_mode != 0);
 	//
 	wHand = env->addWindow(rect<s32>(500, 450, 825, 605), false, L"");
 	wHand->getCloseButton()->setVisible(false);
@@ -619,12 +626,12 @@ bool Game::Initialize() {
 	btnChainIgnore->setVisible(false);
 	btnChainAlways->setVisible(false);
 	btnChainWhenAvail->setVisible(false);
-	//cancel or finish
-	btnCancelOrFinish = env->addButton(rect<s32>(205, 230, 295, 265), 0, BUTTON_CANCEL_OR_FINISH, dataManager.GetSysString(1295));
-	btnCancelOrFinish->setVisible(false);
 	//shuffle
 	btnShuffle = env->addButton(rect<s32>(205, 230, 295, 265), 0, BUTTON_CMD_SHUFFLE, dataManager.GetSysString(1297));
 	btnShuffle->setVisible(false);
+	//cancel or finish
+	btnCancelOrFinish = env->addButton(rect<s32>(205, 230, 295, 265), 0, BUTTON_CANCEL_OR_FINISH, dataManager.GetSysString(1295));
+	btnCancelOrFinish->setVisible(false);
 	//leave/surrender/exit
 	btnLeaveGame = env->addButton(rect<s32>(205, 5, 295, 80), 0, BUTTON_LEAVE_GAME, L"");
 	btnLeaveGame->setVisible(false);
@@ -672,20 +679,19 @@ void Game::MainLoop() {
 		atkframe += 0.1f;
 		atkdy = (float)sin(atkframe);
 		driver->beginScene(true, true, SColor(0, 0, 0, 0));
-		if(imageManager.tBackGround)
-			driver->draw2DImage(imageManager.tBackGround, recti(0, 0, 1024, 640), recti(0, 0, imageManager.tBackGround->getOriginalSize().Width, imageManager.tBackGround->getOriginalSize().Height));
 		gMutex.Lock();
 		if(dInfo.isStarted) {
-			if(mainGame->showcardcode == 1 || mainGame->showcardcode == 3)
-				PlayMusic("./sound/duelwin.mp3", true);
-			else if(mainGame->showcardcode == 2)
-				PlayMusic("./sound/duellose.mp3", true);
-			else if(mainGame->dInfo.lp[0] > 0 && mainGame->dInfo.lp[LocalPlayer(0)] <= mainGame->dInfo.lp[LocalPlayer(1)] / 2)
-				PlayMusic("./sound/song-disadvantage.mp3", true);
-			else if(mainGame->dInfo.lp[0] > 0 && mainGame->dInfo.lp[LocalPlayer(0)] >= mainGame->dInfo.lp[LocalPlayer(1)] * 2)
-				PlayMusic("./sound/song-advantage.mp3", true);
+			if(mainGame->dInfo.isFinished && mainGame->showcardcode == 1)
+				PlayBGM(BGM_WIN);
+			else if(mainGame->dInfo.isFinished && (mainGame->showcardcode == 2 || mainGame->showcardcode == 3))
+				PlayBGM(BGM_LOSE);
+			else if(mainGame->dInfo.lp[0] > 0 && mainGame->dInfo.lp[0] <= mainGame->dInfo.lp[1] / 2)
+				PlayBGM(BGM_DISADVANTAGE);
+			else if(mainGame->dInfo.lp[0] > 0 && mainGame->dInfo.lp[0] >= mainGame->dInfo.lp[1] * 2)
+				PlayBGM(BGM_ADVANTAGE);
 			else
-				PlayBGM();
+				PlayBGM(BGM_DUEL);
+			DrawBackImage(imageManager.tBackGround);
 			DrawBackGround();
 			DrawCards();
 			DrawMisc();
@@ -693,14 +699,12 @@ void Game::MainLoop() {
 			driver->setMaterial(irr::video::IdentityMaterial);
 			driver->clearZBuffer();
 		} else if(is_building) {
-			if(imageManager.tBackGround_deck)
-				driver->draw2DImage(imageManager.tBackGround_deck, recti(0, 0, 1024, 640), recti(0, 0, imageManager.tBackGround->getOriginalSize().Width, imageManager.tBackGround->getOriginalSize().Height));
+			PlayBGM(BGM_DECK);
+			DrawBackImage(imageManager.tBackGround_deck);
 			DrawDeckBd();
-			PlayMusic("./sound/deck.mp3", true);
 		} else {
-			if(imageManager.tBackGround_menu)
-				driver->draw2DImage(imageManager.tBackGround_menu, recti(0, 0, 1024, 640), recti(0, 0, imageManager.tBackGround->getOriginalSize().Width, imageManager.tBackGround->getOriginalSize().Height));
-			PlayMusic("./sound/menu.mp3", true);
+			PlayBGM(BGM_MENU);
+			DrawBackImage(imageManager.tBackGround_menu);
 		}
 		DrawGUI();
 		DrawSpec();
@@ -945,14 +949,28 @@ void Game::RefreshSingleplay() {
 #endif
 }
 void Game::RefreshBGMList() {
+	RefershBGMDir(L"", BGM_DUEL);
+	RefershBGMDir(L"duel/", BGM_DUEL);
+	RefershBGMDir(L"menu/", BGM_MENU);
+	RefershBGMDir(L"deck/", BGM_DECK);
+	RefershBGMDir(L"advantage/", BGM_ADVANTAGE);
+	RefershBGMDir(L"disadvantage/", BGM_DISADVANTAGE);
+	RefershBGMDir(L"win/", BGM_WIN);
+	RefershBGMDir(L"lose/", BGM_LOSE);
+}
+void Game::RefershBGMDir(std::wstring path, int scene) {
 #ifdef _WIN32
 	WIN32_FIND_DATAW fdataw;
-	HANDLE fh = FindFirstFileW(L"./sound/BGM/*.mp3", &fdataw);
+	std::wstring search = L"./sound/BGM/" + path + L"*.mp3";
+	HANDLE fh = FindFirstFileW(search.c_str(), &fdataw);
 	if(fh == INVALID_HANDLE_VALUE)
 		return;
 	do {
-		if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			BGMList.push_back(fdataw.cFileName);
+		if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+			std::wstring filename = path + (std::wstring)fdataw.cFileName;
+			BGMList[BGM_ALL].push_back(filename);
+			BGMList[scene].push_back(filename);
+		}
 	} while(FindNextFileW(fh, &fdataw));
 	FindClose(fh);
 #else
@@ -966,7 +984,7 @@ void Game::RefreshBGMList() {
 			continue;
 		wchar_t wname[256];
 		BufferIO::DecodeUTF8(dirp->d_name, wname);
-		BGMList.push_back(fdataw.cFileName);
+		BGMList[BGM_ALL].push_back(wname);
 	}
 	closedir(dir);
 #endif
@@ -1005,11 +1023,11 @@ void Game::LoadConfig() {
 	gameConf.separate_clear_button = 1;
 	gameConf.auto_search_limit = 0;
 	gameConf.chkIgnoreDeckChanges = 0;
-	gameConf.enablesound = true;
-	gameConf.soundvolume = 1.0;
-	gameConf.enablemusic = true;
-	gameConf.musicvolume = 1.0;
-	gameConf.BGM_index = -1;
+	gameConf.enable_sound = true;
+	gameConf.sound_volume = 0.5;
+	gameConf.enable_music = true;
+	gameConf.music_volume = 0.5;
+	gameConf.music_mode = 1;
 	fseek(fp, 0, SEEK_END);
 	int fsize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
@@ -1071,13 +1089,15 @@ void Game::LoadConfig() {
 		} else if(!strcmp(strbuf, "ignore_deck_changes")) {
 			gameConf.chkIgnoreDeckChanges = atoi(valbuf);
 		} else if(!strcmp(strbuf, "enable_sound")) {
-			gameConf.enablesound = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf, "soundvolume")) {
-			gameConf.soundvolume = atof(valbuf) / 100;
+			gameConf.enable_sound = atoi(valbuf) > 0;
+		} else if(!strcmp(strbuf, "sound_volume")) {
+			gameConf.sound_volume = atof(valbuf) / 100;
 		} else if(!strcmp(strbuf, "enable_music")) {
-			gameConf.enablemusic = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf, "musicvolume")) {
-			gameConf.musicvolume = atof(valbuf) / 100;
+			gameConf.enable_music = atoi(valbuf) > 0;
+		} else if(!strcmp(strbuf, "music_volume")) {
+			gameConf.music_volume = atof(valbuf) / 100;
+		} else if(!strcmp(strbuf, "music_mode")) {
+			gameConf.music_mode = atoi(valbuf);
 		} else {
 			// options allowing multiple words
 			sscanf(linebuf, "%s = %240[^\n]", strbuf, valbuf);
@@ -1138,53 +1158,170 @@ void Game::SaveConfig() {
 	fprintf(fp, "enable_sound = %d\n", ((mainGame->chkEnableSound->isChecked()) ? 1 : 0));
 	fprintf(fp, "enable_music = %d\n", ((mainGame->chkEnableMusic->isChecked()) ? 1 : 0));
 	fprintf(fp, "#Volume of sound and music, between 0 and 100\n");
-	int vol = gameConf.soundvolume * 100;
+	int vol = gameConf.sound_volume * 100;
 	if(vol < 0) vol = 0; else if(vol > 100) vol = 100;
-	fprintf(fp, "soundvolume = %d\n", vol);
-	vol = gameConf.musicvolume * 100;
+	fprintf(fp, "sound_volume = %d\n", vol);
+	vol = gameConf.music_volume * 100;
 	if(vol < 0) vol = 0; else if(vol > 100) vol = 100;
-	fprintf(fp, "musicvolume = %d\n", vol);
-	fprintf(fp, "#playing the music corresponding to the sequence(start from 0) under folder /BGM\n#-1 means playing one of them randomly\n");
-	fprintf(fp, "BGM_index = %d\n", gameConf.BGM_index);
+	fprintf(fp, "music_volume = %d\n", vol);
+	fprintf(fp, "music_mode = %d\n", ((mainGame->chkMusicMode->isChecked()) ? 1 : 0));
 	fclose(fp);
 }
-void Game::PlaySoundEffect(char* sound) {
-	if(mainGame->chkEnableSound->isChecked()) {
-		engineSound->play2D(sound);
-		engineSound->setSoundVolume(gameConf.soundvolume);
+void Game::PlaySoundEffect(int sound) {
+	if(!mainGame->chkEnableSound->isChecked())
+		return;
+	switch(sound) {
+	case SOUND_SUMMON: {
+		engineSound->play2D("./sound/summon.wav");
+		break;
 	}
+	case SOUND_SPECIAL_SUMMON: {
+		engineSound->play2D("./sound/specialsummon.wav");
+		break;
+	}
+	case SOUND_ACTIVATE: {
+		engineSound->play2D("./sound/activate.wav");
+		break;
+	}
+	case SOUND_SET: {
+		engineSound->play2D("./sound/set.wav");
+		break;
+	}
+	case SOUND_FILP: {
+		engineSound->play2D("./sound/flip.wav");
+		break;
+	}
+	case SOUND_REVEAL: {
+		engineSound->play2D("./sound/reveal.wav");
+		break;
+	}
+	case SOUND_EQUIP: {
+		engineSound->play2D("./sound/equip.wav");
+		break;
+	}
+	case SOUND_DESTROYED: {
+		engineSound->play2D("./sound/destroyed.wav");
+		break;
+	}
+	case SOUND_BANISHED: {
+		engineSound->play2D("./sound/banished.wav");
+		break;
+	}
+	case SOUND_TOKEN: {
+		engineSound->play2D("./sound/token.wav");
+		break;
+	}
+	case SOUND_ATTACK: {
+		engineSound->play2D("./sound/attack.wav");
+		break;
+	}
+	case SOUND_DIRECT_ATTACK: {
+		engineSound->play2D("./sound/directattack.wav");
+		break;
+	}
+	case SOUND_DRAW: {
+		engineSound->play2D("./sound/draw.wav");
+		break;
+	}
+	case SOUND_SHUFFLE: {
+		engineSound->play2D("./sound/shuffle.wav");
+		break;
+	}
+	case SOUND_DAMAGE: {
+		engineSound->play2D("./sound/damage.wav");
+		break;
+	}
+	case SOUND_RECOVER: {
+		engineSound->play2D("./sound/gainlp.wav");
+		break;
+	}
+	case SOUND_COUNTER_ADD: {
+		engineSound->play2D("./sound/addcounter.wav");
+		break;
+	}
+	case SOUND_COUNTER_REMOVE: {
+		engineSound->play2D("./sound/removecounter.wav");
+		break;
+	}
+	case SOUND_COIN: {
+		engineSound->play2D("./sound/coinflip.wav");
+		break;
+	}
+	case SOUND_DICE: {
+		engineSound->play2D("./sound/diceroll.wav");
+		break;
+	}
+	case SOUND_NEXT_TURN: {
+		engineSound->play2D("./sound/nextturn.wav");
+		break;
+	}
+	case SOUND_PHASE: {
+		engineSound->play2D("./sound/phase.wav");
+		break;
+	}
+	case SOUND_MENU: {
+		engineSound->play2D("./sound/menu.wav");
+		break;
+	}
+	case SOUND_BUTTON: {
+		engineSound->play2D("./sound/button.wav");
+		break;
+	}
+	case SOUND_INFO: {
+		engineSound->play2D("./sound/info.wav");
+		break;
+	}
+	case SOUND_QUESTION: {
+		engineSound->play2D("./sound/question.wav");
+		break;
+	}
+	case SOUND_CARD_PICK: {
+		engineSound->play2D("./sound/cardpick.wav");
+		break;
+	}
+	case SOUND_CARD_DROP: {
+		engineSound->play2D("./sound/carddrop.wav");
+		break;
+	}
+	case SOUND_PLAYER_ENTER: {
+		engineSound->play2D("./sound/playerenter.wav");
+		break;
+	}
+	case SOUND_CHAT: {
+		engineSound->play2D("./sound/chatmessage.wav");
+		break;
+	}
+	default:
+		break;
+	}
+	engineSound->setSoundVolume(gameConf.sound_volume);
 }
 void Game::PlayMusic(char* song, bool loop) {
-	if(mainGame->chkEnableMusic->isChecked()) {
-		if(!engineMusic->isCurrentlyPlaying(song)) {
-			engineMusic->stopAllSounds();
-			engineMusic->play2D(song, loop);
-			engineMusic->setSoundVolume(gameConf.musicvolume);
-		}
+	if(!mainGame->chkEnableMusic->isChecked())
+		return;
+	if(!engineMusic->isCurrentlyPlaying(song)) {
+		engineMusic->stopAllSounds();
+		soundBGM = engineMusic->play2D(song, loop, false, true);
+		engineMusic->setSoundVolume(gameConf.music_volume);
 	}
 }
-void Game::PlayBGM() {
-	if(mainGame->chkEnableMusic->isChecked()) {
-		static bool is_playing = false;
-		static char strBuffer[1024];
-		if(is_playing && !engineMusic->isCurrentlyPlaying(strBuffer))
-			is_playing = false;
-		if(!is_playing) {
-			int count = BGMList.size();
-			if(count <= 0)
-				return;
-			int bgm = (gameConf.BGM_index >= 0) ? gameConf.BGM_index : rand() % count;
-			auto name = BGMList[bgm].c_str();
-			wchar_t fname[256];
-			myswprintf(fname, L"./sound/BGM/%ls", name);
-			BufferIO::EncodeUTF8(fname, strBuffer);
-		}
-		if(!engineMusic->isCurrentlyPlaying(strBuffer)) {
-			engineMusic->stopAllSounds();
-			engineMusic->play2D(strBuffer, true);
-			engineMusic->setSoundVolume(gameConf.musicvolume);
-			is_playing = true;
-		}
+void Game::PlayBGM(int scene) {
+	if(!mainGame->chkEnableMusic->isChecked())
+		return;
+	if(!mainGame->chkMusicMode->isChecked())
+		scene = BGM_ALL;
+	char BGMName[1024];
+	if(scene != bgm_scene || (soundBGM && soundBGM->isFinished())) {
+		int count = BGMList[scene].size();
+		if(count <= 0)
+			return;
+		bgm_scene = scene;
+		int bgm = rand() % count;
+		auto name = BGMList[scene][bgm].c_str();
+		wchar_t fname[1024];
+		myswprintf(fname, L"./sound/BGM/%ls", name);
+		BufferIO::EncodeUTF8(fname, BGMName);
+		PlayMusic(BGMName, false);
 	}
 }
 void Game::ShowCardInfo(int code) {
@@ -1278,17 +1415,17 @@ void Game::AddChatMsg(wchar_t* msg, int player) {
 		chatMsg[0].append(L": ");
 		break;
 	case 1: //from client
-		mainGame->PlaySoundEffect("./sound/chatmessage.wav");
+		mainGame->PlaySoundEffect(SOUND_CHAT);
 		chatMsg[0].append(dInfo.clientname);
 		chatMsg[0].append(L": ");
 		break;
 	case 2: //host tag
-		mainGame->PlaySoundEffect("./sound/chatmessage.wav");
+		mainGame->PlaySoundEffect(SOUND_CHAT);
 		chatMsg[0].append(dInfo.hostname_tag);
 		chatMsg[0].append(L": ");
 		break;
 	case 3: //client tag
-		mainGame->PlaySoundEffect("./sound/chatmessage.wav");
+		mainGame->PlaySoundEffect(SOUND_CHAT);
 		chatMsg[0].append(dInfo.clientname_tag);
 		chatMsg[0].append(L": ");
 		break;
@@ -1297,7 +1434,7 @@ void Game::AddChatMsg(wchar_t* msg, int player) {
 		chatMsg[0].append(L": ");
 		break;
 	case 8: //system custom message, no prefix.
-		mainGame->PlaySoundEffect("./sound/chatmessage.wav");
+		mainGame->PlaySoundEffect(SOUND_CHAT);
 		chatMsg[0].append(L"[System]: ");
 		break;
 	case 9: //error message

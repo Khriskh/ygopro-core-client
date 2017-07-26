@@ -72,11 +72,17 @@ void DeckBuilder::Initialize() {
 	filterList = deckManager._lfList[0].content;
 	mainGame->cbDBLFList->setSelected(0);
 	ClearSearch();
+	mouse_pos.set(0, 0);
+	hovered_code = 0;
+	hovered_pos = 0;
+	hovered_seq = -1;
+	is_lastcard = 0;
 	is_draging = false;
+	is_starting_dragging = false;
 	prev_deck = mainGame->cbDBDecks->getSelected();
 	prev_operation = 0;
 	is_modified = false;
-	mainGame->device->setEventReceiver(&mainGame->deckBuilder);
+	mainGame->device->setEventReceiver(this);
 }
 void DeckBuilder::Terminate() {
 	mainGame->is_building = false;
@@ -112,11 +118,13 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			break;
 		switch(event.GUIEvent.EventType) {
 		case irr::gui::EGET_BUTTON_CLICKED: {
+			mainGame->PlaySoundEffect(SOUND_BUTTON);
 			switch(id) {
 			case BUTTON_CLEAR_DECK: {
 				mainGame->gMutex.Lock();
 				mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(1339));
 				mainGame->PopupElement(mainGame->wQuery);
+				mainGame->PlaySoundEffect(SOUND_QUESTION);
 				mainGame->gMutex.Unlock();
 				prev_operation = id;
 				break;
@@ -173,6 +181,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				myswprintf(textBuffer, L"%ls\n%ls", mainGame->cbDBDecks->getItem(sel), dataManager.GetSysString(1337));
 				mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)textBuffer);
 				mainGame->PopupElement(mainGame->wQuery);
+				mainGame->PlaySoundEffect(SOUND_QUESTION);
 				mainGame->gMutex.Unlock();
 				prev_operation = id;
 				break;
@@ -182,6 +191,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->gMutex.Lock();
 					mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(1356));
 					mainGame->PopupElement(mainGame->wQuery);
+					mainGame->PlaySoundEffect(SOUND_QUESTION);
 					mainGame->gMutex.Unlock();
 					prev_operation = id;
 					break;
@@ -339,6 +349,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->gMutex.Lock();
 					mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(1356));
 					mainGame->PopupElement(mainGame->wQuery);
+					mainGame->PlaySoundEffect(SOUND_QUESTION);
 					mainGame->gMutex.Unlock();
 					prev_operation = id;
 					break;
@@ -483,25 +494,21 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				if(!check_limit(draging_pointer))
 					break;
 			}
-			if(hovered_pos == 1)
-				pop_main(hovered_seq);
-			else if(hovered_pos == 2)
-				pop_extra(hovered_seq);
-			else if(hovered_pos == 3)
-				pop_side(hovered_seq);
-			is_draging = true;
+			is_starting_dragging = true;
 			break;
 		}
 		case irr::EMIE_LMOUSE_LEFT_UP: {
+			is_starting_dragging = false;
 			if(!is_draging)
 				break;
+			mainGame->PlaySoundEffect(SOUND_CARD_DROP);
 			bool pushed = false;
 			if(hovered_pos == 1)
 				pushed = push_main(draging_pointer, hovered_seq);
 			else if(hovered_pos == 2)
-				pushed = push_extra(draging_pointer, hovered_seq);
+				pushed = push_extra(draging_pointer, hovered_seq + is_lastcard);
 			else if(hovered_pos == 3)
-				pushed = push_side(draging_pointer, hovered_seq);
+				pushed = push_side(draging_pointer, hovered_seq + is_lastcard);
 			else if(hovered_pos == 4 && !mainGame->is_siding)
 				pushed = true;
 			if(!pushed) {
@@ -524,6 +531,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				auto pointer = dataManager.GetCodePointer(hovered_code);
 				if(pointer == dataManager._datas.end())
 					break;
+				mainGame->PlaySoundEffect(SOUND_CARD_DROP);
 				if(hovered_pos == 1) {
 					if(push_side(pointer))
 						pop_main(hovered_seq);
@@ -541,6 +549,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			if(!is_draging) {
 				if(hovered_pos == 0 || hovered_seq == -1)
 					break;
+				mainGame->PlaySoundEffect(SOUND_CARD_DROP);
 				if(hovered_pos == 1) {
 					pop_main(hovered_seq);
 				} else if(hovered_pos == 2) {
@@ -557,6 +566,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 						push_side(pointer);
 				}
 			} else {
+				mainGame->PlaySoundEffect(SOUND_CARD_PICK);
 				if(click_pos == 1) {
 					push_side(draging_pointer);
 				} else if(click_pos == 2) {
@@ -583,6 +593,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			auto pointer = dataManager.GetCodePointer(hovered_code);
 			if(!check_limit(pointer))
 				break;
+			mainGame->PlaySoundEffect(SOUND_CARD_PICK);
 			if (hovered_pos == 1) {
 				if(!push_main(pointer))
 					push_side(pointer);
@@ -599,6 +610,17 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			break;
 		}
 		case irr::EMIE_MOUSE_MOVED: {
+			if(is_starting_dragging) {
+				is_draging = true;
+				mainGame->PlaySoundEffect(SOUND_CARD_PICK);
+				if(hovered_pos == 1)
+					pop_main(hovered_seq);
+				else if(hovered_pos == 2)
+					pop_extra(hovered_seq);
+				else if(hovered_pos == 3)
+					pop_side(hovered_seq);
+				is_starting_dragging = false;
+			}
 			mouse_pos.set(event.MouseInput.X, event.MouseInput.Y);
 			GetHoveredCard();
 			break;
@@ -636,6 +658,7 @@ void DeckBuilder::GetHoveredCard() {
 	int pre_code = hovered_code;
 	hovered_pos = 0;
 	hovered_code = 0;
+	is_lastcard = 0;
 	if(x >= 314 && x <= 794) {
 		if(y >= 164 && y <= 435) {
 			int lx = 10, px, py = (y - 164) / 68;
@@ -667,6 +690,8 @@ void DeckBuilder::GetHoveredCard() {
 				hovered_code = 0;
 			} else {
 				hovered_code = deckManager.current_deck.extra[hovered_seq]->first;
+				if(x >= 772)
+					is_lastcard = 1;
 			}
 		} else if (y >= 564 && y <= 628) {
 			int lx = deckManager.current_deck.side.size();
@@ -682,6 +707,8 @@ void DeckBuilder::GetHoveredCard() {
 				hovered_code = 0;
 			} else {
 				hovered_code = deckManager.current_deck.side[hovered_seq]->first;
+				if(x >= 772)
+					is_lastcard = 1;
 			}
 		}
 	} else if(x >= 810 && x <= 995 && y >= 165 && y <= 626) {
@@ -775,7 +802,8 @@ void DeckBuilder::FilterCards() {
 			if(filter_scltype) {
 				if((filter_scltype == 1 && data.lscale != filter_scl) || (filter_scltype == 2 && data.lscale < filter_scl)
 				        || (filter_scltype == 3 && data.lscale <= filter_scl) || (filter_scltype == 4 && (data.lscale > filter_scl || data.lscale == 0))
-				        || (filter_scltype == 5 && (data.lscale >= filter_scl || data.lscale == 0)) || filter_scltype == 6)
+				        || (filter_scltype == 5 && (data.lscale >= filter_scl || data.lscale == 0)) || filter_scltype == 6
+				        || !(data.type & TYPE_PENDULUM))
 					continue;
 			}
 			break;
@@ -914,6 +942,9 @@ bool DeckBuilder::CardNameContains(const wchar_t *haystack, const wchar_t *needl
 {
 	if (!needle[0]) {
 		return true;
+	}
+	if (!haystack) {
+		return false;
 	}
 	int i = 0;
 	int j = 0;
