@@ -14,7 +14,7 @@
 #include <dirent.h>
 #endif
 
-const unsigned short PRO_VERSION = 0x233C;
+const unsigned short PRO_VERSION = 0x233D;
 
 namespace ygo {
 
@@ -67,7 +67,7 @@ bool Game::Initialize() {
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	textFont = guiFont;
 	smgr = device->getSceneManager();
-	device->setWindowCaption(L"YGOPro");
+	device->setWindowCaption(L"YGOPro Español");
 	device->setResizable(false);
 #ifdef _WIN32
 	irr::video::SExposedVideoData exposedData = driver->getExposedVideoData();
@@ -85,7 +85,7 @@ bool Game::Initialize() {
 	SetWindowsIcon();
 	//main menu
 	wchar_t strbuf[256];
-	myswprintf(strbuf, L"YGOPro Link 233 Test Version:%X.%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
+	myswprintf(strbuf, L"YGOPro Link Version:%X.%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
 	wMainMenu = env->addWindow(rect<s32>(370, 200, 650, 585), false, strbuf);
 	wMainMenu->getCloseButton()->setVisible(false);
 	btnLanMode = env->addButton(rect<s32>(10, 30, 270, 60), wMainMenu, BUTTON_LAN_MODE, dataManager.GetSysString(1200));
@@ -99,11 +99,11 @@ bool Game::Initialize() {
 	env->addStaticText(L"SUBSCRIBE TO:", rect<s32>(10, 240, 270, 260), false, false, wMainMenu);
 	env->addStaticText(L"www.youtube.com/Christian06", rect<s32>(10, 260, 270, 280), false, false, wMainMenu);
 
-	env->addStaticText(L"@khriskh", rect<s32>(10, 300, 270, 320), false, false, wMainMenu);
-	env->addStaticText(L"facebook.com/groups/ygoprospanish", rect<s32>(10, 320, 270, 340), false, false, wMainMenu);
+	env->addStaticText(L"facebook.com/groups/ygoprospanish", rect<s32>(10, 300, 270, 320), false, false, wMainMenu);
+	env->addStaticText(L"facebook.com/ygoproes", rect<s32>(10, 320, 270, 340), false, false, wMainMenu);
 
-	env->addStaticText(L"facebook.com/ygoproes", rect<s32>(10, 340, 270, 360), false, false, wMainMenu);
-	env->addStaticText(L"ygoproes.wordpress.com", rect<s32>(10, 360, 270, 380), false, false, wMainMenu);
+	env->addStaticText(L"ygoproes.com", rect<s32>(10, 340, 270, 360), false, false, wMainMenu);
+	env->addStaticText(L"", rect<s32>(10, 360, 270, 380), false, false, wMainMenu);
 
 	env->addStaticText(L"", rect<s32>(300, 30, 550, 390), false, true, wMainMenu);
 
@@ -211,10 +211,11 @@ bool Game::Initialize() {
 	btnHostPrepStart = env->addButton(rect<s32>(230, 280, 340, 305), wHostPrepare, BUTTON_HP_START, dataManager.GetSysString(1215));
 	btnHostPrepCancel = env->addButton(rect<s32>(350, 280, 460, 305), wHostPrepare, BUTTON_HP_CANCEL, dataManager.GetSysString(1210));
 	//img
-	wCardImg = env->addStaticText(L"", rect<s32>(1, 1, 199, 273), true, false, 0, -1, true);
+	wCardImg = env->addStaticText(L"", rect<s32>(1, 1, 1 + CARD_IMG_WIDTH + 20, 1 + CARD_IMG_HEIGHT + 18), true, false, 0, -1, true);
 	wCardImg->setBackgroundColor(0xc0c0c0c0);
 	wCardImg->setVisible(false);
-	imgCard = env->addImage(rect<s32>(10, 9, 187, 263), wCardImg);
+	imgCard = env->addImage(rect<s32>(10, 9, 10 + CARD_IMG_WIDTH, 9 + CARD_IMG_HEIGHT), wCardImg);
+	imgCard->setImage(imageManager.tCover[0]);
 	imgCard->setUseAlphaChannel(true);
 	//phase
 	wPhase = env->addStaticText(L"", rect<s32>(480, 310, 855, 330));
@@ -368,14 +369,14 @@ bool Game::Initialize() {
 	btnPSAU->setImageScale(core::vector2df(0.5, 0.5));
 	btnPSAD = irr::gui::CGUIImageButton::addImageButton(env, rect<s32>(155, 45, 295, 185), wPosSelect, BUTTON_POS_AD);
 	btnPSAD->setImageScale(core::vector2df(0.5, 0.5));
-	btnPSAD->setImage(imageManager.tCover[0], rect<s32>(0, 0, 177, 254));
+	btnPSAD->setImage(imageManager.tCover[0], rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT));
 	btnPSDU = irr::gui::CGUIImageButton::addImageButton(env, rect<s32>(300, 45, 440, 185), wPosSelect, BUTTON_POS_DU);
 	btnPSDU->setImageScale(core::vector2df(0.5, 0.5));
 	btnPSDU->setImageRotation(270);
 	btnPSDD = irr::gui::CGUIImageButton::addImageButton(env, rect<s32>(445, 45, 585, 185), wPosSelect, BUTTON_POS_DD);
 	btnPSDD->setImageScale(core::vector2df(0.5, 0.5));
 	btnPSDD->setImageRotation(270);
-	btnPSDD->setImage(imageManager.tCover[0], rect<s32>(0, 0, 177, 254));
+	btnPSDD->setImage(imageManager.tCover[0], rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT));
 	//card select
 	wCardSelect = env->addWindow(rect<s32>(320, 100, 1000, 400), false, L"");
 	wCardSelect->getCloseButton()->setVisible(false);
@@ -997,6 +998,8 @@ void Game::LoadConfig() {
 	char strbuf[32];
 	char valbuf[256];
 	wchar_t wstr[256];
+	gameConf.use_d3d = 0;
+	gameConf.use_image_scale = 1;
 	gameConf.antialias = 0;
 	gameConf.serverport = 7911;
 	gameConf.textfontsize = 12;
@@ -1028,16 +1031,14 @@ void Game::LoadConfig() {
 	gameConf.enable_music = true;
 	gameConf.music_volume = 0.5;
 	gameConf.music_mode = 1;
-	fseek(fp, 0, SEEK_END);
-	int fsize = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	while(ftell(fp) < fsize) {
-		fgets(linebuf, 256, fp);
+	while(fgets(linebuf, 256, fp)) {
 		sscanf(linebuf, "%s = %s", strbuf, valbuf);
 		if(!strcmp(strbuf, "antialias")) {
 			gameConf.antialias = atoi(valbuf);
 		} else if(!strcmp(strbuf, "use_d3d")) {
 			gameConf.use_d3d = atoi(valbuf) > 0;
+		} else if(!strcmp(strbuf, "use_image_scale")) {
+			gameConf.use_image_scale = atoi(valbuf) > 0;
 		} else if(!strcmp(strbuf, "errorlog")) {
 			enable_log = atoi(valbuf);
 		} else if(!strcmp(strbuf, "textfont")) {
@@ -1120,6 +1121,7 @@ void Game::SaveConfig() {
 	fprintf(fp, "#config file\n#nickname & gamename should be less than 20 characters\n");
 	char linebuf[256];
 	fprintf(fp, "use_d3d = %d\n", gameConf.use_d3d ? 1 : 0);
+	fprintf(fp, "use_image_scale = %d\n", gameConf.use_image_scale ? 1 : 0);
 	fprintf(fp, "antialias = %d\n", gameConf.antialias);
 	fprintf(fp, "errorlog = %d\n", enable_log);
 	BufferIO::CopyWStr(ebNickName->getText(), gameConf.nickname, 20);
@@ -1467,7 +1469,7 @@ void Game::AddDebugMsg(char* msg)
 }
 void Game::ClearTextures() {
 	matManager.mCard.setTexture(0, 0);
-	mainGame->imgCard->setImage(0);
+	mainGame->imgCard->setImage(imageManager.tCover[0]);
 	mainGame->btnPSAU->setImage();
 	mainGame->btnPSDU->setImage();
 	for(int i=0; i<=4; ++i) {

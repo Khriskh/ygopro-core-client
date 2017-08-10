@@ -295,6 +295,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->deckBuilder.result_string[0] = L'0';
 		mainGame->deckBuilder.result_string[1] = 0;
 		mainGame->deckBuilder.results.clear();
+		mainGame->deckBuilder.hovered_code = 0;
 		mainGame->deckBuilder.is_draging = false;
 		mainGame->deckBuilder.is_starting_dragging = false;
 		mainGame->deckBuilder.pre_mainc = deckManager.current_deck.main.size();
@@ -491,7 +492,6 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->btnEP->setVisible(false);
 		mainGame->btnShuffle->setVisible(false);
 		mainGame->wChat->setVisible(true);
-		mainGame->imgCard->setImage(imageManager.tCover[0]);
 		mainGame->device->setEventReceiver(&mainGame->dField);
 		if(!mainGame->dInfo.isTag) {
 			if(selftype > 1) {
@@ -558,6 +558,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->btnCreateHost->setEnabled(true);
 		mainGame->btnJoinHost->setEnabled(true);
 		mainGame->btnJoinCancel->setEnabled(true);
+		mainGame->stTip->setVisible(false);
 		mainGame->device->setEventReceiver(&mainGame->menuHandler);
 		mainGame->ShowElement(mainGame->wLanWindow);
 		mainGame->gMutex.Unlock();
@@ -786,6 +787,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		mainGame->btnCreateHost->setEnabled(true);
 		mainGame->btnJoinHost->setEnabled(true);
 		mainGame->btnJoinCancel->setEnabled(true);
+		mainGame->stTip->setVisible(false);
 		mainGame->device->setEventReceiver(&mainGame->menuHandler);
 		mainGame->ShowElement(mainGame->wLanWindow);
 		mainGame->gMutex.Unlock();
@@ -1810,9 +1812,10 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	}
 	case MSG_SHUFFLE_HAND: {
 		int player = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
-		/*int count = */BufferIO::ReadInt8(pbuf);
+		int count = BufferIO::ReadInt8(pbuf);
 		if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping) {
-			mainGame->PlaySoundEffect(SOUND_SHUFFLE);
+			if(count > 1)
+				mainGame->PlaySoundEffect(SOUND_SHUFFLE);
 			mainGame->WaitFrameSignal(5);
 			if(player == 1 && !mainGame->dInfo.isReplay && !mainGame->dInfo.isSingleMode) {
 				bool flip = false;
@@ -2060,7 +2063,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		int cp = BufferIO::ReadInt8(pbuf);
 		int reason = BufferIO::ReadInt32(pbuf);
 		if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping) {
-			if(cl & LOCATION_REMOVED)
+			if(cl & LOCATION_REMOVED && pl != cl)
 				mainGame->PlaySoundEffect(SOUND_BANISHED);
 			else if(reason & REASON_DESTROY && pl != cl)
 				mainGame->PlaySoundEffect(SOUND_DESTROYED);
@@ -2519,13 +2522,13 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		return true;
 	}
 	case MSG_RANDOM_SELECTED: {
-		//mainGame->PlaySoundEffect(SOUND_TARGET);
 		/*int player = */BufferIO::ReadInt8(pbuf);
 		int count = BufferIO::ReadInt8(pbuf);
 		if(mainGame->dInfo.isReplay && mainGame->dInfo.isReplaySkiping) {
 			pbuf += count * 4;
 			return true;
 		}
+		mainGame->PlaySoundEffect(SOUND_DICE);
 		ClientCard* pcards[10];
 		for (int i = 0; i < count; ++i) {
 			int c = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
