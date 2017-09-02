@@ -224,7 +224,7 @@ void TagDuel::PlayerReady(DuelPlayer* dp, bool is_ready) {
 	if(is_ready) {
 		bool allow_ocg = host_info.rule == 0 || host_info.rule == 2;
 		bool allow_tcg = host_info.rule == 1 || host_info.rule == 2;
-		int res = host_info.no_check_deck ? false : deckManager.CheckLFList(pdeck[dp->type], host_info.lflist, allow_ocg, allow_tcg);
+		int res = host_info.no_check_deck ? false : deckManager.CheckLFList(pdeck[dp->type], host_info.lflist, allow_ocg, allow_tcg, host_info.doubled);
 		if(res) {
 			STOC_HS_PlayerChange scpc;
 			scpc.status = (dp->type << 4) | PLAYERCHANGE_NOTREADY;
@@ -256,7 +256,7 @@ void TagDuel::UpdateDeck(DuelPlayer* dp, void* pdata) {
 	char* deckbuf = (char*)pdata;
 	int mainc = BufferIO::ReadInt32(deckbuf);
 	int sidec = BufferIO::ReadInt32(deckbuf);
-	deckManager.LoadDeck(pdeck[dp->type], (int*)deckbuf, mainc, sidec);
+	deckManager.LoadDeck(pdeck[dp->type], (int*)deckbuf, mainc, sidec, 0, 0, host_info.doubled);
 }
 void TagDuel::StartDuel(DuelPlayer* dp) {
 	if(dp != host_player)
@@ -385,6 +385,8 @@ void TagDuel::TPResult(DuelPlayer* dp, unsigned char tp) {
 	int opt = (int)host_info.duel_rule << 16;
 	if(host_info.no_shuffle_deck)
 		opt |= DUEL_PSEUDO_SHUFFLE;
+	if(host_info.speed)
+		opt |= SPEED_DUEL;
 	opt |= DUEL_TAG_MODE;
 	last_replay.WriteInt32(host_info.start_lp, false);
 	last_replay.WriteInt32(host_info.start_hand, false);
@@ -392,10 +394,58 @@ void TagDuel::TPResult(DuelPlayer* dp, unsigned char tp) {
 	last_replay.WriteInt32(opt, false);
 	last_replay.Flush();
 	//
-	last_replay.WriteInt32(pdeck[0].main.size(), false);
+	last_replay.WriteInt32(pdeck[0].main.size() + host_info.rule_count, false);
 	for(int32 i = (int32)pdeck[0].main.size() - 1; i >= 0; --i) {
 		new_card(pduel, pdeck[0].main[i]->first, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
 		last_replay.WriteInt32(pdeck[0].main[i]->first, false);
+	}
+	if(host_info.sealed) {
+		new_card(pduel, 511005092, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(511005092, false);
+	}
+	if(host_info.booster) {
+		new_card(pduel, 511005093, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(511005093, false);
+	}
+	if(host_info.concentration) {
+		new_card(pduel, 511004322, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(511004322, false);
+	}
+	if(host_info.boss) {
+		new_card(pduel, 95000000, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(95000000, false);
+	}
+	if(host_info.city) {
+		new_card(pduel, 511004014, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(511004014, false);
+	}
+	if(host_info.kingdom) {
+		new_card(pduel, 511002621, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(511002621, false);
+	}
+	if(host_info.dimension) {
+		new_card(pduel, 511600002, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(511600002, false);
+	}
+	if(host_info.turbo1) {
+		new_card(pduel, 511002094, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(511002094, false);
+	}
+	if(host_info.turbo2) {
+		new_card(pduel, 110000000, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(110000000, false);
+	}
+	if(host_info.command) {
+		new_card(pduel, 95200000, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(95200000, false);
+	}
+	if(host_info.master) {
+		new_card(pduel, 300, 0, 0, 0, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(300, false);
+	}
+	if(host_info.destiny_draw) {
+		new_card(pduel, 511004000, 0, 0, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(511004000, false);
 	}
 	last_replay.WriteInt32(pdeck[0].extra.size(), false);
 	for(int32 i = (int32)pdeck[0].extra.size() - 1; i >= 0; --i) {
@@ -414,10 +464,17 @@ void TagDuel::TPResult(DuelPlayer* dp, unsigned char tp) {
 		last_replay.WriteInt32(pdeck[1].extra[i]->first, false);
 	}
 	//
-	last_replay.WriteInt32(pdeck[3].main.size(), false);
+	if(host_info.master)
+		last_replay.WriteInt32(pdeck[3].main.size() + 1, false);
+	else
+		last_replay.WriteInt32(pdeck[3].main.size(), false);
 	for(int32 i = (int32)pdeck[3].main.size() - 1; i >= 0; --i) {
 		new_card(pduel, pdeck[3].main[i]->first, 1, 1, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
 		last_replay.WriteInt32(pdeck[3].main[i]->first, false);
+	}
+	if(host_info.master) {
+		new_card(pduel, 51100567, 1, 1, LOCATION_DECK, 0, POS_FACEDOWN_DEFENSE);
+		last_replay.WriteInt32(51100567, false);
 	}
 	last_replay.WriteInt32(pdeck[3].extra.size(), false);
 	for(int32 i = (int32)pdeck[3].extra.size() - 1; i >= 0; --i) {
@@ -436,6 +493,7 @@ void TagDuel::TPResult(DuelPlayer* dp, unsigned char tp) {
 		last_replay.WriteInt32(pdeck[2].extra[i]->first, false);
 	}
 	last_replay.Flush();
+	mainGame->dInfo.startlp = host_info.start_lp;
 	char startbuf[32], *pbuf = startbuf;
 	BufferIO::WriteInt8(pbuf, MSG_START);
 	BufferIO::WriteInt8(pbuf, 0);
@@ -621,6 +679,34 @@ int TagDuel::Analyze(char* msgbuffer, unsigned int len) {
 			}
 			WaitforResponse(player);
 			NetServer::SendBufferToPlayer(cur_player[player], STOC_GAME_MSG, offset, pbuf - offset);
+			return 1;
+		}
+		case MSG_SELECT_UNSELECT_CARD: {
+			player = BufferIO::ReadInt8(pbuf);
+			pbuf += 4;
+			count = BufferIO::ReadInt8(pbuf);
+			int c/*, l, s, ss, code*/;
+			for (int i = 0; i < count; ++i) {
+				pbufw = pbuf;
+				/*code = */BufferIO::ReadInt32(pbuf);
+				c = BufferIO::ReadInt8(pbuf);
+				/*l = */BufferIO::ReadInt8(pbuf);
+				/*s = */BufferIO::ReadInt8(pbuf);
+				/*ss = */BufferIO::ReadInt8(pbuf);
+				if (c != player) BufferIO::WriteInt32(pbufw, 0);
+			}
+			count = BufferIO::ReadInt8(pbuf);
+			for (int i = 0; i < count; ++i) {
+				pbufw = pbuf;
+				/*code = */BufferIO::ReadInt32(pbuf);
+				c = BufferIO::ReadInt8(pbuf);
+				/*l = */BufferIO::ReadInt8(pbuf);
+				/*s = */BufferIO::ReadInt8(pbuf);
+				/*ss = */BufferIO::ReadInt8(pbuf);
+				if (c != player) BufferIO::WriteInt32(pbufw, 0);
+			}
+			WaitforResponse(player);
+			NetServer::SendBufferToPlayer(players[player], STOC_GAME_MSG, offset, pbuf - offset);
 			return 1;
 		}
 		case MSG_SELECT_CHAIN: {

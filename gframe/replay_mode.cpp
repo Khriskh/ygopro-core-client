@@ -61,16 +61,16 @@ int ReplayMode::ReplayThread(void* param) {
 	int seed = rh.seed;
 	rnd.reset(seed);
 	if(rh.flag & REPLAY_TAG) {
-		cur_replay.ReadData(mainGame->dInfo.hostname, 40);
-		cur_replay.ReadData(mainGame->dInfo.hostname_tag, 40);
-		cur_replay.ReadData(mainGame->dInfo.clientname_tag, 40);
-		cur_replay.ReadData(mainGame->dInfo.clientname, 40);
+		cur_replay.ReadName(mainGame->dInfo.hostname);
+		cur_replay.ReadName(mainGame->dInfo.hostname_tag);
+		cur_replay.ReadName(mainGame->dInfo.clientname_tag);
+		cur_replay.ReadName(mainGame->dInfo.clientname);
 		mainGame->dInfo.isTag = true;
 		mainGame->dInfo.tag_player[0] = false;
 		mainGame->dInfo.tag_player[1] = false;
 	} else {
-		cur_replay.ReadData(mainGame->dInfo.hostname, 40);
-		cur_replay.ReadData(mainGame->dInfo.clientname, 40);
+		cur_replay.ReadName(mainGame->dInfo.hostname);
+		cur_replay.ReadName(mainGame->dInfo.clientname);
 	}
 	set_script_reader(default_script_reader);
 	set_card_reader((card_reader)DataManager::CardReader);
@@ -82,13 +82,52 @@ int ReplayMode::ReplayThread(void* param) {
 	int opt = cur_replay.ReadInt32();
 	int duel_rule = opt >> 16;
 	mainGame->dInfo.duel_rule = duel_rule;
+	mainGame->dInfo.speed = (opt & SPEED_DUEL) ? 1 : 0;
 	set_player_info(pduel, 0, start_lp, start_hand, draw_count);
 	set_player_info(pduel, 1, start_lp, start_hand, draw_count);
 	mainGame->dInfo.lp[0] = start_lp;
 	mainGame->dInfo.lp[1] = start_lp;
+	mainGame->dInfo.startlp = start_lp;
 	myswprintf(mainGame->dInfo.strLP[0], L"%d", mainGame->dInfo.lp[0]);
 	myswprintf(mainGame->dInfo.strLP[1], L"%d", mainGame->dInfo.lp[1]);
 	mainGame->dInfo.turn = 0;
+	// reset master rule 4 phase button position
+	mainGame->wPhase->setRelativePosition(mainGame->Resize(480, 310, 855, 330));
+	if(mainGame->dInfo.speed) {
+		if(mainGame->dInfo.duel_rule >= 4) {
+			mainGame->wPhase->setRelativePosition(mainGame->Resize(480, 290, 855, 350));
+			mainGame->btnShuffle->setRelativePosition(mainGame->Resize(0, 40, 50, 60));
+			mainGame->btnDP->setRelativePosition(mainGame->Resize(0, 40, 50, 60));
+			mainGame->btnSP->setRelativePosition(mainGame->Resize(0, 40, 50, 60));
+			mainGame->btnM1->setRelativePosition(mainGame->Resize(160, 20, 210, 40));
+			mainGame->btnBP->setRelativePosition(mainGame->Resize(160, 20, 210, 40));
+			mainGame->btnM2->setRelativePosition(mainGame->Resize(160, 20, 210, 40));
+			mainGame->btnEP->setRelativePosition(mainGame->Resize(310, 0, 360, 20));
+		} else {
+			mainGame->btnShuffle->setRelativePosition(mainGame->Resize(65, 0, 115, 20));
+			mainGame->btnDP->setRelativePosition(mainGame->Resize(65, 0, 115, 20));
+			mainGame->btnSP->setRelativePosition(mainGame->Resize(65, 0, 115, 20));
+			mainGame->btnM1->setRelativePosition(mainGame->Resize(130, 0, 180, 20));
+			mainGame->btnBP->setRelativePosition(mainGame->Resize(195, 0, 245, 20));
+			mainGame->btnM2->setRelativePosition(mainGame->Resize(260, 0, 310, 20));
+			mainGame->btnEP->setRelativePosition(mainGame->Resize(260, 0, 310, 20));
+		}
+	} else {
+		mainGame->btnDP->setRelativePosition(mainGame->Resize(0, 0, 50, 20));
+		if(mainGame->dInfo.duel_rule >= 4) {
+			mainGame->btnSP->setRelativePosition(mainGame->Resize(0, 0, 50, 20));
+			mainGame->btnM1->setRelativePosition(mainGame->Resize(160, 0, 210, 20));
+			mainGame->btnBP->setRelativePosition(mainGame->Resize(160, 0, 210, 20));
+			mainGame->btnM2->setRelativePosition(mainGame->Resize(160, 0, 210, 20));
+		} else {
+			mainGame->btnSP->setRelativePosition(mainGame->Resize(65, 0, 115, 20));
+			mainGame->btnM1->setRelativePosition(mainGame->Resize(130, 0, 180, 20));
+			mainGame->btnBP->setRelativePosition(mainGame->Resize(195, 0, 245, 20));
+			mainGame->btnM2->setRelativePosition(mainGame->Resize(260, 0, 310, 20));
+		}
+		mainGame->btnEP->setRelativePosition(mainGame->Resize(320, 0, 370, 20));
+		mainGame->btnShuffle->setRelativePosition(mainGame->Resize(0, 0, 50, 20));
+	}
 	if(!(opt & DUEL_TAG_MODE)) {
 		int main = cur_replay.ReadInt32();
 		for(int i = 0; i < main; ++i)
@@ -138,7 +177,6 @@ int ReplayMode::ReplayThread(void* param) {
 	ReplayRefreshExtra(0);
 	ReplayRefreshExtra(1);
 	mainGame->dInfo.isStarted = true;
-	mainGame->dInfo.isFinished = false;
 	mainGame->dInfo.isReplay = true;
 	char engineBuffer[0x1000];
 	is_continuing = true;
@@ -175,12 +213,10 @@ int ReplayMode::ReplayThread(void* param) {
 		if(mainGame->wCardSelect->isVisible())
 			mainGame->HideElement(mainGame->wCardSelect);
 		mainGame->PopupElement(mainGame->wMessage);
-		mainGame->PlaySoundEffect(SOUND_INFO);
 		mainGame->gMutex.Unlock();
 		mainGame->actionSignal.Wait();
 		mainGame->gMutex.Lock();
 		mainGame->dInfo.isStarted = false;
-		mainGame->dInfo.isFinished = true;
 		mainGame->dInfo.isReplay = false;
 		mainGame->gMutex.Unlock();
 		mainGame->closeDoneSignal.Reset();
@@ -199,7 +235,6 @@ int ReplayMode::ReplayThread(void* param) {
 void ReplayMode::Restart(bool refresh) {
 	end_duel(pduel);
 	mainGame->dInfo.isStarted = false;
-	mainGame->dInfo.isFinished = false;
 	mainGame->dField.Clear();
 	//mainGame->device->setEventReceiver(&mainGame->dField);
 	cur_replay.Rewind();
@@ -209,16 +244,16 @@ void ReplayMode::Restart(bool refresh) {
 	int seed = rh.seed;
 	rnd.reset(seed);
 	if(rh.flag & REPLAY_TAG) {
-		cur_replay.ReadData(mainGame->dInfo.hostname, 40);
-		cur_replay.ReadData(mainGame->dInfo.hostname_tag, 40);
-		cur_replay.ReadData(mainGame->dInfo.clientname_tag, 40);
-		cur_replay.ReadData(mainGame->dInfo.clientname, 40);
+		cur_replay.ReadName(mainGame->dInfo.hostname);
+		cur_replay.ReadName(mainGame->dInfo.hostname_tag);
+		cur_replay.ReadName(mainGame->dInfo.clientname_tag);
+		cur_replay.ReadName(mainGame->dInfo.clientname);
 		mainGame->dInfo.isTag = true;
 		mainGame->dInfo.tag_player[0] = false;
 		mainGame->dInfo.tag_player[1] = false;
 	} else {
-		cur_replay.ReadData(mainGame->dInfo.hostname, 40);
-		cur_replay.ReadData(mainGame->dInfo.clientname, 40);
+		cur_replay.ReadName(mainGame->dInfo.hostname);
+		cur_replay.ReadName(mainGame->dInfo.clientname);
 	}
 	//set_card_reader((card_reader)DataManager::CardReader);
 	//set_message_handler((message_handler)MessageHandler);
@@ -231,6 +266,7 @@ void ReplayMode::Restart(bool refresh) {
 	set_player_info(pduel, 1, start_lp, start_hand, draw_count);
 	mainGame->dInfo.lp[0] = start_lp;
 	mainGame->dInfo.lp[1] = start_lp;
+	mainGame->dInfo.startlp = start_lp;
 	myswprintf(mainGame->dInfo.strLP[0], L"%d", mainGame->dInfo.lp[0]);
 	myswprintf(mainGame->dInfo.strLP[1], L"%d", mainGame->dInfo.lp[1]);
 	mainGame->dInfo.turn = 0;
@@ -329,7 +365,6 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			mainGame->gMutex.Lock();
 			mainGame->stMessage->setText(L"Error occurs.");
 			mainGame->PopupElement(mainGame->wMessage);
-			mainGame->PlaySoundEffect(SOUND_INFO);
 			mainGame->gMutex.Unlock();
 			mainGame->actionSignal.Reset();
 			mainGame->actionSignal.Wait();
@@ -396,6 +431,15 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 		case MSG_SELECT_TRIBUTE: {
 			player = BufferIO::ReadInt8(pbuf);
 			pbuf += 3;
+			count = BufferIO::ReadInt8(pbuf);
+			pbuf += count * 8;
+			return ReadReplayResponse();
+		}
+		case MSG_SELECT_UNSELECT_CARD: {
+			player = BufferIO::ReadInt8(pbuf);
+			pbuf += 4;
+			count = BufferIO::ReadInt8(pbuf);
+			pbuf += count * 8;
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 8;
 			return ReadReplayResponse();
