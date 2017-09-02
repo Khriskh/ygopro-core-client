@@ -6,7 +6,7 @@ solution "ygo"
     configurations { "Debug", "Release" }
 
     configuration "windows"
-        defines { "WIN32", "_WIN32", "WINVER=0x0501" }
+        defines { "WIN32", "_WIN32" }
 
     configuration "bsd"
         defines { "LUA_USE_POSIX" }
@@ -15,46 +15,38 @@ solution "ygo"
 
     configuration "macosx"
         defines { "LUA_USE_MACOSX" }
-        includedirs { "/usr/local/include/*" }
-        libdirs { "/usr/local/lib", "/usr/X11/lib" }
-        buildoptions { "-stdlib=libc++" }
-        links { "OpenGL.framework", "Cocoa.framework", "IOKit.framework" }
+        includedirs { "/opt/local/include" }
+        libdirs { "/opt/local/lib" }
 
     configuration "linux"
         defines { "LUA_USE_LINUX" }
 
-    configuration "Release"
-        flags { "OptimizeSpeed" }
-        targetdir "bin/release"
+    configuration "vs*"
+        flags "EnableSSE2"
+        buildoptions { "-wd4996" }
+        defines { "_CRT_SECURE_NO_WARNINGS" }
+
+    configuration "not vs*"
+        buildoptions { "-fno-strict-aliasing", "-Wno-multichar" }
+    configuration {"not vs*", "windows"}
+        buildoptions { "-static-libgcc" }
 
     configuration "Debug"
-        symbols "On"
+        flags "Symbols"
         defines "_DEBUG"
         targetdir "bin/debug"
 
-    configuration { "Release", "vs*" }
-        flags { "StaticRuntime", "LinkTimeOptimization" }
-        disablewarnings { "4244", "4267", "4838", "4577", "4819", "4018", "4996", "4477" }
-
     configuration { "Release", "not vs*" }
-        symbols "On"
+        flags "Symbols"
         defines "NDEBUG"
         buildoptions "-march=native"
 
     configuration { "Debug", "vs*" }
         defines { "_ITERATOR_DEBUG_LEVEL=0" }
 
-    configuration "vs*"
-        flags "EnableSSE2"
-        defines { "_CRT_SECURE_NO_WARNINGS" }
-    
-    configuration "not vs*"
-        buildoptions { "-fno-strict-aliasing", "-Wno-multichar" }
-
-    configuration {"not vs*", "windows"}
-        buildoptions { "-static-libgcc" }
-
-    startproject "ygopro"
+    configuration "Release"
+        flags { "OptimizeSpeed" }
+        targetdir "bin/release"
 
     include "ocgcore"
     include "gframe"
