@@ -29,6 +29,7 @@ void chain::set_triggering_place(card* pcard) {
 	else
 		triggering_location = pcard->current.location;
 	triggering_sequence = pcard->current.sequence;
+	triggering_position = pcard->current.position;
 }
 bool tevent::operator< (const tevent& v) const {
 	return memcmp(this, &v, sizeof(tevent)) < 0;
@@ -115,7 +116,7 @@ field::~field() {
 }
 void field::reload_field_info() {
 	pduel->write_buffer8(MSG_RELOAD_FIELD);
-	pduel->write_buffer8(core.duel_rule);
+	pduel->write_buffer8(core.duel_rule + (((core.duel_options & SPEED_DUEL) ? 1 : 0) << 4));
 	for(int32 playerid = 0; playerid < 2; ++playerid) {
 		pduel->write_buffer32(player[playerid].lp);
 		for(auto cit = player[playerid].list_mzone.begin(); cit != player[playerid].list_mzone.end(); ++cit) {
@@ -437,7 +438,7 @@ void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 r
 		peffect->reset_flag |= RESET_PHASE | reset_phase;
 		if(!(peffect->reset_flag & (RESET_SELF_TURN | RESET_OPPO_TURN)))
 			peffect->reset_flag |= (RESET_SELF_TURN | RESET_OPPO_TURN);
-		peffect->reset_count |= reset_count & 0xff;
+		peffect->reset_count = reset_count;
 	}
 	pcard->add_effect(peffect);
 	pcard->current.controler = playerid;
@@ -468,10 +469,10 @@ card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
 	}
 	case LOCATION_PZONE: {
 		if(sequence == 0) {
-			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 0 : 6];
+			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? (core.duel_options & SPEED_DUEL) ? 1 : 0 : 6];
 			return pcard && pcard->current.pzone ? pcard : 0;
 		} else if(sequence == 1) {
-			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 4 : 7];
+			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? (core.duel_options & SPEED_DUEL) ? 3 : 4 : 7];
 			return pcard && pcard->current.pzone ? pcard : 0;
 		} else
 			return 0;
@@ -534,7 +535,7 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 			return FALSE;
 	} else if (location == LOCATION_PZONE) {
 		if(core.duel_rule >= 4) {
-			if(flag & (0x100u << (sequence * 4)))
+			if(flag & (0x100u << ((core.duel_options & SPEED_DUEL) ? (sequence == 0) ? 1 : 3 : (sequence * 4))))
 				return FALSE;
 		} else {
 			if(flag & (0x100u << (6 + sequence)))
@@ -702,6 +703,16 @@ uint32 field::get_linked_zone(int32 playerid) {
 				zones |= 1u << (2 - i * 2);
 		}
 	}
+	effect_set eset;
+	uint32 value;
+	filter_field_effect(EFFECT_BECOME_LINKED_ZONE, &eset);
+	for (int32 i = 0; i < eset.size(); ++i) {
+		value = eset[i]->get_value();
+		if (value) {
+			zones |= (value >> (16 * playerid)) & 0x7f;
+		}
+	}
+	eset.clear();
 	return zones;
 }
 void field::get_linked_cards(uint8 self, uint8 s, uint8 o, card_set* cset) {
@@ -1306,7 +1317,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
-				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
+				pcard = player[self].list_szone[core.duel_rule >= 4 ? (core.duel_options & SPEED_DUEL) ? (i == 0) ? 1 : 3 : i * 4 : i + 6];
 				if(pcard && pcard->current.pzone && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
 				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 				        && pduel->lua->check_matching(pcard, findex, extraargs)
@@ -1457,7 +1468,7 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 		}
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
-				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
+				pcard = player[self].list_szone[core.duel_rule >= 4 ? (core.duel_options & SPEED_DUEL) ? (i == 0) ? 1 : 3 : i * 4 : i + 6];
 				if(pcard && pcard->current.pzone) {
 					if(pgroup)
 						pgroup->container.insert(pcard);
@@ -1503,6 +1514,17 @@ effect* field::is_player_affected_by_effect(uint8 playerid, uint32 code) {
 			return peffect;
 	}
 	return 0;
+}
+int32 field::get_player_effect(uint8 playerid, uint32 code) {
+	int32 i = 0;
+	for (auto rg = effects.aura_effect.begin(); rg != effects.aura_effect.end(); ++rg) {
+		effect* peffect = rg->second;
+		if (peffect->is_target_player(playerid) && peffect->is_available() && (code == 0 || peffect->code == code)) {
+			interpreter::effect2value(pduel->lua->current_state, peffect);
+			i++;
+		}
+	}
+	return i;
 }
 int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
 	uint32 rcount = 0;
@@ -1573,17 +1595,19 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 	return FALSE;
 }
 // return: the max release count of mg or all monsters on field
-int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg, uint32 ex) {
+int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg, uint32 ex, uint32 releasable) {
 	uint8 p = target->current.controler;
 	uint32 rcount = 0;
 	for(auto cit = player[p].list_mzone.begin(); cit != player[p].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
-		if(pcard && pcard->is_releasable_by_summon(p, target)) {
+		if(pcard && ((releasable >> pcard->current.sequence) & 1) && pcard->is_releasable_by_summon(p, target)) {
 			if(mg && !mg->has_card(pcard))
 				continue;
 			if(release_list)
 				release_list->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			if(pcard->is_affected_by_effect(EFFECT_TRIPLE_TRIBUTE, target))
+				pcard->release_param = 3;
+			else if (pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
 				pcard->release_param = 2;
 			else
 				pcard->release_param = 1;
@@ -1593,25 +1617,29 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 	uint32 ex_sum_max = 0;
 	for(auto cit = player[1 - p].list_mzone.begin(); cit != player[1 - p].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
-		if(!pcard || !pcard->is_releasable_by_summon(p, target))
+		if(!pcard || !((releasable >> (pcard->current.sequence + 16)) & 1) || !pcard->is_releasable_by_summon(p, target))
 			continue;
-		if(mg && !mg->has_card(pcard))
+		if (mg && !mg->has_card(pcard))
 			continue;
-		if(ex || pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
+		if (ex || pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
 			if(ex_list)
 				ex_list->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			if(pcard->is_affected_by_effect(EFFECT_TRIPLE_TRIBUTE, target))
+				pcard->release_param = 3;
+			else if (pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
 				pcard->release_param = 2;
 			else
 				pcard->release_param = 1;
 			rcount += pcard->release_param;
 		} else {
 			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
-			if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (peffect->reset_count & 0xf00) == 0))
+			if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
 				continue;
-			if(ex_list_sum)
+			if (ex_list_sum)
 				ex_list_sum->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			if(pcard->is_affected_by_effect(EFFECT_TRIPLE_TRIBUTE, target))
+				pcard->release_param = 3;
+			else if (pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
 				pcard->release_param = 2;
 			else
 				pcard->release_param = 1;
@@ -1900,10 +1928,10 @@ void field::remove_unique_card(card* pcard) {
 		core.unique_cards[1 - con].erase(pcard);
 }
 // return: pcard->unique_effect or 0
-effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location) {
+effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location, card* icard) {
 	for(auto iter = core.unique_cards[controler].begin(); iter != core.unique_cards[controler].end(); ++iter) {
 		card* ucard = *iter;
-		if((ucard != pcard) && ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
+		if((ucard != pcard) && (ucard != icard) && ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
 			&& !ucard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN)
 			&& ucard->unique_fieldid && ucard->check_unique_code(pcard) && (ucard->unique_location & location))
 			return ucard->unique_effect;
@@ -1911,7 +1939,7 @@ effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location
 	if(!pcard->unique_code || !(pcard->unique_location & location) || pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN))
 		return 0;
 	card_set cset;
-	pcard->get_unique_target(&cset, controler);
+	pcard->get_unique_target(&cset, controler, icard);
 	if(pcard->check_unique_code(pcard))
 		cset.insert(pcard);
 	if(cset.size() >= 2)
@@ -2096,6 +2124,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 	card_vector* pv = NULL;
 	int32 atype = 0;
 	card_vector must_be_attack;
+	card_vector attack_tg;
 	card_vector only_be_attack;
 	effect_set eset;
 	// find the universal set pv
@@ -2133,7 +2162,21 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 			return atype;
 	} else {
 		atype = 4;
-		pv = &player[1 - p].list_mzone;
+		for (uint32 i = 0; i < 7; ++i) {
+			card* atarget = player[1 - p].list_mzone[i];
+			if (atarget != core.attacker) {
+					attack_tg.push_back(atarget);
+			}
+		}
+		if(is_player_affected_by_effect(p, EFFECT_SELF_ATTACK) && (!pcard->is_affected_by_effect(EFFECT_ATTACK_ALL) || !&attack_tg)) {
+			for (uint32 i = 0; i < 7; ++i) {
+				card* atarget = player[p].list_mzone[i];
+				if (atarget != core.attacker) {
+					attack_tg.push_back(atarget);
+				}
+			}
+		}
+		pv = &attack_tg;
 	}
 	// extra count
 	int32 ct1 = 0, ct2 = 0;
@@ -2249,7 +2292,8 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 			continue;
 		if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
 			continue;
-		mcount++;
+		if(atarget->current.controler != p)
+			mcount++;
 		if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
 			continue;
 		if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
@@ -2269,6 +2313,7 @@ bool field::confirm_attack_target() {
 	card_vector* pv = NULL;
 	int32 atype = 0;
 	card_vector must_be_attack;
+	card_vector attack_tg;
 	card_vector only_be_attack;
 	effect_set eset;
 
@@ -2306,7 +2351,21 @@ bool field::confirm_attack_target() {
 			return false;
 	} else {
 		atype = 4;
-		pv = &player[1 - p].list_mzone;
+		for (uint32 i = 0; i < 7; ++i) {
+			card* atarget = player[1 - p].list_mzone[i];
+			if (atarget != core.attacker) {
+				attack_tg.push_back(atarget);
+			}
+		}
+		if(is_player_affected_by_effect(p, EFFECT_SELF_ATTACK) && (!pcard->is_affected_by_effect(EFFECT_ATTACK_ALL) || !&attack_tg)) {
+			for (uint32 i = 0; i < 7; ++i) {
+				card* atarget = player[p].list_mzone[i];
+				if (atarget != core.attacker) {
+					attack_tg.push_back(atarget);
+				}
+			}
+		}
+		pv = &attack_tg;
 	}
 	// extra count
 	int32 ct1 = 0, ct2 = 0;
@@ -2359,6 +2418,8 @@ bool field::confirm_attack_target() {
 	for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
 		card* atarget = *cit;
 		if(!atarget)
+			continue;
+		if(atarget->current.controler == core.attacker->current.controler)
 			continue;
 		if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
 			continue;
@@ -2637,12 +2698,12 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 	}
 	return FALSE;
 }
-int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone) {
+int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone, uint32 releasable) {
 	int32 ex = FALSE;
 	if(toplayer == 1 - pcard->current.controler)
 		ex = TRUE;
 	card_set release_list, ex_list;
-	int32 m = get_summon_release_list(pcard, &release_list, &ex_list, 0, mg, ex);
+	int32 m = get_summon_release_list(pcard, &release_list, &ex_list, 0, mg, ex, releasable);
 	if(max > m)
 		max = m;
 	if(min > max)
@@ -2938,6 +2999,9 @@ int32 field::is_player_can_spsummon(effect* peffect, uint32 sumtype, uint8 sumpo
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		if (pduel->lua->check_condition(eset[i]->target, 7))
 			return FALSE;
+		sumpos &= ~eset[i]->get_value();
+		if(sumpos == 0)
+			return FALSE;
 	}
 	if(!check_spsummon_once(pcard, playerid))
 		return FALSE;
@@ -3195,7 +3259,7 @@ chain* field::get_chain(uint32 chaincount) {
 	return &core.current_chain[chaincount - 1];
 }
 int32 field::is_able_to_enter_bp() {
-	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1)
+	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1 || is_player_affected_by_effect(infos.turn_player, EFFECT_BP_FIRST_TURN))
 	        && infos.phase < PHASE_BATTLE_START
 	        && !is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP);
 }

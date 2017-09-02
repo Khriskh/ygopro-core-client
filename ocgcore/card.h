@@ -44,6 +44,7 @@ struct card_state {
 	uint32 level;
 	uint32 rank;
 	uint32 link;
+	uint32 link_marker;
 	uint32 lscale;
 	uint32 rscale;
 	uint32 attribute;
@@ -218,6 +219,7 @@ public:
 	uint32 get_link_marker();
 	int32 is_link_marker(uint32 dir);
 	uint32 get_linked_zone();
+	uint32 get_free_linked_zone();
 	void get_linked_cards(card_set* cset);
 	uint32 get_mutual_linked_zone();
 	void get_mutual_linked_cards(card_set * cset);
@@ -265,7 +267,7 @@ public:
 	int32 destination_redirect(uint8 destination, uint32 reason);
 	int32 add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly);
 	int32 remove_counter(uint16 countertype, uint16 count);
-	int32 is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly);
+	int32 is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 temploc);
 	int32 get_counter(uint16 countertype);
 	void set_material(card_set* materials);
 	void add_card_target(card* pcard);
@@ -284,19 +286,20 @@ public:
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
 	effect* is_affected_by_effect(int32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
+	int32 get_card_effect(int32 code);
 	effect* check_control_effect();
 	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf);
-	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf);
+	void fusion_filter_valid(group* fusion_m, card* cg, uint32 chkf, effect_set* eset);
 	int32 check_fusion_substitute(card* fcard);
 
 	int32 check_unique_code(card* pcard);
-	void get_unique_target(card_set* cset, int32 controler);
+	void get_unique_target(card_set* cset, int32 controler, card* icard = 0);
 	int32 check_cost_condition(int32 ecode, int32 playerid);
 	int32 check_cost_condition(int32 ecode, int32 playerid, int32 sumtype);
 	int32 is_summonable_card();
 	int32 is_fusion_summonable_card(uint32 summon_type);
 	int32 is_spsummonable(effect* peffect);
-	int32 is_summonable(effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
+	int32 is_summonable(effect* peffect, uint8 min_tribute, uint32 zone = 0x1f, uint32 releasable = 0xff00ff);
 	int32 is_can_be_summoned(uint8 playerid, uint8 ingore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
 	int32 get_summon_tribute_count();
 	int32 get_set_tribute_count();
@@ -310,8 +313,8 @@ public:
 	int32 is_destructable_by_battle(card* pcard);
 	effect* check_indestructable_by_effect(effect* peffect, uint8 playerid);
 	int32 is_destructable_by_effect(effect* peffect, uint8 playerid);
-	int32 is_removeable(uint8 playerid);
-	int32 is_removeable_as_cost(uint8 playerid);
+	int32 is_removeable(uint8 playerid, int32 pos = 0x5);
+	int32 is_removeable_as_cost(uint8 playerid, int32 pos = 0x5);
 	int32 is_releasable_by_summon(uint8 playerid, card* pcard);
 	int32 is_releasable_by_nonsummon(uint8 playerid);
 	int32 is_releasable_by_effect(uint8 playerid, effect* peffect);
@@ -423,7 +426,7 @@ public:
 #define RACE_DEVINE			0x200000	//
 #define RACE_CREATORGOD		0x400000	//
 #define RACE_WYRM			0x800000	//
-#define RACE_CYBERS			0x1000000	//
+#define RACE_CYBERSE		0x1000000	//
 //Reason
 #define REASON_DESTROY		0x1		//
 #define REASON_RELEASE		0x2		//
@@ -533,6 +536,8 @@ public:
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
+#define ASSUME_LINK         9
+#define ASSUME_LINKMARKER   10
 
 #define LINK_MARKER_BOTTOM_LEFT		0001
 #define LINK_MARKER_BOTTOM			0002
