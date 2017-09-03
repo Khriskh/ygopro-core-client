@@ -120,7 +120,6 @@ bool Game::Initialize() {
 
 	env->addStaticText(L"", rect<s32>(300, 30, 550, 390), false, true, wMainMenu);
 
-
 	//lan mode
 	wLanWindow = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1200));
 	wLanWindow->getCloseButton()->setVisible(false);
