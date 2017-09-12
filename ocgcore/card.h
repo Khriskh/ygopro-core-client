@@ -196,11 +196,11 @@ public:
 	int32 is_origin_set_card(uint32 set_code);
 	int32 is_pre_set_card(uint32 set_code);
 	int32 is_fusion_set_card(uint32 set_code);
-	uint32 get_set_card();
-	uint32 get_origin_set_card();
-	uint32 get_pre_set_card();
-	uint32 get_fusion_set_card();
-	uint32 get_type(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 0);
+	uint32 get_type();
+	uint32 get_fusion_type();
+	uint32 get_synchro_type();
+	uint32 get_xyz_type();
+	uint32 get_link_type();
 	int32 get_base_attack();
 	int32 get_attack();
 	int32 get_base_defense();
@@ -211,8 +211,9 @@ public:
 	uint32 get_synchro_level(card* pcard);
 	uint32 get_ritual_level(card* pcard);
 	uint32 check_xyz_level(card* pcard, uint32 lv);
-	uint32 get_attribute(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 0);
-	uint32 get_race(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 0);
+	uint32 get_attribute();
+	uint32 get_fusion_attribute(uint8 playerid);
+	uint32 get_race();
 	uint32 get_lscale();
 	uint32 get_rscale();
 	uint32 get_link_marker();
@@ -266,7 +267,7 @@ public:
 	int32 destination_redirect(uint8 destination, uint32 reason);
 	int32 add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly);
 	int32 remove_counter(uint16 countertype, uint16 count);
-	int32 is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc);
+	int32 is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 temploc);
 	int32 get_counter(uint16 countertype);
 	void set_material(card_set* materials);
 	void add_card_target(card* pcard);
@@ -335,10 +336,10 @@ public:
 	int32 is_capable_be_battle_target(card* pcard);
 	int32 is_capable_be_effect_target(effect* peffect, uint8 playerid);
 	int32 is_can_be_fusion_material(card* fcard);
-	int32 is_can_be_synchro_material(card* scard, uint8 playerid, card* tuner = 0);
+	int32 is_can_be_synchro_material(card* scard, card* tuner = 0);
 	int32 is_can_be_ritual_material(card* scard);
-	int32 is_can_be_xyz_material(card* scard, uint8 playerid);
-	int32 is_can_be_link_material(card* scard, uint8 playerid);
+	int32 is_can_be_xyz_material(card* scard);
+	int32 is_can_be_link_material(card* scard);
 };
 
 //Locations
