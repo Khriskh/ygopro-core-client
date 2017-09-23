@@ -4119,7 +4119,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 					destroy(pcard, 0, REASON_RULE, pcard->current.controler);
 				adjust_all();
 			}
-		} else if(location == LOCATION_SZONE && ((!is_equip && (target->data.type & TYPE_PENDULUM)) || pzone)) {
+		} else if(location == LOCATION_SZONE && ((!is_equip && ((target->data.type & TYPE_PENDULUM && zone != 0xff))) || pzone)) {
 			uint32 flag = 0;
 			if(is_location_useable(playerid, LOCATION_PZONE, 0) && zone & 1)
 				flag |= 0x1u << (core.duel_rule >= 4 ? (core.duel_options & SPEED_DUEL) ? 9 : 8 : 14);
@@ -4823,7 +4823,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		if(mg) {
 			for(auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
 				card* pm = *cit;
-				if(pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+				if(pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, playerid, tuner))
 					continue;
 				if(ptuner && ptuner->target) {
 					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
@@ -4850,7 +4850,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 				cv.insert(cv.end(), player[playerid].list_hand.begin(), player[playerid].list_hand.end());
 			for(auto cit = cv.begin(); cit != cv.end(); ++cit) {
 				card* pm = *cit;
-				if(!pm || pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+				if(!pm || pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, playerid, tuner))
 					continue;
 				if(ptuner && ptuner->target) {
 					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
