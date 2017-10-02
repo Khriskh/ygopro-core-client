@@ -20,7 +20,7 @@ public:
 	void ClearSearch();
 	void SortList();
 
-	static bool CardNameCompare(const wchar_t *sa, const wchar_t *sb);
+	bool CardNameContains(const wchar_t *haystack, const wchar_t *needle);
 
 	bool push_main(code_pointer pointer, int seq = -1);
 	bool push_extra(code_pointer pointer, int seq = -1);
@@ -52,6 +52,7 @@ public:
 	int is_lastcard;
 	int click_pos;
 	bool is_draging;
+	bool is_starting_dragging;
 	int dragx;
 	int dragy;
 	size_t pre_mainc;
@@ -60,6 +61,7 @@ public:
 	code_pointer draging_pointer;
 	int prev_deck;
 	s32 prev_operation;
+	bool is_modified;
 
 	std::unordered_map<int, int>* filterList;
 	std::vector<code_pointer> results;

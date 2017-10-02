@@ -265,7 +265,7 @@ public:
 	int32 destination_redirect(uint8 destination, uint32 reason);
 	int32 add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly);
 	int32 remove_counter(uint16 countertype, uint16 count);
-	int32 is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc);
+	int32 is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly);
 	int32 get_counter(uint16 countertype);
 	void set_material(card_set* materials);
 	void add_card_target(card* pcard);
@@ -290,13 +290,13 @@ public:
 	int32 check_fusion_substitute(card* fcard);
 
 	int32 check_unique_code(card* pcard);
-	void get_unique_target(card_set* cset, int32 controler, card* icard = 0);
+	void get_unique_target(card_set* cset, int32 controler);
 	int32 check_cost_condition(int32 ecode, int32 playerid);
 	int32 check_cost_condition(int32 ecode, int32 playerid, int32 sumtype);
 	int32 is_summonable_card();
 	int32 is_fusion_summonable_card(uint32 summon_type);
 	int32 is_spsummonable(effect* peffect);
-	int32 is_summonable(effect* peffect, uint8 min_tribute, uint32 zone = 0x1f, uint32 releasable = 0xff00ff);
+	int32 is_summonable(effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
 	int32 is_can_be_summoned(uint8 playerid, uint8 ingore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
 	int32 get_summon_tribute_count();
 	int32 get_set_tribute_count();
@@ -423,7 +423,7 @@ public:
 #define RACE_DEVINE			0x200000	//
 #define RACE_CREATORGOD		0x400000	//
 #define RACE_WYRM			0x800000	//
-#define RACE_CYBERSE		0x1000000	//
+#define RACE_CYBERS			0x1000000	//
 //Reason
 #define REASON_DESTROY		0x1		//
 #define REASON_RELEASE		0x2		//

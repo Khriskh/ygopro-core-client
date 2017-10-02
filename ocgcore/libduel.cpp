@@ -107,7 +107,7 @@ int32 scriptlib::duel_register_flag_effect(lua_State *L) {
 	peffect->flag[0] = flag | EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET | EFFECT_FLAG_FIELD_ONLY;
 	peffect->s_range = 1;
 	peffect->o_range = 0;
-	peffect->reset_count = count;
+	peffect->reset_count |= count & 0xff;
 	pduel->game_field->add_effect(peffect, playerid);
 	interpreter::effect2value(L, peffect);
 	return 1;
@@ -935,58 +935,21 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 	uint32 playerid = PLAYER_ALL;
 	if(lua_gettop(L) >= 2)
 		playerid = lua_tointeger(L, 2);
-	uint32 loc = LOCATION_FZONE + LOCATION_ONFIELD;
-	if(lua_gettop(L) >= 3)
-		loc = lua_tointeger(L, 3);
 	if(playerid != 0 && playerid != 1 && playerid != PLAYER_ALL)
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
 	int32 ret = 0, fc = 0;
-	if(loc & LOCATION_FZONE) {
-		card* pcard = pduel->game_field->player[0].list_szone[5];
-		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
-			fc = 1;
-			if(code == pcard->get_code() && (playerid == 0 || playerid == PLAYER_ALL))
-				ret = 1;
-		}
-		pcard = pduel->game_field->player[1].list_szone[5];
-		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
-			fc = 1;
-			if(code == pcard->get_code() && (playerid == 1 || playerid == PLAYER_ALL))
-				ret = 1;
-		}
+	card* pcard = pduel->game_field->player[0].list_szone[5];
+	if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
+		fc = 1;
+		if(code == pcard->get_code() && (playerid == 0 || playerid == PLAYER_ALL))
+			ret = 1;
 	}
-	if(!ret && (loc & LOCATION_SZONE)) {
-		if(playerid == 0 || playerid == PLAYER_ALL) {
-			for(auto cit = pduel->game_field->player[0].list_szone.begin(); cit != pduel->game_field->player[0].list_szone.end(); ++cit) {
-				card* pcard = *cit;
-				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
-					ret = 1;
-			}
-		}
-		if(playerid == 1 || playerid == PLAYER_ALL) {
-			for(auto cit = pduel->game_field->player[1].list_szone.begin(); cit != pduel->game_field->player[1].list_szone.end(); ++cit) {
-				card* pcard = *cit;
-				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
-					ret = 1;
-			}
-		}
-	}
-	if(!ret && (loc & LOCATION_MZONE)) {
-		if(playerid == 0 || playerid == PLAYER_ALL) {
-			for(auto cit = pduel->game_field->player[0].list_mzone.begin(); cit != pduel->game_field->player[0].list_mzone.end(); ++cit) {
-				card* pcard = *cit;
-				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
-					ret = 1;
-			}
-		}
-		if(playerid == 1 || playerid == PLAYER_ALL) {
-			for(auto cit = pduel->game_field->player[1].list_mzone.begin(); cit != pduel->game_field->player[1].list_mzone.end(); ++cit) {
-				card* pcard = *cit;
-				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
-					ret = 1;
-			}
-		}
+	pcard = pduel->game_field->player[1].list_szone[5];
+	if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
+		fc = 1;
+		if(code == pcard->get_code() && (playerid == 1 || playerid == PLAYER_ALL))
+			ret = 1;
 	}
 	if(!fc) {
 		effect_set eset;
@@ -1302,25 +1265,9 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 int32 scriptlib::duel_change_attacker(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
-	card* attacker = *(card**) lua_touserdata(L, 1);
-	int32 ignore_count = FALSE;
-	if(lua_gettop(L) >= 2)
-		ignore_count = lua_toboolean(L, 2);
-	duel* pduel = attacker->pduel;
-	if(pduel->game_field->core.attacker == attacker)
-		return 0;
-	pduel->game_field->core.attacker = attacker;
-	attacker->attack_controler = attacker->current.controler;
-	pduel->game_field->core.pre_field[0] = attacker->fieldid_r;
-	if(!ignore_count) {
-		card* attack_target = pduel->game_field->core.attack_target;
-		attacker->announce_count++;
-		attacker->announced_cards.addcard(attack_target);
-		if(pduel->game_field->infos.phase == PHASE_DAMAGE) {
-			attacker->attacked_count++;
-			attacker->attacked_cards.addcard(attack_target);
-		}
-	}
+	card* target = *(card**) lua_touserdata(L, 1);
+	duel* pduel = target->pduel;
+	pduel->game_field->core.attacker = target;
 	return 0;
 }
 int32 scriptlib::duel_change_attack_target(lua_State *L) {
@@ -1716,13 +1663,14 @@ int32 scriptlib::duel_get_current_chain(lua_State *L) {
 int32 scriptlib::duel_get_chain_info(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 c = lua_tointeger(L, 1);
+	uint32 flag;
 	uint32 args = lua_gettop(L) - 1;
 	duel* pduel = interpreter::get_duel_info(L);
 	chain* ch = pduel->game_field->get_chain(c);
 	if(!ch)
 		return 0;
 	for(uint32 i = 0; i < args; ++i) {
-		uint32 flag = lua_tointeger(L, 2 + i);
+		flag = lua_tointeger(L, 2 + i);
 		switch(flag) {
 		case CHAININFO_CHAIN_COUNT:
 			lua_pushinteger(L, ch->chain_count);
@@ -1741,9 +1689,6 @@ int32 scriptlib::duel_get_chain_info(lua_State *L) {
 			break;
 		case CHAININFO_TRIGGERING_SEQUENCE:
 			lua_pushinteger(L, ch->triggering_sequence);
-			break;
-		case CHAININFO_TRIGGERING_POSITION:
-			lua_pushinteger(L, ch->triggering_position);
 			break;
 		case CHAININFO_TARGET_CARDS:
 			interpreter::group2value(L, ch->target_cards);
@@ -1826,7 +1771,7 @@ int32 scriptlib::duel_skip_phase(lua_State *L) {
 	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET;
 	peffect->s_range = 1;
 	peffect->o_range = 0;
-	peffect->reset_count = count;
+	peffect->reset_count |= count & 0xff;
 	peffect->value = value;
 	pduel->game_field->add_effect(peffect, playerid);
 	return 0;
@@ -3694,7 +3639,7 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 			ceffect->operation = luaL_ref(L, LUA_REGISTRYINDEX);
 		}
 		ceffect->reset_flag = RESET_EVENT + 0x1fe0000 + RESET_PHASE + PHASE_END + RESET_SELF_TURN + RESET_OPPO_TURN;
-		ceffect->reset_count = 0x1;
+		ceffect->reset_count = (ceffect->reset_count & 0xff00) | 0x1;
 		ceffect->recharge();
 		if(ceffect->type & EFFECT_TYPE_TRIGGER_F) {
 			ceffect->type &= ~EFFECT_TYPE_TRIGGER_F;

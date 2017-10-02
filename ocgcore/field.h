@@ -51,7 +51,6 @@ struct chain {
 	uint8 triggering_controler;
 	uint16 triggering_location;
 	uint8 triggering_sequence;
-	uint8 triggering_position;
 	effect* triggering_effect;
 	group* target_cards;
 	int32 replace_op;
@@ -259,7 +258,6 @@ struct processor {
 	group* limit_xyz;
 	int32 limit_xyz_minc;
 	int32 limit_xyz_maxc;
-	uint8 attack_cancelable;
 	uint8 attack_rollback;
 	uint8 effect_damage_step;
 	int32 battle_damage[2];
@@ -345,7 +343,6 @@ public:
 	void add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence, uint8 pzone = FALSE);
 	void remove_card(card* pcard);
 	void move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence, uint8 pzone = FALSE);
-	void swap_card(card* pcard1, card* pcard2);
 	void set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count);
 	card* get_field_card(uint32 playerid, uint32 location, uint32 sequence);
 	int32 is_location_useable(uint32 playerid, uint32 location, uint32 sequence, uint8 neglect_used = 0);
@@ -386,7 +383,7 @@ public:
 
 	int32 get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg);
 	int32 check_release_list(uint8 playerid, int32 count, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg);
-	int32 get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg = NULL, uint32 ex = 0, uint32 releasable = 0xff00ff);
+	int32 get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg = NULL, uint32 ex = 0);
 	int32 get_summon_count_limit(uint8 playerid);
 	int32 get_draw_count(uint8 playerid);
 	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material);
@@ -401,7 +398,7 @@ public:
 	void adjust_self_destroy_set();
 	void add_unique_card(card* pcard);
 	void remove_unique_card(card* pcard);
-	effect* check_unique_onfield(card* pcard, uint8 controler, uint8 location, card* icard = 0);
+	effect* check_unique_onfield(card* pcard, uint8 controler, uint8 location);
 	int32 check_spsummon_once(card* pcard, uint8 playerid);
 	void check_card_counter(card* pcard, int32 counter_type, int32 playerid);
 	void check_chain_counter(effect* peffect, int32 playerid, int32 chainid, bool cancel = false);
@@ -421,7 +418,7 @@ public:
 	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
 	int32 check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
 	int32 check_other_synchro_material(const card_vector& nsyn, int32 lv, int32 min, int32 max, int32 mcount);
-	int32 check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone = 0x1f, uint32 releasable = 0xff00ff);
+	int32 check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone = 0x1f);
 	static int32 check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max);
 	static int32 check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 index, int32 min, int32 max, int32 must_count);
 	static int32 check_with_sum_greater_limit(const card_vector& mats, int32 acc, int32 index, int32 opmin);
@@ -529,7 +526,7 @@ public:
 	int32 get_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint8 playerid, uint16 reset_phase, uint8 reset_count, uint32 zone);
 	int32 swap_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets1, group* targets2, uint16 reset_phase, uint8 reset_count);
 	int32 control_adjust(uint16 step);
-	int32 self_destroy(uint16 step, card* ucard, int32 p);
+	int32 self_destroy(uint16 step);
 	int32 equip(uint16 step, uint8 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step);
 	int32 draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 count);
 	int32 damage(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, card* reason_card, uint8 playerid, uint32 amount, uint32 is_step);
@@ -602,7 +599,6 @@ public:
 #define CHAININFO_CHAIN_ID				0x800
 #define CHAININFO_TYPE					0x1000
 #define CHAININFO_EXTTYPE				0x2000
-#define CHAININFO_TRIGGERING_POSITION	0x4000
 //Timing
 #define TIMING_DRAW_PHASE			0x1
 #define TIMING_STANDBY_PHASE		0x2
