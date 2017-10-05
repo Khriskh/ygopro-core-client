@@ -118,13 +118,11 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			break;
 		switch(event.GUIEvent.EventType) {
 		case irr::gui::EGET_BUTTON_CLICKED: {
-			mainGame->PlaySoundEffect(SOUND_BUTTON);
 			switch(id) {
 			case BUTTON_CLEAR_DECK: {
 				mainGame->gMutex.Lock();
 				mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(1339));
 				mainGame->PopupElement(mainGame->wQuery);
-				mainGame->PlaySoundEffect(SOUND_QUESTION);
 				mainGame->gMutex.Unlock();
 				prev_operation = id;
 				break;
@@ -181,7 +179,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				myswprintf(textBuffer, L"%ls\n%ls", mainGame->cbDBDecks->getItem(sel), dataManager.GetSysString(1337));
 				mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)textBuffer);
 				mainGame->PopupElement(mainGame->wQuery);
-				mainGame->PlaySoundEffect(SOUND_QUESTION);
 				mainGame->gMutex.Unlock();
 				prev_operation = id;
 				break;
@@ -191,7 +188,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->gMutex.Lock();
 					mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(1356));
 					mainGame->PopupElement(mainGame->wQuery);
-					mainGame->PlaySoundEffect(SOUND_QUESTION);
 					mainGame->gMutex.Unlock();
 					prev_operation = id;
 					break;
@@ -220,6 +216,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					if(mainGame->chkCategory[i]->isChecked())
 						filter_effect |= filter;
 				mainGame->HideElement(mainGame->wCategories);
+				InstantSearch();
 				break;
 			}
 			case BUTTON_SIDE_OK: {
@@ -312,6 +309,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				if (mainGame->btnMark[7]->isPressed())
 					filter_marks |= 0004;
 				mainGame->HideElement(mainGame->wLinkMarks);
+				InstantSearch();
 				break;
 			}
 			}
@@ -332,8 +330,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 		case irr::gui::EGET_EDITBOX_CHANGED: {
 			switch(id) {
 			case EDITBOX_KEYWORD: {
-				if(mainGame->gameConf.auto_search_limit >= 0 && (wcslen(mainGame->ebCardName->getText()) >= mainGame->gameConf.auto_search_limit))
-					StartFilter();
+				InstantSearch();
 				break;
 			}
 			}
@@ -350,7 +347,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->gMutex.Lock();
 					mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(1356));
 					mainGame->PopupElement(mainGame->wQuery);
-					mainGame->PlaySoundEffect(SOUND_QUESTION);
 					mainGame->gMutex.Unlock();
 					prev_operation = id;
 					break;
@@ -451,6 +447,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					break;
 				}
 				}
+				InstantSearch();
 				break;
 			}
 			case COMBOBOX_SORTTYPE: {
@@ -467,8 +464,13 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 						mainGame->ebDefense->setEnabled(true);
 					}
 				}
+				InstantSearch();
 				break;
 			}
+			case COMBOBOX_ATTRIBUTE:
+			case COMBOBOX_RACE:
+			case COMBOBOX_LIMIT:
+				InstantSearch();
 			}
 		}
 		default: break;
@@ -502,7 +504,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			is_starting_dragging = false;
 			if(!is_draging)
 				break;
-			mainGame->PlaySoundEffect(SOUND_CARD_DROP);
 			bool pushed = false;
 			if(hovered_pos == 1)
 				pushed = push_main(draging_pointer, hovered_seq);
@@ -532,7 +533,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				auto pointer = dataManager.GetCodePointer(hovered_code);
 				if(pointer == dataManager._datas.end())
 					break;
-				mainGame->PlaySoundEffect(SOUND_CARD_DROP);
 				if(hovered_pos == 1) {
 					if(push_side(pointer))
 						pop_main(hovered_seq);
@@ -550,7 +550,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			if(!is_draging) {
 				if(hovered_pos == 0 || hovered_seq == -1)
 					break;
-				mainGame->PlaySoundEffect(SOUND_CARD_DROP);
 				if(hovered_pos == 1) {
 					pop_main(hovered_seq);
 				} else if(hovered_pos == 2) {
@@ -567,7 +566,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 						push_side(pointer);
 				}
 			} else {
-				mainGame->PlaySoundEffect(SOUND_CARD_PICK);
 				if(click_pos == 1) {
 					push_side(draging_pointer);
 				} else if(click_pos == 2) {
@@ -594,7 +592,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			auto pointer = dataManager.GetCodePointer(hovered_code);
 			if(!check_limit(pointer))
 				break;
-			mainGame->PlaySoundEffect(SOUND_CARD_PICK);
 			if (hovered_pos == 1) {
 				if(!push_main(pointer))
 					push_side(pointer);
@@ -613,7 +610,6 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 		case irr::EMIE_MOUSE_MOVED: {
 			if(is_starting_dragging) {
 				is_draging = true;
-				mainGame->PlaySoundEffect(SOUND_CARD_PICK);
 				if(hovered_pos == 1)
 					pop_main(hovered_seq);
 				else if(hovered_pos == 2)
@@ -864,6 +860,10 @@ void DeckBuilder::FilterCards() {
 		mainGame->scrFilter->setPos(0);
 	}
 	SortList();
+}
+void DeckBuilder::InstantSearch() {
+	if(mainGame->gameConf.auto_search_limit >= 0 && (wcslen(mainGame->ebCardName->getText()) >= mainGame->gameConf.auto_search_limit))
+		StartFilter();
 }
 void DeckBuilder::ClearSearch() {
 	mainGame->cbCardType->setSelected(0);
