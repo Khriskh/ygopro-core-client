@@ -1273,7 +1273,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			ss = BufferIO::ReadInt8(pbuf);
 			if ((l & LOCATION_OVERLAY) > 0)
 				pcard = mainGame->dField.GetCard(c, l & 0x7f, s)->overlayed[ss];
-			} else
+			 else
 				pcard = mainGame->dField.GetCard(c, l, s);
 			if (code != 0 && pcard->code != code)
 				pcard->SetCode(code);
