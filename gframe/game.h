@@ -49,7 +49,6 @@ struct Config {
 
 struct DuelInfo {
 	bool isStarted;
-	bool isFinished;
 	bool isReplay;
 	bool isReplaySkiping;
 	bool isFirst;
@@ -58,7 +57,9 @@ struct DuelInfo {
 	bool is_shuffling;
 	bool tag_player[2];
 	int lp[2];
+	int startlp;
 	int duel_rule;
+	int speed = false;
 	int turn;
 	short curMsg;
 	wchar_t hostname[20];
