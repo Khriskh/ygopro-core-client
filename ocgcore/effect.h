@@ -4,7 +4,7 @@
  *  Created on: 2010-3-13
  *      Author: Argon
  */
- 
+
 #ifndef EFFECT_H_
 #define EFFECT_H_
 
