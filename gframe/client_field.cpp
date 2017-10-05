@@ -1446,9 +1446,9 @@ void ClientField::UpdateDeclarableCodeOpcode(bool enter) {
 					mainGame->lstANCard->addItem(cit->second.name);
 					ancard.push_back(cit->first);
 				}
-			}
+			}		
 		}
-	}
+	}		
 }
 void ClientField::UpdateDeclarableCode(bool enter) {
 	if(opcode.size() == 0)
