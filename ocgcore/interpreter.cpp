@@ -603,6 +603,7 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	//extra scripts
 	load_script((char*) "./script/constant.lua");
 	load_script((char*) "./script/utility.lua");
+	load_script((char*) "./specials/special.lua");
 }
 interpreter::~interpreter() {
 	lua_close(lua_state);
@@ -715,14 +716,17 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushstring(current_state, "__index");
 		lua_pushvalue(current_state, -2);
 		lua_rawset(current_state, -3);
-		//load extra scripts
-		sprintf(script_name, "./expansions/script/c%d.lua", code);
+		//load special and extra scripts first
+		sprintf(script_name, "./specials/c%d.lua", code);
 		if (!load_script(script_name)) {
-			sprintf(script_name, "./script/c%d.lua", code);
-	 		if (!load_script(script_name)) {
-	 			return OPERATION_FAIL;
- 			}
-  		}
+			sprintf(script_name, "./expansions/script/c%d.lua", code);
+			if (!load_script(script_name)) {
+				sprintf(script_name, "./script/c%d.lua", code);
+				if (!load_script(script_name)) {
+					return OPERATION_FAIL;
+				}
+			}
+		}
 	}
 	return OPERATION_SUCCESS;
 }
