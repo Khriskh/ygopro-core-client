@@ -7,6 +7,7 @@
 #include "single_mode.h"
 #include "image_manager.h"
 #include "game.h"
+#include "utils.h"
 
 namespace ygo {
 
@@ -31,11 +32,23 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		irr::gui::IGUIElement* caller = event.GUIEvent.Caller;
 		s32 id = caller->getID();
 		switch(event.GUIEvent.EventType) {
+		case irr::gui::EGET_ELEMENT_HOVERED: {
+			// Set cursor to an I-Beam if hovering over an edit box
+			if (event.GUIEvent.Caller->getType() == EGUIET_EDIT_BOX)
+			{
+				utils.changeCursor(ECI_IBEAM);
+			}
+			break;
+		}
+		case irr::gui::EGET_ELEMENT_LEFT: {
+			// Set cursor to normal if left an edit box
+			if (event.GUIEvent.Caller->getType() == EGUIET_EDIT_BOX)
+			{
+				utils.changeCursor(ECI_NORMAL);
+			}
+			break;
+		}
 		case irr::gui::EGET_BUTTON_CLICKED: {
-			if(id < 110)
-				mainGame->PlaySoundEffect(SOUND_MENU);
-			else
-				mainGame->PlaySoundEffect(SOUND_BUTTON);
 			switch(id) {
 			case BUTTON_MODE_EXIT: {
 				mainGame->device->closeDevice();
@@ -106,6 +119,18 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->ShowElement(mainGame->wCreateHost);
 				break;
 			}
+			case BUTTON_RULE_CARDS: {
+				if(mainGame->wRules->isVisible()){
+					mainGame->HideElement(mainGame->wRules);
+				}else {
+					mainGame->PopupElement(mainGame->wRules);
+				}
+				break;
+			}
+			case BUTTON_RULE_OK: {				
+				mainGame->HideElement(mainGame->wRules);
+				break;
+			}
 			case BUTTON_HOST_CONFIRM: {
 				BufferIO::CopyWStr(mainGame->ebServerName->getText(), mainGame->gameConf.gamename, 20);
 				if(!NetServer::StartServer(mainGame->gameConf.serverport))
@@ -114,6 +139,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					NetServer::StopServer();
 					break;
 				}
+				mainGame->HideElement(mainGame->wRules);
 				mainGame->btnHostConfirm->setEnabled(false);
 				mainGame->btnHostCancel->setEnabled(false);
 				break;
@@ -122,6 +148,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
+				mainGame->HideElement(mainGame->wRules);
 				mainGame->HideElement(mainGame->wCreateHost);
 				mainGame->ShowElement(mainGame->wLanWindow);
 				break;
@@ -148,10 +175,13 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HP_READY: {
-				if(mainGame->cbDeckSelect->getSelected() == -1 ||
-					!deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()))) {
+				bool check = false;
+				if(!mainGame->cbDeckSelect2->isVisible())
+					check = (mainGame->cbDeckSelect->getSelected() == -1 || !deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected())));
+				else
+					check = (mainGame->cbDeckSelect->getSelected() == -1 || mainGame->cbDeckSelect2->getSelected() == -1 || !deckManager.LoadDeckDouble(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()), mainGame->cbDeckSelect2->getItem(mainGame->cbDeckSelect2->getSelected())));
+				if(check)
 					break;
-				}
 				UpdateDeck();
 				DuelClient::SendPacketToServer(CTOS_HS_READY);
 				mainGame->cbDeckSelect->setEnabled(false);
@@ -172,6 +202,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wHostPrepare);
+				mainGame->HideElement(mainGame->wHostPrepare2);
 				mainGame->ShowElement(mainGame->wLanWindow);
 				mainGame->wChat->setVisible(false);
 				if(exit_on_return)
@@ -331,17 +362,106 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					break;
 				mainGame->env->setFocus(mainGame->wHostPrepare);
 				if(static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
-					if(mainGame->cbDeckSelect->getSelected() == -1 ||
-					        !deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()))) {
+					bool check = false;
+					if (!mainGame->cbDeckSelect2->isVisible())
+						check = (mainGame->cbDeckSelect->getSelected() == -1 || !deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected())));
+					else
+						check = (mainGame->cbDeckSelect->getSelected() == -1 || mainGame->cbDeckSelect2->getSelected() == -1 || !deckManager.LoadDeckDouble(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()), mainGame->cbDeckSelect2->getItem(mainGame->cbDeckSelect2->getSelected())));
+					if(check) {
 						static_cast<irr::gui::IGUICheckBox*>(caller)->setChecked(false);
 						break;
 					}
 					UpdateDeck();
 					DuelClient::SendPacketToServer(CTOS_HS_READY);
 					mainGame->cbDeckSelect->setEnabled(false);
+					mainGame->cbDeckSelect2->setEnabled(false);
 				} else {
 					DuelClient::SendPacketToServer(CTOS_HS_NOTREADY);
 					mainGame->cbDeckSelect->setEnabled(true);
+					mainGame->cbDeckSelect2->setEnabled(true);
+				}
+				break;
+			}
+			case CHECK_SEALED_DUEL: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 1; i < 14; ++i)
+						if (i != 2 && i != 3 && i != 9)
+						mainGame->chkRules[i]->setEnabled(false);
+				}
+				else {
+					for (int i = 1; i < 14; ++i)
+						if (i != 2 && i != 3 && i != 9)
+						mainGame->chkRules[i]->setEnabled(true);
+				}
+				break;
+			}
+			case CHECK_BOOSTER_DUEL: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 0; i < 14; ++i)
+						if(i != 1 && i != 2 && i != 3 && i != 9)
+						mainGame->chkRules[i]->setEnabled(false);
+				}
+				else {
+					for (int i = 0; i < 14; ++i)
+						if (i != 1 && i != 2 && i != 3 && i != 9)
+						mainGame->chkRules[i]->setEnabled(true);
+				}
+				break;
+			}
+			case CHECK_CONCENTRATION_DUEL:
+			case CHECK_BOSS_DUEL:
+			case CHECK_BATTLE_CITY:
+			case CHECK_DUELIST_KINGDOM:
+			case CHECK_COMMAND_DUEL:
+			case CHECK_DECK_MASTER_DUEL: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 0; i < 2; ++i)
+						mainGame->chkRules[i]->setEnabled(false);
+				}
+				else {
+					for (int i = 0; i < 2; ++i)
+						mainGame->chkRules[i]->setEnabled(true);
+					for (int i = 0; i < 16; ++i) {
+						if (mainGame->chkRules[i]->isChecked() && i != 3 && i != 9)
+							for (int i = 0; i < 2; ++i)
+								mainGame->chkRules[i]->setEnabled(false);
+					}
+				}
+				break;
+			}
+			case CHECK_TURBO_DUEL_1: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 0; i < 3; ++i)
+						mainGame->chkRules[i]->setEnabled(false);
+					mainGame->chkRules[10]->setEnabled(false);
+				}
+				else {
+					for (int i = 0; i < 3; ++i)
+						mainGame->chkRules[i]->setEnabled(true);
+					mainGame->chkRules[10]->setEnabled(true);
+					for (int i = 0; i < 16; ++i) {
+						if (mainGame->chkRules[i]->isChecked() && i != 3 && i != 9)
+							for (int i = 0; i < 1; ++i)
+								mainGame->chkRules[i]->setEnabled(false);
+					}
+				}
+				break;
+			}
+			case CHECK_TURBO_DUEL_2: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 0; i < 3; ++i)
+						mainGame->chkRules[i]->setEnabled(false);
+					mainGame->chkRules[11]->setEnabled(false);
+				}
+				else {
+					for (int i = 0; i < 3; ++i)
+						mainGame->chkRules[i]->setEnabled(true);
+					mainGame->chkRules[11]->setEnabled(true);
+					for (int i = 0; i < 16; ++i) {
+						if (mainGame->chkRules[i]->isChecked() && i != 3 && i != 9)
+							for (int i = 0; i < 1; ++i)
+								mainGame->chkRules[i]->setEnabled(false);
+					}
 				}
 				break;
 			}
@@ -389,6 +509,12 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		case irr::KEY_ESCAPE: {
 			if(!mainGame->HasFocus(EGUIET_EDIT_BOX))
 				mainGame->device->minimizeWindow();
+			break;
+		}
+		case irr::KEY_F12: {
+			if (!event.KeyInput.PressedDown)
+				utils.takeScreenshot(mainGame->device);
+			return true;
 			break;
 		}
 		default: break;
