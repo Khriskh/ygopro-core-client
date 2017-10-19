@@ -77,9 +77,6 @@ int32 scriptlib::duel_register_effect(lua_State *L) {
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	duel* pduel = peffect->pduel;
-	if((peffect->type & 0x7f0)
-		|| (pduel->game_field->core.reason_effect && (pduel->game_field->core.reason_effect->status & EFFECT_STATUS_ACTIVATED)))
-		peffect->status |= EFFECT_STATUS_ACTIVATED;
 	pduel->game_field->add_effect(peffect, playerid);
 	return 0;
 }
@@ -1430,12 +1427,11 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 			|| !target && !attacker->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK)) {
 		pduel->game_field->core.attack_target = target;
 		pduel->game_field->core.attack_rollback = FALSE;
+		pduel->game_field->core.opp_mzone.clear();
 		for(uint32 i = 0; i < pduel->game_field->player[1 - turnp].list_mzone.size(); ++i) {
 			card* pcard = pduel->game_field->player[1 - turnp].list_mzone[i];
 			if(pcard)
-				pduel->game_field->core.opp_mzone[i] = pcard->fieldid_r;
-			else
-				pduel->game_field->core.opp_mzone[i] = 0;
+				pduel->game_field->core.opp_mzone.insert(pcard->fieldid_r);
 		}
 		pduel->game_field->attack_all_target_check();
 		if(target) {
@@ -1650,7 +1646,7 @@ int32 scriptlib::duel_get_location_count(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 uplayer = pduel->game_field->core.reason_player;
 	uint32 reason = LOCATION_REASON_TOFIELD;
-	if(lua_gettop(L) >= 3)
+	if(lua_gettop(L) >= 3 && !lua_isnil(L,3))
 		uplayer = lua_tonumberint(L, 3);
 	if(lua_gettop(L) >= 4)
 		reason = lua_tonumberint(L, 4);
@@ -2376,16 +2372,21 @@ int32 scriptlib::duel_select_tribute(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 5);
 		mg = *(group**) lua_touserdata(L, 5);
 	}
-	uint32 ex = 0;
+	uint8 toplayer = playerid;
 	if(lua_gettop(L) >= 6)
-		ex = lua_toboolean(L, 6);
+		toplayer = lua_tointeger(L, 6);
+	if(toplayer != 0 && toplayer != 1)
+		return 0;
+	uint32 ex = FALSE;
+	if(toplayer != playerid)
+		ex = TRUE;
 	uint32 zone = 0x1f;
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->core.release_cards.clear();
 	pduel->game_field->core.release_cards_ex.clear();
 	pduel->game_field->core.release_cards_ex_sum.clear();
 	pduel->game_field->get_summon_release_list(target, &pduel->game_field->core.release_cards, &pduel->game_field->core.release_cards_ex, &pduel->game_field->core.release_cards_ex_sum, mg, ex);
-	pduel->game_field->add_process(PROCESSOR_SELECT_TRIBUTE_S, 0, 0, 0, playerid, (max << 16) + min, zone);
+	pduel->game_field->add_process(PROCESSOR_SELECT_TRIBUTE_S, 0, 0, 0, playerid, (max << 16) + min, toplayer, zone);
 	return lua_yield(L, 0);
 }
 /**
