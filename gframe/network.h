@@ -22,6 +22,21 @@ struct HostInfo {
 	unsigned char start_hand;
 	unsigned char draw_count;
 	unsigned short time_limit;
+	int destiny_draw;
+	int sealed;
+	int booster;
+	int speed;
+	int concentration;
+	int boss;
+	int city;
+	int kingdom;
+	int dimension;
+	int turbo1;
+	int turbo2;
+	int doubled;
+	int command;
+	int master;
+	int rule_count;
 };
 struct HostPacket {
 	unsigned short identifier;
