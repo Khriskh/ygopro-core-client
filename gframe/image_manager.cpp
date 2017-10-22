@@ -37,10 +37,14 @@ bool ImageManager::Initial() {
 	tFieldTransparent[0][0] = driver->getTexture("textures/field-transparent2.png");
 	tField[0][1] = driver->getTexture("textures/field3.png");
 	tFieldTransparent[0][1] = driver->getTexture("textures/field-transparent3.png");
+	tField[0][2] = driver->getTexture("textures/field.png");
+	tFieldTransparent[0][2] = driver->getTexture("textures/field-transparent.png");
 	tField[1][0] = driver->getTexture("textures/fieldSP2.png");
 	tFieldTransparent[1][0] = driver->getTexture("textures/field-transparentSP2.png");
 	tField[1][1] = driver->getTexture("textures/fieldSP3.png");
 	tFieldTransparent[1][1] = driver->getTexture("textures/field-transparentSP3.png");
+	tField[1][2] = driver->getTexture("textures/fieldSP.png");
+	tFieldTransparent[1][2] = driver->getTexture("textures/field-transparentSP.png");
 	return true;
 }
 void ImageManager::SetDevice(irr::IrrlichtDevice* dev) {
@@ -179,8 +183,12 @@ irr::video::ITexture* ImageManager::GetTexture(int code, bool fit) {
 	auto tit = tMap[fit ? 1 : 0].find(code);
 	if(tit == tMap[fit ? 1 : 0].end()) {
 		char file[256];
-		sprintf(file, "expansions/pics/%d.jpg", code);
+		sprintf(file, "expansions/pics/%d.png", code);
 		irr::video::ITexture* img = GetTextureFromFile(file, width, height);
+		if(img == NULL) {
+			sprintf(file, "expansions/pics/%d.jpg", code);
+			img = GetTextureFromFile(file, width, height);
+		}
 		if(img == NULL) {
 			sprintf(file, "pics/%d.png", code);
 			img = GetTextureFromFile(file, width, height);
@@ -205,18 +213,18 @@ irr::video::ITexture* ImageManager::GetTextureThumb(int code) {
 	int height = CARD_THUMB_HEIGHT * mainGame->window_size.Height / 640;
 	if(tit == tThumb.end()) {
 		char file[256];
-		sprintf(file, "expansions/pics/%d.jpg", code);
+		sprintf(file, "expansions/pics/%d.png", code);
 		irr::video::ITexture* img = GetTextureFromFile(file, width, height);
 		if(img == NULL) {
-			sprintf(file, "expansions/pics/%d.png", code);
-			img = GetTextureFromFile(file, width, height);
-		}
-		if(img == NULL) {
-			sprintf(file, "pics/%d.jpg", code);
+			sprintf(file, "expansions/pics/%d.jpg", code);
 			img = GetTextureFromFile(file, width, height);
 		}
 		if(img == NULL) {
 			sprintf(file, "pics/%d.png", code);
+			img = GetTextureFromFile(file, width, height);
+		}
+		if(img == NULL) {
+			sprintf(file, "pics/%d.jpg", code);
 			img = GetTextureFromFile(file, width, height);
 		}
 		if(img == NULL) {

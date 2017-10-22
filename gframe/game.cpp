@@ -16,7 +16,7 @@
 #include <dirent.h>
 #endif
 
-const unsigned short PRO_VERSION = 0x1340;
+unsigned short PRO_VERSION = 0x1340;
 
 namespace ygo {
 
@@ -751,6 +751,10 @@ void Game::MainLoop() {
 				if(dInfo.time_left[dInfo.time_player])
 					dInfo.time_left[dInfo.time_player]--;
 		}
+		if (DuelClient::try_needed) {
+			DuelClient::try_needed = false;
+			DuelClient::StartClient(DuelClient::temp_ip, DuelClient::temp_port, false);
+		}
 	}
 	DuelClient::StopClient(true);
 	if(dInfo.isSingleMode)
@@ -980,11 +984,11 @@ void Game::RefreshBGMList() {
 		return;
 	while((dirp = readdir(dir)) != NULL) {
 		size_t len = strlen(dirp->d_name);
-		if(len < 5 || strcasecmp(dirp->d_name len - 4, ".mp3") != 0)
+		if(len < 5 || strcasecmp(dirp->d_name + len - 4, ".mp3") != 0)
 			continue;
 		wchar_t wname[256];
 		BufferIO::DecodeUTF8(dirp->d_name, wname);
-		BGMList.push_back(fdataw.cFileName);
+		BGMList.push_back(wname);
 	}
 	closedir(dir);
 #endif
@@ -1052,6 +1056,8 @@ void Game::LoadConfig() {
 		} else if(!strcmp(strbuf, "roompass")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
 			BufferIO::CopyWStr(wstr, gameConf.roompass, 20);
+		} else if(!strcmp(strbuf, "game_version")) {
+			PRO_VERSION = atoi(valbuf);
 		} else if(!strcmp(strbuf, "automonsterpos")) {
 			gameConf.chkMAutoPos = atoi(valbuf);
 		} else if(!strcmp(strbuf, "autospellpos")) {
@@ -1122,6 +1128,7 @@ void Game::SaveConfig() {
 	fprintf(fp, "lasthost = %s\n", linebuf);
 	BufferIO::EncodeUTF8(gameConf.lastport, linebuf);
 	fprintf(fp, "lastport = %s\n", linebuf);
+	fprintf(fp, "game_version = %d\n", PRO_VERSION);
 	//settings
 	fprintf(fp, "automonsterpos = %d\n", ((chkMAutoPos->isChecked()) ? 1 : 0));
 	fprintf(fp, "autospellpos = %d\n", ((chkSTAutoPos->isChecked()) ? 1 : 0));
