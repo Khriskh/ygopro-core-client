@@ -127,7 +127,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 			cscg.info.draw_count = _wtoi(mainGame->ebDrawCount->getText());
 			cscg.info.time_limit = _wtoi(mainGame->ebTimeLimit->getText());
 			cscg.info.lflist = mainGame->cbLFlist->getItemData(mainGame->cbLFlist->getSelected());
-			cscg.info.duel_rule = ((mainGame->cbDuelRule->getSelected() + 1) << 16) | mainGame->duel_param;
+			cscg.info.duel_flag = mainGame->duel_param;
 			cscg.info.no_check_deck = mainGame->chkNoCheckDeck->isChecked();
 			cscg.info.no_shuffle_deck = mainGame->chkNoShuffleDeck->isChecked();
 			cscg.info.sealed = mainGame->chkRules[0]->isChecked() ? 2 : 0;
@@ -377,9 +377,34 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		str.append(msgbuf);
 		myswprintf(msgbuf, L"%ls%d\n", dataManager.GetSysString(1233), pkt->info.draw_count);
 		str.append(msgbuf);
-		uint32 rule = pkt->info.duel_rule >> 16;
+		uint32 rule = 5;
+		mainGame->dInfo.duel_rule = 2;
+		if(pkt->info.duel_flag == MASTER_RULE_1) {
+			rule = 1;
+			mainGame->dInfo.duel_rule = 1;
+		}
+		else if(pkt->info.duel_flag == MASTER_RULE_2) {
+			rule = 2;
+			mainGame->dInfo.duel_rule = 2;
+		}
+		else if(pkt->info.duel_flag == MASTER_RULE_3) {
+			rule = 3;
+			mainGame->dInfo.duel_rule = 3;
+		}
+		else if(pkt->info.duel_flag == MASTER_RULE_4) {
+			rule = 4;
+			mainGame->dInfo.duel_rule = 4;
+		}
+		else if((pkt->info.duel_flag) & DUEL_EMZONE) {
+			rule = 5;
+			mainGame->dInfo.duel_rule = 4;
+		}
+		else if((pkt->info.duel_flag) & DUEL_PZONE) {
+			rule = 5;
+			mainGame->dInfo.duel_rule = 3;
+		}
 		if(rule == 5) {
-			uint32 flag = pkt->info.duel_rule & 0xffff, filter = 0x100;
+			uint32 flag = pkt->info.duel_flag & 0xffff, filter = 0x100;
 			for (int i = 0; i < 5; ++i, filter <<= 1)
 				if (flag & filter) {
 					myswprintf(msgbuf, L"*%ls\n", dataManager.GetSysString(1265 + i));
@@ -521,11 +546,6 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			mainGame->ShowElement(mainGame->wHostPrepare2);
 		mainGame->wChat->setVisible(true);
 		mainGame->gMutex.Unlock();
-		mainGame->dInfo.duel_rule = 4;
-		if(((pkt->info.duel_rule & 0xffff) & DUEL_NO_PZONE) && ((pkt->info.duel_rule & 0xffff) & DUEL_NO_EMZONE))
-			mainGame->dInfo.duel_rule = 2;
-		else if((pkt->info.duel_rule & 0xffff) & DUEL_NO_EMZONE)
-			mainGame->dInfo.duel_rule = 3;
 		mainGame->dInfo.speed = (pkt->info.speed == 2) ? 1 : 0;
 		watching = 0;
 		connect_state |= 0x4;
@@ -3860,12 +3880,24 @@ void DuelClient::BroadcastReply(evutil_socket_t fd, short events, void * arg) {
 			myswprintf(msgbuf, L"%X.0%X.%X", pHP->version >> 12, (pHP->version >> 4) & 0xff, pHP->version & 0xf);
 			hoststr.append(msgbuf);
 			hoststr.append(L"][");
-			myswprintf(msgbuf, L"MR %d", (pHP->host.duel_rule == 0) ? 3 : pHP->host.duel_rule);
+			int rule = 5;
+			if (pHP->host.duel_flag == MASTER_RULE_1)
+				rule = 1;
+			else if (pHP->host.duel_flag == MASTER_RULE_2)
+				rule = 2;
+			else if (pHP->host.duel_flag == MASTER_RULE_3)
+				rule = 3;
+			else if (pHP->host.duel_flag == MASTER_RULE_4)
+				rule = 4;
+			if (rule == 5)
+				myswprintf(msgbuf, L"Custom MR");
+			else
+				myswprintf(msgbuf, L"MR %d", (rule == 0) ? 3 : rule);
 			hoststr.append(msgbuf);
 			hoststr.append(L"][");
 			if(pHP->host.draw_count == 1 && pHP->host.start_hand == 5 && pHP->host.start_lp == 8000
 			        && !pHP->host.no_check_deck && !pHP->host.no_shuffle_deck 
-					&& pHP->host.duel_rule == DEFAULT_DUEL_RULE && !pHP->host.destiny_draw 
+					&& rule == DEFAULT_DUEL_RULE && !pHP->host.destiny_draw
 					&& pHP->host.rule_count==0)
 				hoststr.append(dataManager.GetSysString(1280));
 			else hoststr.append(dataManager.GetSysString(1281));
