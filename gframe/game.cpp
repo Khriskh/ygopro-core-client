@@ -69,7 +69,7 @@ bool Game::Initialize() {
 	if(!imageManager.Initial())
 		return false;
 	LoadExpansionDB();
-	if(!dataManager.LoadDB("cards.cdb"))
+	if(!dataManager.LoadDB("cardses.cdb"))
 		return false;
 	if(!dataManager.LoadStrings("strings.conf"))
 		return false;
@@ -850,13 +850,13 @@ void Game::LoadExpansionDB() {
 #ifdef _WIN32
 	char fpath[1000];
 	WIN32_FIND_DATAW fdataw;
-	HANDLE fh = FindFirstFileW(L"./ES/*.cdb", &fdataw);
+	HANDLE fh = FindFirstFileW(L"./expansionses/*.cdb", &fdataw);
 	if(fh != INVALID_HANDLE_VALUE) {
 		do {
 			if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				char fname[780];
 				BufferIO::EncodeUTF8(fdataw.cFileName, fname);
-				sprintf(fpath, "./ES/%s", fname);
+				sprintf(fpath, "./expansionses/%s", fname);
 				dataManager.LoadDB(fpath);
 			}
 		} while(FindNextFileW(fh, &fdataw));
@@ -865,13 +865,13 @@ void Game::LoadExpansionDB() {
 #else
 	DIR * dir;
 	struct dirent * dirp;
-	if((dir = opendir("./ES/")) != NULL) {
+	if((dir = opendir("./expansionses/")) != NULL) {
 		while((dirp = readdir(dir)) != NULL) {
 			size_t len = strlen(dirp->d_name);
 			if(len < 5 || strcasecmp(dirp->d_name + len - 4, ".cdb") != 0)
 				continue;
 			char filepath[1000];
-			sprintf(filepath, "./ES/%s", dirp->d_name);
+			sprintf(filepath, "./expansionses/%s", dirp->d_name);
 			dataManager.LoadDB(filepath);
 		}
 		closedir(dir);
