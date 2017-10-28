@@ -8,6 +8,7 @@
 #include "duelclient.h"
 #include "netserver.h"
 #include "single_mode.h"
+#include "../ocgcore/duel.h"
 #include <sstream>
 #include "utils.h"
 
@@ -69,7 +70,7 @@ bool Game::Initialize() {
 	if(!imageManager.Initial())
 		return false;
 	LoadExpansionDB();
-	if(!dataManager.LoadDB("cardses.cdb"))
+	if(!dataManager.LoadDB("cards.cdb"))
 		return false;
 	if(!dataManager.LoadStrings("strings.conf"))
 		return false;
@@ -850,13 +851,13 @@ void Game::LoadExpansionDB() {
 #ifdef _WIN32
 	char fpath[1000];
 	WIN32_FIND_DATAW fdataw;
-	HANDLE fh = FindFirstFileW(L"./expansionses/*.cdb", &fdataw);
+	HANDLE fh = FindFirstFileW(L"./expansions/*.cdb", &fdataw);
 	if(fh != INVALID_HANDLE_VALUE) {
 		do {
 			if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				char fname[780];
 				BufferIO::EncodeUTF8(fdataw.cFileName, fname);
-				sprintf(fpath, "./expansionses/%s", fname);
+				sprintf(fpath, "./expansions/%s", fname);
 				dataManager.LoadDB(fpath);
 			}
 		} while(FindNextFileW(fh, &fdataw));
@@ -865,13 +866,13 @@ void Game::LoadExpansionDB() {
 #else
 	DIR * dir;
 	struct dirent * dirp;
-	if((dir = opendir("./expansionses/")) != NULL) {
+	if((dir = opendir("./expansions/")) != NULL) {
 		while((dirp = readdir(dir)) != NULL) {
 			size_t len = strlen(dirp->d_name);
 			if(len < 5 || strcasecmp(dirp->d_name + len - 4, ".cdb") != 0)
 				continue;
 			char filepath[1000];
-			sprintf(filepath, "./expansionses/%s", dirp->d_name);
+			sprintf(filepath, "./expansions/%s", dirp->d_name);
 			dataManager.LoadDB(filepath);
 		}
 		closedir(dir);
@@ -1394,6 +1395,44 @@ int Game::LocalPlayer(int player) {
 }
 const wchar_t* Game::LocalName(int local_player) {
 	return local_player == 0 ? dInfo.hostname : dInfo.clientname;
+}
+int Game::GetMasterRule(uint32 param, int* truerule) {
+	switch(param) {
+	case MASTER_RULE_1: {
+		if (truerule)
+			*truerule = 1;
+		return 1;
+		break;
+	}
+	case MASTER_RULE_2: {
+		if (truerule)
+			*truerule = 2;
+		return 2;
+		break;
+	}
+	case MASTER_RULE_3: {
+		if (truerule)
+			*truerule = 3;
+		return 3;
+		break;
+	}
+	case MASTER_RULE_4: {
+		if (truerule)
+			*truerule = 4;
+		return 4;
+		break;
+	}
+	default: {
+		if (truerule)
+			*truerule = 5;
+		if(param & DUEL_EMZONE)
+			return 4;
+		else if (param & DUEL_PZONE)
+			return 3;
+		else
+			return 2;
+	}
+	}
 }
 void Game::OnResize()
 {
