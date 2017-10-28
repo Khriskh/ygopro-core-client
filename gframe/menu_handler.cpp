@@ -6,7 +6,6 @@
 #include "replay_mode.h"
 #include "single_mode.h"
 #include "image_manager.h"
-#include "../ocgcore/duel.h"
 #include "game.h"
 #include "utils.h"
 
@@ -32,10 +31,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 	case irr::EET_GUI_EVENT: {
 		irr::gui::IGUIElement* caller = event.GUIEvent.Caller;
 		s32 id = caller->getID();
-		if(mainGame->wRules->isVisible() && (id != BUTTON_RULE_OK && (id <CHECK_SEALED_DUEL || id>CHECK_DECK_MASTER_DUEL)))
-			break;
-		if(mainGame->wCustomRules->isVisible() && id != BUTTON_CUSTOM_RULE_OK)
-			break;
 		switch(event.GUIEvent.EventType) {
 		case irr::gui::EGET_ELEMENT_HOVERED: {
 			// Set cursor to an I-Beam if hovering over an edit box
@@ -125,77 +120,15 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_RULE_CARDS: {
-				mainGame->PopupElement(mainGame->wRules);
+				if(mainGame->wRules->isVisible()){
+					mainGame->HideElement(mainGame->wRules);
+				}else {
+					mainGame->PopupElement(mainGame->wRules);
+				}
 				break;
 			}
-			case BUTTON_RULE_OK: {
+			case BUTTON_RULE_OK: {				
 				mainGame->HideElement(mainGame->wRules);
-				break;
-			}
-			case BUTTON_CUSTOM_RULE: {
-				switch (mainGame->cbDuelRule->getSelected()) {
-				case 0: {
-					mainGame->duel_param = MASTER_RULE_1;
-					break;
-				}
-				case 1: {
-					mainGame->duel_param = MASTER_RULE_2;
-					break;
-				}
-				case 2: {
-					mainGame->duel_param = MASTER_RULE_3;
-					break;
-				}
-				case 3: {
-					mainGame->duel_param = MASTER_RULE_4;
-					break;
-				}
-				}
-				uint32 filter = 0x100;
-				for (int i = 0; i < 5; ++i, filter <<= 1)
-					if (mainGame->duel_param & filter)
-						mainGame->chkCustomRules[i]->setChecked(true);
-					else
-						mainGame->chkCustomRules[i]->setChecked(false);
-				mainGame->PopupElement(mainGame->wCustomRules);
-				break;
-			}
-			case BUTTON_CUSTOM_RULE_OK: {
-				uint32 flag = 0, filter = 0x100;
-				for(int i = 0; i < 5; ++i, filter <<= 1)
-					if(mainGame->chkCustomRules[i]->isChecked()) {
-						flag |= filter;
-					}
-				mainGame->cbDuelRule->clear();
-				mainGame->cbDuelRule->addItem(dataManager.GetSysString(1260));
-				mainGame->cbDuelRule->addItem(dataManager.GetSysString(1261));
-				mainGame->cbDuelRule->addItem(dataManager.GetSysString(1262));
-				mainGame->cbDuelRule->addItem(dataManager.GetSysString(1263));
-				switch (flag) {
-				case MASTER_RULE_1: {
-					mainGame->cbDuelRule->setSelected(0);
-					break;
-				}
-				case MASTER_RULE_2: {
-					mainGame->cbDuelRule->setSelected(1);
-					break;
-				}
-				case MASTER_RULE_3: {
-					mainGame->cbDuelRule->setSelected(2);
-					break;
-				}
-				case MASTER_RULE_4: {
-					mainGame->cbDuelRule->setSelected(3);
-					break;
-				}
-				default: {
-					mainGame->cbDuelRule->addItem(dataManager.GetSysString(1264));
-					mainGame->cbDuelRule->setSelected(4);
-					break;
-				}
-				}
-				mainGame->duel_param = flag;
-				mainGame->HideElement(mainGame->wCustomRules);
 				break;
 			}
 			case BUTTON_HOST_CONFIRM: {
@@ -206,6 +139,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					NetServer::StopServer();
 					break;
 				}
+				mainGame->HideElement(mainGame->wRules);
 				mainGame->btnHostConfirm->setEnabled(false);
 				mainGame->btnHostCancel->setEnabled(false);
 				break;
@@ -214,8 +148,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
-				if(mainGame->wRules->isVisible())
-					mainGame->HideElement(mainGame->wRules);
+				mainGame->HideElement(mainGame->wRules);
 				mainGame->HideElement(mainGame->wCreateHost);
 				mainGame->ShowElement(mainGame->wLanWindow);
 				break;
@@ -269,8 +202,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wHostPrepare);
-				if(mainGame->wHostPrepare2->isVisible())
-					mainGame->HideElement(mainGame->wHostPrepare2);
+				mainGame->HideElement(mainGame->wHostPrepare2);
 				mainGame->ShowElement(mainGame->wLanWindow);
 				mainGame->wChat->setVisible(false);
 				if(exit_on_return)
@@ -562,40 +494,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			}
 			break;
-		}
-		case irr::gui::EGET_COMBO_BOX_CHANGED: {
-			switch (id) {
-			case COMBOBOX_DUEL_RULE: {
-				switch (mainGame->cbDuelRule->getSelected()) {
-				case 0:{
-					mainGame->cbDuelRule->removeItem(4);
-					mainGame->duel_param = MASTER_RULE_1;
-					break;
-				}
-				case 1: {
-					mainGame->cbDuelRule->removeItem(4);
-					mainGame->duel_param = MASTER_RULE_2;
-					break;
-				}
-				case 2: {
-					mainGame->cbDuelRule->removeItem(4);
-					mainGame->duel_param = MASTER_RULE_3;
-					break;
-				}
-				case 3: {
-					mainGame->cbDuelRule->removeItem(4);
-					mainGame->duel_param = MASTER_RULE_4;
-					break;
-				}
-				}
-				uint32 filter = 0x100;
-				for (int i = 0; i < 5; ++i, filter <<= 1)
-					if (mainGame->duel_param & filter)
-						mainGame->chkCustomRules[i]->setChecked(true);
-					else
-						mainGame->chkCustomRules[i]->setChecked(false);
-			}
-			}
 		}
 		default: break;
 		}
