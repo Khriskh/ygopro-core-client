@@ -12,7 +12,7 @@ project "ygopro"
         files "ygopro.rc"
         excludes "CGUIButton.cpp"
         includedirs { "../irrlicht/include", "../freetype/include", "../event/include", "../sqlite3", "../irrklang/include" }
- -		libdirs { "../irrklang/lib/Win32-visualStudio" }
+ 		libdirs { "../irrklang/lib/Win32-visualStudio" }
         links { "opengl32", "ws2_32", "winmm", "gdi32", "kernel32", "user32", "imm32" }
     configuration {"windows", "not vs*"}
         includedirs { "/mingw/include/irrlicht", "/mingw/include/freetype2" }
