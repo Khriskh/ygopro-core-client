@@ -120,12 +120,15 @@ public:
 	void AddDebugMsg(char* msgbuf);
 	void ClearTextures();
 	void CloseDuelWindow();
+	bool PlayChant(unsigned int code);
 	void PlaySoundEffect(char* sound);
 	void PlayMusic(char* song, bool loop);
 	void PlayBGM();
 
 	int LocalPlayer(int player);
 	const wchar_t* LocalName(int local_player);
+	void UpdateDuelParam();
+	int GetMasterRule(uint32 param, int* truerule = 0);
 
 	bool HasFocus(EGUI_ELEMENT_TYPE type) const {
 		irr::gui::IGUIElement* focus = env->getFocus();
@@ -184,6 +187,7 @@ public:
 
 	bool is_building;
 	bool is_siding;
+	uint32 duel_param;
 
 	irr::core::dimension2d<irr::u32> window_size;
 
@@ -267,6 +271,10 @@ public:
 	irr::gui::IGUICheckBox* chkRules[14];
 	irr::gui::IGUIButton* btnRulesOK;
 	irr::gui::IGUIComboBox* cbDuelRule;
+	irr::gui::IGUIButton* btnCustomRule;
+	irr::gui::IGUICheckBox* chkCustomRules[5];
+	irr::gui::IGUIWindow* wCustomRules;
+	irr::gui::IGUIButton* btnCustomRulesOK;
 	irr::gui::IGUICheckBox* chkNoCheckDeck;
 	irr::gui::IGUICheckBox* chkNoShuffleDeck;
 	irr::gui::IGUIButton* btnHostConfirm;
@@ -506,6 +514,7 @@ extern Game* mainGame;
 #define BUTTON_LAN_REFRESH			116
 #define BUTTON_RULE_CARDS			117
 #define BUTTON_RULE_OK				118
+#define BUTTON_CUSTOM_RULE			119
 #define BUTTON_HP_DUELIST			120
 #define BUTTON_HP_OBSERVER			121
 #define BUTTON_HP_START				122
@@ -514,6 +523,8 @@ extern Game* mainGame;
 #define CHECKBOX_HP_READY			125
 #define BUTTON_HP_READY				126
 #define BUTTON_HP_NOTREADY			127
+#define COMBOBOX_DUEL_RULE			128
+#define BUTTON_CUSTOM_RULE_OK		129
 #define LISTBOX_REPLAY_LIST			130
 #define BUTTON_LOAD_REPLAY			131
 #define BUTTON_CANCEL_REPLAY		132

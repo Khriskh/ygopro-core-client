@@ -8,6 +8,7 @@
 #include "duelclient.h"
 #include "netserver.h"
 #include "single_mode.h"
+#include "../ocgcore/duel.h"
 #include <sstream>
 #include "utils.h"
 
@@ -69,7 +70,7 @@ bool Game::Initialize() {
 	if(!imageManager.Initial())
 		return false;
 	LoadExpansionDB();
-	if(!dataManager.LoadDB("cardses.cdb"))
+	if(!dataManager.LoadDB("cards.cdb"))
 		return false;
 	if(!dataManager.LoadStrings("strings.conf"))
 		return false;
@@ -162,12 +163,22 @@ bool Game::Initialize() {
 	for(int i = 0; i < 14; ++i)
 		chkRules[i] = env->addCheckBox(false, recti(10 + (i % 2) * 150, 10 + (i / 2) * 20, 200 + (i % 2) * 120, 30 + (i / 2) * 20), wRules, 353+i, dataManager.GetSysString(1132 + i));
 	env->addStaticText(dataManager.GetSysString(1236), rect<s32>(20, 180, 220, 200), false, false, wCreateHost);
-	cbDuelRule = env->addComboBox(rect<s32>(140, 175, 300, 200), wCreateHost);
+	cbDuelRule = env->addComboBox(rect<s32>(140, 175, 300, 200), wCreateHost, COMBOBOX_DUEL_RULE);
 	cbDuelRule->addItem(dataManager.GetSysString(1260));
 	cbDuelRule->addItem(dataManager.GetSysString(1261));
 	cbDuelRule->addItem(dataManager.GetSysString(1262));
 	cbDuelRule->addItem(dataManager.GetSysString(1263));
 	cbDuelRule->setSelected(DEFAULT_DUEL_RULE - 1);
+	btnCustomRule = env->addButton(rect<s32>(305, 175, 370, 200), wCreateHost, BUTTON_CUSTOM_RULE, dataManager.GetSysString(1626));
+	wCustomRules = env->addWindow(rect<s32>(700, 100, 910, 280), false, dataManager.strBuffer);
+	wCustomRules->getCloseButton()->setVisible(false);
+	wCustomRules->setDrawTitlebar(false);
+	wCustomRules->setDraggable(true);
+	wCustomRules->setVisible(false);
+	for(int i = 0; i < 5; ++i)
+		chkCustomRules[i] = env->addCheckBox(false, recti(10, 10 + i * 20, 200, 30 + i * 20), wCustomRules, 353 + i, dataManager.GetSysString(1265 + i));
+	btnCustomRulesOK = env->addButton(rect<s32>(55, 130, 155, 155), wCustomRules, BUTTON_CUSTOM_RULE_OK, dataManager.GetSysString(1211));
+	duel_param = MASTER_RULE_4;
 	chkNoCheckDeck = env->addCheckBox(false, rect<s32>(20, 210, 170, 230), wCreateHost, -1, dataManager.GetSysString(1229));
 	chkNoShuffleDeck = env->addCheckBox(false, rect<s32>(180, 210, 360, 230), wCreateHost, -1, dataManager.GetSysString(1230));
 	env->addStaticText(dataManager.GetSysString(1231), rect<s32>(20, 240, 320, 260), false, false, wCreateHost);
@@ -194,7 +205,7 @@ bool Game::Initialize() {
 	wHostPrepare2 = env->addWindow(rect<s32>(750, 120, 950, 440), false, dataManager.GetSysString(1625));
 	wHostPrepare2->getCloseButton()->setVisible(false);
 	wHostPrepare2->setVisible(false);
-	stHostPrepRule2 = env->addStaticText(L"", rect<s32>(10, 30, 460, 230), false, true, wHostPrepare2);
+	stHostPrepRule2 = env->addStaticText(L"", rect<s32>(10, 30, 460, 350), false, true, wHostPrepare2);
 	wHostPrepare = env->addWindow(rect<s32>(270, 120, 750, 440), false, dataManager.GetSysString(1250));
 	wHostPrepare->getCloseButton()->setVisible(false);
 	wHostPrepare->setVisible(false);
@@ -705,10 +716,12 @@ void Game::MainLoop() {
 			driver->setMaterial(irr::video::IdentityMaterial);
 			driver->clearZBuffer();
 		} else if(is_building) {
+			engineSound->stopAllSounds();
 			DrawBackImage(imageManager.tBackGround_deck);
 			DrawDeckBd();
 			PlayMusic("./sound/deck.mp3", true);
 		} else {
+			engineSound->stopAllSounds();
 			DrawBackImage(imageManager.tBackGround_menu);
 			PlayMusic("./sound/menu.mp3", true);
 		}
@@ -765,6 +778,7 @@ void Game::MainLoop() {
 	usleep(500000);
 #endif
 	SaveConfig();
+	engineSound->drop();
 	engineMusic->drop();
 //	device->drop();
 }
@@ -840,13 +854,13 @@ void Game::LoadExpansionDB() {
 #ifdef _WIN32
 	char fpath[1000];
 	WIN32_FIND_DATAW fdataw;
-	HANDLE fh = FindFirstFileW(L"./expansionses/*.cdb", &fdataw);
+	HANDLE fh = FindFirstFileW(L"./expansions/*.cdb", &fdataw);
 	if(fh != INVALID_HANDLE_VALUE) {
 		do {
 			if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				char fname[780];
 				BufferIO::EncodeUTF8(fdataw.cFileName, fname);
-				sprintf(fpath, "./expansionses/%s", fname);
+				sprintf(fpath, "./expansions/%s", fname);
 				dataManager.LoadDB(fpath);
 			}
 		} while(FindNextFileW(fh, &fdataw));
@@ -855,13 +869,13 @@ void Game::LoadExpansionDB() {
 #else
 	DIR * dir;
 	struct dirent * dirp;
-	if((dir = opendir("./expansionses/")) != NULL) {
+	if((dir = opendir("./expansions/")) != NULL) {
 		while((dirp = readdir(dir)) != NULL) {
 			size_t len = strlen(dirp->d_name);
 			if(len < 5 || strcasecmp(dirp->d_name + len - 4, ".cdb") != 0)
 				continue;
 			char filepath[1000];
-			sprintf(filepath, "./expansionses/%s", dirp->d_name);
+			sprintf(filepath, "./expansions/%s", dirp->d_name);
 			dataManager.LoadDB(filepath);
 		}
 		closedir(dir);
@@ -1150,6 +1164,18 @@ void Game::SaveConfig() {
 	fprintf(fp, "volume = %d\n", vol);
 	fclose(fp);
 }
+bool Game::PlayChant(unsigned int code) {
+	char sound[1000];
+	sprintf(sound, "./sound/chants/%d.wav", code);
+	FILE *file = fopen(sound, "r");
+	if(file) {
+		fclose(file);
+		if (!engineSound->isCurrentlyPlaying(sound))
+			PlaySoundEffect(sound);
+		return true;
+	}
+	return false;
+}
 void Game::PlaySoundEffect(char* sound) {
 	if(chkEnableSound->isChecked()) {
 		engineSound->play2D(sound);
@@ -1385,6 +1411,80 @@ int Game::LocalPlayer(int player) {
 const wchar_t* Game::LocalName(int local_player) {
 	return local_player == 0 ? dInfo.hostname : dInfo.clientname;
 }
+void Game::UpdateDuelParam() {
+	uint32 flag = 0, filter = 0x100;
+	for (int i = 0; i < 5; ++i, filter <<= 1)
+		if (chkCustomRules[i]->isChecked()) {
+			flag |= filter;
+		}
+	cbDuelRule->clear();
+	cbDuelRule->addItem(dataManager.GetSysString(1260));
+	cbDuelRule->addItem(dataManager.GetSysString(1261));
+	cbDuelRule->addItem(dataManager.GetSysString(1262));
+	cbDuelRule->addItem(dataManager.GetSysString(1263));
+	switch (flag) {
+	case MASTER_RULE_1: {
+		cbDuelRule->setSelected(0);
+		break;
+	}
+	case MASTER_RULE_2: {
+		cbDuelRule->setSelected(1);
+		break;
+	}
+	case MASTER_RULE_3: {
+		cbDuelRule->setSelected(2);
+		break;
+	}
+	case MASTER_RULE_4: {
+		cbDuelRule->setSelected(3);
+		break;
+	}
+	default: {
+		cbDuelRule->addItem(dataManager.GetSysString(1264));
+		cbDuelRule->setSelected(4);
+		break;
+	}
+	}
+	duel_param = flag;
+}
+int Game::GetMasterRule(uint32 param, int* truerule) {
+	switch(param) {
+	case MASTER_RULE_1: {
+		if (truerule)
+			*truerule = 1;
+		return 1;
+		break;
+	}
+	case MASTER_RULE_2: {
+		if (truerule)
+			*truerule = 2;
+		return 2;
+		break;
+	}
+	case MASTER_RULE_3: {
+		if (truerule)
+			*truerule = 3;
+		return 3;
+		break;
+	}
+	case MASTER_RULE_4: {
+		if (truerule)
+			*truerule = 4;
+		return 4;
+		break;
+	}
+	default: {
+		if (truerule)
+			*truerule = 5;
+		if(param & DUEL_EMZONE)
+			return 4;
+		else if (param & DUEL_PZONE)
+			return 3;
+		else
+			return 2;
+	}
+	}
+}
 void Game::OnResize()
 {
 	wMainMenu->setRelativePosition(ResizeWin(370, 200, 650, 415));
@@ -1439,6 +1539,7 @@ void Game::OnResize()
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750, 440));
 	wHostPrepare2->setRelativePosition(ResizeWin(750, 120, 950, 440));
 	wRules->setRelativePosition(ResizeWin(630, 100, 1000, 310));
+	wCustomRules->setRelativePosition(ResizeWin(700, 100, 910, 280));
 	wReplay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wSinglePlay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 

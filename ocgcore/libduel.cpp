@@ -89,6 +89,9 @@ int32 scriptlib::duel_register_flag_effect(lua_State *L) {
 	int32 reset = lua_tonumberint(L, 3);
 	int32 flag = lua_tonumberint(L, 4);
 	int32 count = lua_tonumberint(L, 5);
+	int32 lab = 0;
+	if(lua_gettop(L) >= 6)
+		lab = lua_tonumberint(L, 6);
 	if(count == 0)
 		count = 1;
 	if(reset & (RESET_PHASE) && !(reset & (RESET_SELF_TURN | RESET_OPPO_TURN)))
@@ -105,6 +108,7 @@ int32 scriptlib::duel_register_flag_effect(lua_State *L) {
 	peffect->s_range = 1;
 	peffect->o_range = 0;
 	peffect->reset_count = count;
+	peffect->label = lab;
 	pduel->game_field->add_effect(peffect, playerid);
 	interpreter::effect2value(L, peffect);
 	return 1;
@@ -132,10 +136,45 @@ int32 scriptlib::duel_reset_flag_effect(lua_State *L) {
 	for(; pr.first != pr.second; ) {
 		auto rm = pr.first++;
 		effect* peffect = rm->second;
-		if(peffect->code == code)
+		if(peffect->code == code && peffect->is_target_player(playerid))
 			pduel->game_field->remove_effect(peffect);
 	}
 	return 0;
+}
+int32 scriptlib::duel_set_flag_effect_label(lua_State *L) {
+	check_param_count(L, 3);
+	int32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	uint32 code = (lua_tounsigned(L, 2) & 0xfffffff) | 0x10000000;
+	int32 lab = lua_tointeger(L, 3);
+	duel* pduel = interpreter::get_duel_info(L);
+	effect_set eset;
+	pduel->game_field->filter_player_effect(playerid, code, &eset);
+	if(!eset.size())
+		lua_pushboolean(L, FALSE);
+	else {
+		eset[0]->label = lab;
+		lua_pushboolean(L, TRUE);
+	}
+	return 1;
+}
+int32 scriptlib::duel_get_flag_effect_label(lua_State *L) {
+	check_param_count(L, 2);
+	int32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	uint32 code = (lua_tounsigned(L, 2) & 0xfffffff) | 0x10000000;
+	duel* pduel = interpreter::get_duel_info(L);
+	effect_set eset;
+	pduel->game_field->filter_player_effect(playerid, code, &eset);
+	if(!eset.size()) {
+		lua_pushnil(L);
+		return 1;
+	}
+	for(int32 i = 0; i < eset.size(); ++i)
+		lua_pushinteger(L, eset[i]->label);
+	return eset.size();
 }
 int32 scriptlib::duel_destroy(lua_State *L) {
 	check_action_permission(L);
@@ -1753,7 +1792,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 		scard = *(card**)lua_touserdata(L, 4);
 	}
 	uint32 zone = 0xff;
-	if(pduel->game_field->core.duel_rule >= 4)
+	if(pduel->game_field->core.duel_options & DUEL_EMZONE)
 		lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone));
 	else
 		lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone));
@@ -1775,7 +1814,7 @@ int32 scriptlib::duel_get_usable_mzone_count(lua_State *L) {
 	if(lua_gettop(L) >= 2)
 		uplayer = lua_tonumberint(L, 2);
 	uint32 zone = 0xff;
-	if(pduel->game_field->core.duel_rule >= 4) {
+	if(pduel->game_field->core.duel_options & DUEL_EMZONE) {
 		uint32 flag1, flag2;
 		int32 ct1 = pduel->game_field->get_tofield_count(playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone, &flag1);
 		int32 ct2 = pduel->game_field->get_spsummonable_count_fromex(0, playerid, uplayer, zone, &flag2);
@@ -1919,6 +1958,21 @@ int32 scriptlib::duel_get_chain_info(lua_State *L) {
 		}
 	}
 	return args;
+}
+int32 scriptlib::duel_get_chain_event(lua_State *L) {
+	check_param_count(L, 1);
+	uint32 count = lua_tointeger(L, 1);
+	duel* pduel = interpreter::get_duel_info(L);
+	chain* ch = pduel->game_field->get_chain(count);
+	if(!ch)
+		return 0;
+	interpreter::group2value(L, ch->evt.event_cards);
+	lua_pushinteger(L, ch->evt.event_player);
+	lua_pushinteger(L, ch->evt.event_value);
+	interpreter::effect2value(L, ch->evt.reason_effect);
+	lua_pushinteger(L, ch->evt.reason);
+	lua_pushinteger(L, ch->evt.reason_player);
+	return 6;
 }
 int32 scriptlib::duel_get_first_target(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
@@ -3104,7 +3158,7 @@ int32 scriptlib::duel_select_disable_field(lua_State * L) {
 	uint32 location1 = lua_tonumberint(L, 3);
 	uint32 location2 = lua_tonumberint(L, 4);
 	duel* pduel = interpreter::get_duel_info(L);
-	uint32 filter = (pduel->game_field->core.duel_rule > 3) ? 0xC080C080 : 0x80E080E0;
+	uint32 filter = (pduel->game_field->core.duel_options & DUEL_EMZONE) ? 0xC080C080 : 0x80E080E0;
 	filter |= lua_tonumberint(L, 5);
 	uint32 all_field = FALSE;
 	if(lua_gettop(L) > 5)
@@ -3197,7 +3251,7 @@ int32 scriptlib::duel_select_field_zone(lua_State * L) {
 	uint32 filter = 0xe0e0e0e0;
 	if(lua_gettop(L) > 4)
 		filter = lua_tonumberint(L, 5);
-	filter |= (pduel->game_field->core.duel_rule > 3) ? 0xC080C080 : 0x80E080E0;
+	filter |= (pduel->game_field->core.duel_options & DUEL_EMZONE) ? 0xC080C080 : 0x80E080E0;
 	uint32 flag = 0xffffffff;
 	if(location1 & LOCATION_MZONE)
 		flag &= 0xffffff00;
