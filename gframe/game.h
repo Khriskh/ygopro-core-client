@@ -14,6 +14,7 @@ namespace ygo {
 
 struct Config {
 	bool use_d3d;
+	bool fullscreen;
 	unsigned short antialias;
 	unsigned short serverport;
 	unsigned char textfontsize;
@@ -188,6 +189,7 @@ public:
 	bool is_building;
 	bool is_siding;
 	uint32 duel_param;
+	int texty;
 
 	irr::core::dimension2d<irr::u32> window_size;
 

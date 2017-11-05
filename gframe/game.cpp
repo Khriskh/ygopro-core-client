@@ -32,7 +32,13 @@ bool Game::Initialize() {
 		params.DriverType = irr::video::EDT_DIRECT3D9;
 	else
 		params.DriverType = irr::video::EDT_OPENGL;
-		params.WindowSize = irr::core::dimension2d<u32>(1024, 640);
+	params.WindowSize = irr::core::dimension2d<u32>(1024, 640);
+	if(gameConf.fullscreen) {
+		IrrlichtDevice *nulldevice = createDevice(video::EDT_NULL);
+		params.WindowSize = nulldevice->getVideoModeList()->getDesktopResolution();
+		nulldevice->drop();
+		params.Fullscreen = true;
+	}
 	device = irr::createDeviceEx(params);
 	if(!device)
 		return false;
@@ -60,6 +66,7 @@ bool Game::Initialize() {
 	ignore_chain = false;
 	chain_when_avail = false;
 	is_building = false;
+	texty = 0;
 	memset(&dInfo, 0, sizeof(DuelInfo));
 	memset(chatTiming, 0, sizeof(chatTiming));
 	deckManager.LoadLFList();
@@ -70,7 +77,7 @@ bool Game::Initialize() {
 	if(!imageManager.Initial())
 		return false;
 	LoadExpansionDB();
-	if(!dataManager.LoadDB("cardses.cdb"))
+	if(!dataManager.LoadDB("cards.cdb"))
 		return false;
 	if(!dataManager.LoadStrings("strings.conf"))
 		return false;
@@ -794,13 +801,13 @@ void Game::BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 
 	mProjection[14] = znear * zfar / (znear - zfar);
 }
 void Game::InitStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, u32 cHeight, irr::gui::CGUITTFont* font, const wchar_t* text) {
-	const auto& tsize = scrCardText->getRelativePosition();
-	SetStaticText(pControl, cWidth - tsize.getWidth(), font, text);
+	SetStaticText(pControl, cWidth-10, font, text);
 	if(font->getDimension(dataManager.strBuffer).Height <= cHeight) {
 		scrCardText->setVisible(false);
 		return;
 	}
-	SetStaticText(pControl, cWidth - tsize.getWidth(), font, text);
+	const auto& tsize = scrCardText->getRelativePosition();
+	SetStaticText(pControl, cWidth - tsize.getWidth() - 10, font, text);
 	u32 fontheight = font->getDimension(L"A").Height + font->getKerningHeight();
 	u32 step = (font->getDimension(dataManager.strBuffer).Height - cHeight) / fontheight + 1;
 	scrCardText->setVisible(true);
@@ -859,13 +866,13 @@ void Game::LoadExpansionDB() {
 #ifdef _WIN32
 	char fpath[1000];
 	WIN32_FIND_DATAW fdataw;
-	HANDLE fh = FindFirstFileW(L"./expansionses/*.cdb", &fdataw);
+	HANDLE fh = FindFirstFileW(L"./expansions/*.cdb", &fdataw);
 	if(fh != INVALID_HANDLE_VALUE) {
 		do {
 			if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				char fname[780];
 				BufferIO::EncodeUTF8(fdataw.cFileName, fname);
-				sprintf(fpath, "./expansionses/%s", fname);
+				sprintf(fpath, "./expansions/%s", fname);
 				dataManager.LoadDB(fpath);
 			}
 		} while(FindNextFileW(fh, &fdataw));
@@ -874,13 +881,13 @@ void Game::LoadExpansionDB() {
 #else
 	DIR * dir;
 	struct dirent * dirp;
-	if((dir = opendir("./expansionses/")) != NULL) {
+	if((dir = opendir("./expansions/")) != NULL) {
 		while((dirp = readdir(dir)) != NULL) {
 			size_t len = strlen(dirp->d_name);
 			if(len < 5 || strcasecmp(dirp->d_name + len - 4, ".cdb") != 0)
 				continue;
 			char filepath[1000];
-			sprintf(filepath, "./expansionses/%s", dirp->d_name);
+			sprintf(filepath, "./expansions/%s", dirp->d_name);
 			dataManager.LoadDB(filepath);
 		}
 		closedir(dir);
@@ -1021,6 +1028,7 @@ void Game::LoadConfig() {
 	char valbuf[256];
 	wchar_t wstr[256];
 	gameConf.antialias = 0;
+	gameConf.fullscreen = false;
 	gameConf.serverport = 7911;
 	gameConf.textfontsize = 12;
 	gameConf.nickname[0] = 0;
@@ -1053,6 +1061,8 @@ void Game::LoadConfig() {
 			gameConf.antialias = atoi(valbuf);
 		} else if(!strcmp(strbuf, "use_d3d")) {
 			gameConf.use_d3d = atoi(valbuf) > 0;
+		} else if(!strcmp(strbuf, "fullscreen")) {
+			gameConf.fullscreen = atoi(valbuf) > 0;
 		} else if(!strcmp(strbuf, "errorlog")) {
 			enable_log = atoi(valbuf);
 		} else if(!strcmp(strbuf, "textfont")) {
@@ -1129,6 +1139,7 @@ void Game::SaveConfig() {
 	fprintf(fp, "#config file\n#nickname & gamename should be less than 20 characters\n");
 	char linebuf[256];
 	fprintf(fp, "use_d3d = %d\n", gameConf.use_d3d ? 1 : 0);
+	fprintf(fp, "fullscreen = %d\n", gameConf.fullscreen ? 1 : 0);
 	fprintf(fp, "antialias = %d\n", gameConf.antialias);
 	fprintf(fp, "errorlog = %d\n", enable_log);
 	BufferIO::CopyWStr(ebNickName->getText(), gameConf.nickname, 20);
@@ -1278,15 +1289,17 @@ void Game::ShowCardInfo(int code) {
 		}
 		stDataInfo->setText(formatBuffer);
 		stSetName->setRelativePosition(rect<s32>(15, 83, 316 * window_size.Width / 1024 - 30, 116));
-		stText->setRelativePosition(rect<s32>(15, 83 + offset, 287 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
-		scrCardText->setRelativePosition(Resize(267, 83 + offset, 287, 324));
+		texty = 83 + offset;
+		stText->setRelativePosition(rect<s32>(15, texty * window_size.Height / 640, 287 * window_size.Width / 1024, 324 * window_size.Height / 640));
+		scrCardText->setRelativePosition(Resize(267, texty, 287, 324));
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
 		stDataInfo->setText(L"");
 		stSetName->setRelativePosition(rect<s32>(15, 60, 316 * window_size.Height / 640, 83));
-		stText->setRelativePosition(rect<s32>(15, 60 + offset, 287 * window_size.Width / 1024 - 30, 324 * window_size.Height / 640));
-		scrCardText->setRelativePosition(Resize(267, 60 + offset, 287, 324));
+		texty = 60 + offset;
+		stText->setRelativePosition(rect<s32>(15, texty * window_size.Height / 640, 287 * window_size.Width / 1024, 324 * window_size.Height / 640));
+		scrCardText->setRelativePosition(Resize(267, texty, 287, 324));
 	}
 	showingtext = dataManager.GetText(code);
 	const auto& tsize = stText->getRelativePosition();
@@ -1569,9 +1582,12 @@ void Game::OnResize()
 	stName->setRelativePosition(recti(10, 10, 287 * window_size.Width / 1024, 32));
 	stInfo->setRelativePosition(recti(15, 37, 296 * window_size.Width / 1024, 60));
 	stDataInfo->setRelativePosition(recti(15, 60, 296 * window_size.Width / 1024, 83));
-	stText->setRelativePosition(recti(15, stText->getRelativePosition().UpperLeftCorner.Y, 287 * window_size.Width / 1024, 324 * window_size.Height / 640));
-	scrCardText->setRelativePosition(recti(267 * window_size.Width / 1024, scrCardText->getRelativePosition().UpperLeftCorner.Y, 287 * window_size.Width / 1024, 324 * window_size.Height / 640));
+	stText->setRelativePosition(recti(15, texty * window_size.Height / 640, 287 * window_size.Width / 1024, 324 * window_size.Height / 640));
+	scrCardText->setRelativePosition(Resize(267, texty, 287, 324));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
+	const auto& tsize = stText->getRelativePosition();
+	if(texty)
+		InitStaticText(stText, tsize.getWidth(), tsize.getHeight(), textFont, showingtext);
 	btnClearLog->setRelativePosition(Resize(160, 300, 260, 325));
 	srcVolume->setRelativePosition(rect<s32>(85, 295, wInfos->getRelativePosition().LowerRightCorner.X - 21, 310));
 
