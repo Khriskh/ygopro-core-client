@@ -671,7 +671,7 @@ int32 field::process() {
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_OPSELECTED);
 			pduel->write_buffer8(it->arg1);
-			pduel->write_buffer32(core.select_options[returns.ivalue[0]]);
+			pduel->write_buffer64(core.select_options[returns.ivalue[0]]);
 			core.units.pop_front();
 		}
 		return pduel->bufferlen;
@@ -1030,9 +1030,9 @@ int32 field::process() {
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(it->arg1);
 			if(it->arg3 & REASON_DISCARD)
-				pduel->write_buffer32(501);
+				pduel->write_buffer64(501);
 			else
-				pduel->write_buffer32(504);
+				pduel->write_buffer64(504);
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, it->arg1, it->arg2);
 			it->step++;
 		} else if(it->step == 1) {
@@ -1422,9 +1422,8 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			tf_count++;
 		}
 		pr = effects.continuous_effect.equal_range(phase_event);
-		for(; pr.first != pr.second;) {
+		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			++pr.first;
 			if(peffect->get_handler_player() != check_player || !peffect->is_activateable(check_player, nil_event))
 				continue;
 			peffect->id = infos.field_id++;
@@ -1508,6 +1507,16 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				core.select_chains.push_back(newchain);
 				fc_count++;
 			}
+			pr = effects.continuous_effect.equal_range(EVENT_FREE_CHAIN);
+			for(; pr.first != pr.second; ++pr.first) {
+				peffect = pr.first->second;
+				if(peffect->get_handler_player() != check_player || !peffect->is_activateable(check_player, nil_event))
+					continue;
+				peffect->id = infos.field_id++;
+				newchain.triggering_effect = peffect;
+				core.select_chains.push_back(newchain);
+				fc_count++;
+			}
 		}
 		if(core.select_chains.size() == 0) {
 			returns.ivalue[0] = -1;
@@ -1522,15 +1531,15 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			pduel->write_buffer8(HINT_EVENT);
 			pduel->write_buffer8(check_player);
 			if(infos.phase == PHASE_DRAW)
-				pduel->write_buffer32(20);
+				pduel->write_buffer64(20);
 			else if(infos.phase == PHASE_STANDBY)
-				pduel->write_buffer32(21);
+				pduel->write_buffer64(21);
 			else if(infos.phase == PHASE_BATTLE_START)
-				pduel->write_buffer32(28);
+				pduel->write_buffer64(28);
 			else if(infos.phase == PHASE_BATTLE)
-				pduel->write_buffer32(25);
+				pduel->write_buffer64(25);
 			else
-				pduel->write_buffer32(26);
+				pduel->write_buffer64(26);
 			if(tf_count == 0 && to_count == 1 && fc_count == 0 && cn_count == 0) {
 				add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_chains[0].triggering_effect->get_handler(), check_player, 0);
 				return FALSE;
@@ -1634,7 +1643,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(infos.turn_player);
-		pduel->write_buffer32(501);
+		pduel->write_buffer64(501);
 		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player, hd - limit + ((hd - limit) << 16));
 		return FALSE;
 	}
@@ -2016,6 +2025,70 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			peffect->get_value();
 		core.new_ochain_s.erase(clit);
 		core.units.begin()->step = 4;
+		return FALSE;
+	}
+	case 30: {
+		int32 check_player = infos.turn_player;
+		nil_event.event_code = EVENT_FREE_CHAIN;
+		chain newchain;
+		core.select_chains.clear();
+		core.spe_effect[check_player] = 0;
+		auto pr = effects.continuous_effect.equal_range(EVENT_FREE_CHAIN);
+		for(; pr.first != pr.second; ++pr.first) {
+			effect* peffect = pr.first->second;
+			newchain.triggering_effect = peffect;
+			if(peffect->get_handler_player() == check_player && peffect->is_activateable(check_player, nil_event)) {
+				core.select_chains.push_back(newchain);
+				core.spe_effect[check_player]++;
+			}
+		}
+		if(!core.select_chains.empty())
+			add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, core.spe_effect[check_player]);
+		else
+			core.units.begin()->step = 31;
+		return FALSE;
+	}
+	case 31: {
+		if(returns.ivalue[0] == -1)
+			return FALSE;
+		const chain& newchain = core.select_chains[returns.ivalue[0]];
+		effect* peffect = newchain.triggering_effect;
+		core.select_chains.clear();
+		core.sub_solving_event.push_back(nil_event);
+		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+		core.units.begin()->step = 29;
+		return FALSE;
+	}
+	case 32: {
+		int32 check_player = 1 - infos.turn_player;
+		nil_event.event_code = EVENT_FREE_CHAIN;
+		chain newchain;
+		core.select_chains.clear();
+		core.spe_effect[check_player] = 0;
+		auto pr = effects.continuous_effect.equal_range(EVENT_FREE_CHAIN);
+		for(; pr.first != pr.second; ++pr.first) {
+			effect* peffect = pr.first->second;
+			newchain.triggering_effect = peffect;
+			if(peffect->get_handler_player() == check_player && peffect->is_activateable(check_player, nil_event)) {
+				core.select_chains.push_back(newchain);
+				core.spe_effect[check_player]++;
+			}
+		}
+		if(!core.select_chains.empty())
+			add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, core.spe_effect[check_player]);
+		else
+			core.units.begin()->step = -1;
+		return FALSE;
+	}
+	case 33: {
+		if(returns.ivalue[0] == -1)
+			return FALSE;
+		const chain& newchain = core.select_chains[returns.ivalue[0]];
+		effect* peffect = newchain.triggering_effect;
+		core.select_chains.clear();
+		core.sub_solving_event.push_back(nil_event);
+		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+		core.units.begin()->step = 31;
 		return FALSE;
 	}
 	}
@@ -2569,6 +2642,13 @@ int32 field::process_idle_command(uint16 step) {
 			if(peffect->is_activateable(infos.turn_player, nil_event))
 				core.select_chains.push_back(newchain);
 		}
+		pr = effects.continuous_effect.equal_range(EVENT_FREE_CHAIN);
+		for(; pr.first != pr.second; ++pr.first) {
+			peffect = pr.first->second;
+			newchain.triggering_effect = peffect;
+			if(peffect->get_handler_player() == infos.turn_player && peffect->is_activateable(infos.turn_player, nil_event))
+				core.select_chains.push_back(newchain);
+		}
 		for(auto eit = effects.ignition_effect.begin(); eit != effects.ignition_effect.end(); ++eit) {
 			peffect = eit->second;
 			peffect->set_activate_location();
@@ -2640,6 +2720,13 @@ int32 field::process_idle_command(uint16 step) {
 		if(ctype == 5) {
 			chain newchain = core.select_chains[sel];
 			effect* peffect = newchain.triggering_effect;
+			if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
+				core.select_chains.clear();
+				core.sub_solving_event.push_back(nil_event);
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+				core.units.begin()->step = -1;
+				return FALSE;
+			}
 			card* phandler = peffect->get_handler();
 			newchain.flag = 0;
 			newchain.chain_id = infos.field_id++;
@@ -2687,7 +2774,7 @@ int32 field::process_idle_command(uint16 step) {
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_EVENT);
 			pduel->write_buffer8(1 - infos.turn_player);
-			pduel->write_buffer32(23);
+			pduel->write_buffer64(23);
 			core.select_chains.clear();
 			core.hint_timing[infos.turn_player] = TIMING_MAIN_END;
 			add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, FALSE, 1 - infos.turn_player);
@@ -2858,6 +2945,13 @@ int32 field::process_battle_command(uint16 step) {
 			if(peffect->is_activateable(infos.turn_player, nil_event))
 				core.select_chains.push_back(newchain);
 		}
+		pr = effects.continuous_effect.equal_range(EVENT_FREE_CHAIN);
+		for(; pr.first != pr.second; ++pr.first) {
+			peffect = pr.first->second;
+			newchain.triggering_effect = peffect;
+			if(peffect->get_handler_player() == infos.turn_player && peffect->is_activateable(infos.turn_player, nil_event))
+				core.select_chains.push_back(newchain);
+		}
 		core.attackable_cards.clear();
 		card_vector first_attack;
 		card_vector must_attack;
@@ -2901,6 +2995,13 @@ int32 field::process_battle_command(uint16 step) {
 		if(ctype == 0) {
 			chain newchain = core.select_chains[sel];
 			effect* peffect = newchain.triggering_effect;
+			if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
+				core.select_chains.clear();
+				core.sub_solving_event.push_back(nil_event);
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+				core.units.begin()->step = -1;
+				return FALSE;
+			}
 			card* phandler = peffect->get_handler();
 			newchain.flag = 0;
 			newchain.chain_id = infos.field_id++;
@@ -2958,7 +3059,7 @@ int32 field::process_battle_command(uint16 step) {
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_EVENT);
 			pduel->write_buffer8(1 - infos.turn_player);
-			pduel->write_buffer32(29);
+			pduel->write_buffer64(29);
 			core.select_chains.clear();
 			core.hint_timing[infos.turn_player] = TIMING_BATTLE_STEP_END;
 			add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, FALSE, 1 - infos.turn_player);
@@ -3036,14 +3137,14 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer8(MSG_HINT);
 				pduel->write_buffer8(HINT_SELECTMSG);
 				pduel->write_buffer8(1 - infos.turn_player);
-				pduel->write_buffer32(549);
+				pduel->write_buffer64(549);
 				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, 1 - infos.turn_player, 0x10001);
 			}
 		} else {
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(infos.turn_player);
-			pduel->write_buffer32(549);
+			pduel->write_buffer64(549);
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + (core.attack_cancelable ? 0x20000 : 0), 0x10001);
 		}
 		core.units.begin()->step = 5;
@@ -3058,7 +3159,7 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer8(MSG_HINT);
 				pduel->write_buffer8(HINT_SELECTMSG);
 				pduel->write_buffer8(infos.turn_player);
-				pduel->write_buffer32(549);
+				pduel->write_buffer64(549);
 				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + (core.attack_cancelable ? 0x20000 : 0), 0x10001);
 			} else {
 				core.units.begin()->arg3 = TRUE;
@@ -3146,14 +3247,14 @@ int32 field::process_battle_command(uint16 step) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
-		pduel->write_buffer32(24);
+		pduel->write_buffer64(24);
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(1);
-		pduel->write_buffer32(24);
+		pduel->write_buffer64(24);
 		core.hint_timing[0] = TIMING_BATTLE_PHASE;
 		core.hint_timing[1] = TIMING_BATTLE_PHASE;
-		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
+		add_process(PROCESSOR_POINT_EVENT, 30, 0, 0, 0, 0);
 		return FALSE;
 	}
 	case 10: {
@@ -3290,11 +3391,11 @@ int32 field::process_battle_command(uint16 step) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
-		pduel->write_buffer32(40);
+		pduel->write_buffer64(40);
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(1);
-		pduel->write_buffer32(40);
+		pduel->write_buffer64(40);
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, TRUE);
 		return FALSE;
 	}
@@ -3331,11 +3432,11 @@ int32 field::process_battle_command(uint16 step) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
-		pduel->write_buffer32(41);
+		pduel->write_buffer64(41);
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(1);
-		pduel->write_buffer32(41);
+		pduel->write_buffer64(41);
 		core.hint_timing[infos.turn_player] = TIMING_DAMAGE_STEP;
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 		return FALSE;
@@ -3366,11 +3467,11 @@ int32 field::process_battle_command(uint16 step) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
-		pduel->write_buffer32(42);
+		pduel->write_buffer64(42);
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(1);
-		pduel->write_buffer32(42);
+		pduel->write_buffer64(42);
 		core.hint_timing[infos.turn_player] = TIMING_DAMAGE_CAL;
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, TRUE);
 		return FALSE;
@@ -3429,7 +3530,7 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer8(MSG_HINT);
 				pduel->write_buffer8(HINT_CARD);
 				pduel->write_buffer8(0);
-				pduel->write_buffer32(indestructable_effect->owner->data.code);
+				pduel->write_buffer64(indestructable_effect->owner->data.code);
 				bd[0] = FALSE;
 			} else
 				core.attacker->set_status(STATUS_BATTLE_RESULT, TRUE);
@@ -3440,7 +3541,7 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer8(MSG_HINT);
 				pduel->write_buffer8(HINT_CARD);
 				pduel->write_buffer8(0);
-				pduel->write_buffer32(indestructable_effect->owner->data.code);
+				pduel->write_buffer64(indestructable_effect->owner->data.code);
 				bd[1] = FALSE;
 			} else
 				core.attack_target->set_status(STATUS_BATTLE_RESULT, TRUE);
@@ -3614,11 +3715,11 @@ int32 field::process_battle_command(uint16 step) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
-		pduel->write_buffer32(43);
+		pduel->write_buffer64(43);
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(1);
-		pduel->write_buffer32(43);
+		pduel->write_buffer64(43);
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, TRUE);
 		return FALSE;
 	}
@@ -3677,11 +3778,11 @@ int32 field::process_battle_command(uint16 step) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
-		pduel->write_buffer32(44);
+		pduel->write_buffer64(44);
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(1);
-		pduel->write_buffer32(44);
+		pduel->write_buffer64(44);
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, TRUE);
 		core.units.begin()->step = 38;
 		return FALSE;
@@ -4379,7 +4480,7 @@ int32 field::add_chain(uint16 step) {
 		pduel->write_buffer8(clit.triggering_controler);
 		pduel->write_buffer8((uint8)clit.triggering_location);
 		pduel->write_buffer8(clit.triggering_sequence);
-		pduel->write_buffer32(peffect->description);
+		pduel->write_buffer64(peffect->description);
 		pduel->write_buffer8(core.current_chain.size() + 1);
 		break_effect();
 		for(auto it = core.chain_limit.begin(); it != core.chain_limit.end(); ++it)

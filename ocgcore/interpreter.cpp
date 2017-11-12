@@ -619,13 +619,6 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	//extra scripts
 	load_script((char*) "./script/constant.lua");
 	load_script((char*) "./script/utility.lua");
-	load_script((char*) "./script/proc_fusion.lua");
-	load_script((char*) "./script/proc_ritual.lua");
-	load_script((char*) "./script/proc_synchro.lua");
-	load_script((char*) "./script/proc_union.lua");
-	load_script((char*) "./script/proc_xyz.lua");
-	load_script((char*) "./script/proc_pendulum.lua");
-	load_script((char*) "./script/proc_link.lua");
 }
 interpreter::~interpreter() {
 	lua_close(lua_state);
