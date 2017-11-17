@@ -287,6 +287,7 @@ public:
 	//host panel
 	irr::gui::IGUIWindow* wHostPrepare;
 	irr::gui::IGUIWindow* wHostPrepare2;
+	irr::gui::IGUIWindow* wHostPrepare3;
 	irr::gui::IGUIStaticText* stHostCardRule;
 	irr::gui::IGUIButton* btnHostPrepDuelist;
 	irr::gui::IGUIButton* btnHostPrepOB;
@@ -470,6 +471,7 @@ public:
 	irrklang::ISoundEngine* engineMusic;
 	//swap
 	irr::gui::IGUIButton* btnSpectatorSwap;
+	irr::gui::IGUIButton* btnHandSwap;
 	//chain control
 	irr::gui::IGUIButton* btnChainIgnore;
 	irr::gui::IGUIButton* btnChainAlways;
@@ -617,6 +619,7 @@ extern Game* mainGame;
 #define BUTTON_REPLAY_SWAP			325
 #define BUTTON_REPLAY_SAVE			330
 #define BUTTON_REPLAY_CANCEL		331
+#define BUTTON_REPLAY_CANCEL		332
 #define LISTBOX_SINGLEPLAY_LIST		350
 #define BUTTON_LOAD_SINGLEPLAY		351
 #define BUTTON_CANCEL_SINGLEPLAY	352
