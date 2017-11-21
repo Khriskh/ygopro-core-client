@@ -314,16 +314,16 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_BOT_START: {
- +				int sel = mainGame->lstBotList->getSelected();
- +				if(sel == -1)
- +					break;
- +				bot_mode = true;
- +				if(!NetServer::StartServer(mainGame->gameConf.serverport))
- +					break;
- +				if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
- +					NetServer::StopServer();
- +					break;
- +				}
+ 				int sel = mainGame->lstBotList->getSelected();
+ 				if(sel == -1)
+ 					break;
+ 				bot_mode = true;
+ 				if(!NetServer::StartServer(mainGame->gameConf.serverport))
+ 					break;
+ 				if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
+ 					NetServer::StopServer();
+ 					break;
+ 				}
  #ifdef _WIN32
  				STARTUPINFO si;
  				PROCESS_INFORMATION pi;
