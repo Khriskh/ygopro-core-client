@@ -68,7 +68,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_JOIN_HOST: {
-				bot_mode = false;
 				char ip[20];
 				const wchar_t* pstr = mainGame->ebJoinHost->getText();
 				BufferIO::CopyWStr(pstr, ip, 16);
@@ -174,7 +173,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HOST_CONFIRM: {
-				bot_mode = false;
 				BufferIO::CopyWStr(mainGame->ebServerName->getText(), mainGame->gameConf.gamename, 20);
 				if(!NetServer::StartServer(mainGame->gameConf.serverport))
 					break;
@@ -244,15 +242,10 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
-				mainGame->btnStartBot->setEnabled(true);
- 				mainGame->btnBotCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wHostPrepare);
 				if(mainGame->wHostPrepare2->isVisible())
 					mainGame->HideElement(mainGame->wHostPrepare2);
-				if(bot_mode)
- 					mainGame->ShowElement(mainGame->wSinglePlay);
- 				else
- 					mainGame->ShowElement(mainGame->wLanWindow);
+				mainGame->ShowElement(mainGame->wLanWindow);
 				mainGame->wChat->setVisible(false);
 				if(exit_on_return)
 					mainGame->device->closeDevice();
@@ -269,7 +262,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->HideElement(mainGame->wMainMenu);
 				mainGame->ShowElement(mainGame->wSinglePlay);
 				mainGame->RefreshSingleplay();
-				mainGame->RefreshBot();
 				break;
 			}
 			case BUTTON_LOAD_REPLAY: {
@@ -291,7 +283,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->stDataInfo->setText(L"");
 				mainGame->stSetName->setText(L"");
 				mainGame->stText->setText(L"");
-				mainGame->texty = 0;
+				mainGame->showingcard = 0;
 				mainGame->scrCardText->setVisible(false);
 				mainGame->wReplayControl->setVisible(true);
 				mainGame->btnReplayStart->setVisible(false);
@@ -313,37 +305,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->ShowElement(mainGame->wMainMenu);
 				break;
 			}
-			case BUTTON_BOT_START: {
- 				int sel = mainGame->lstBotList->getSelected();
- 				if(sel == -1)
- 					break;
- 				bot_mode = true;
- 				if(!NetServer::StartServer(mainGame->gameConf.serverport))
- 					break;
- 				if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
- 					NetServer::StopServer();
- 					break;
- 				}
- #ifdef _WIN32
- 				STARTUPINFO si;
- 				PROCESS_INFORMATION pi;
- 				ZeroMemory(&si, sizeof(si));
- 				si.cb = sizeof(si);
- 				ZeroMemory(&pi, sizeof(pi));
- 				LPTSTR cmd = new TCHAR[MAX_PATH];
- 				int flag = 0;
- 				flag += (mainGame->chkBotHand->isChecked() ? 0x1 : 0);
- 				myswprintf(cmd, L"Bot.exe \"%ls\" %d %d", mainGame->botInfo[sel].command, flag, mainGame->gameConf.serverport);
- 				if(!CreateProcess(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
- 				{
- 					NetServer::StopServer();
- 					break;
- 				}
- #endif
- 				mainGame->btnStartBot->setEnabled(false);
- 				mainGame->btnBotCancel->setEnabled(false);
- 				break;
- 			}
 			case BUTTON_LOAD_SINGLEPLAY: {
 				if(!open_file && mainGame->lstSinglePlayList->getSelected() == -1)
 					break;
@@ -434,13 +395,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->SetStaticText(mainGame->stReplayInfo, 180, mainGame->guiFont, (wchar_t*)repinfo.c_str());
 				break;
 			}
-			case LISTBOX_BOT_LIST: {
- 				int sel = mainGame->lstBotList->getSelected();
- 				if(sel == -1)
- 					break;
- 				mainGame->SetStaticText(mainGame->stBotInfo, 200, mainGame->guiFont, mainGame->botInfo[sel].desc);
- 				break;
- 			}
 			}
 			break;
 		}
@@ -561,10 +515,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					mainGame->chkCustomRules[4]->setChecked(false);
 					mainGame->chkCustomRules[4]->setEnabled(false);
 				}
-			}
-			case CHECKBOX_BOT_OLD_RULE: {
-				mainGame->RefreshBot();
-				break;
 			}
 			}
 			break;

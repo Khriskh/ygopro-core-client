@@ -256,6 +256,19 @@ static const struct luaL_Reg cardlib[] = {
 	{ "ResetNegateEffect", scriptlib::card_reset_negate_effect },
 	{ "AssumeProperty", scriptlib::card_assume_prop },
 	{ "SetSPSummonOnce", scriptlib::card_set_spsummon_once },
+	{ "Code", scriptlib::card_code },
+	{ "Alias", scriptlib::card_alias },
+	{ "Setcode", scriptlib::card_setcode },
+	{ "Type", scriptlib::card_type },
+	{ "Level", scriptlib::card_level },
+	{ "Attribute", scriptlib::card_attribute },
+	{ "Race", scriptlib::card_race },
+	{ "Attack", scriptlib::card_attack },
+	{ "Defense", scriptlib::card_defense },
+	{ "Rscale", scriptlib::card_rscale },
+	{ "Lscale", scriptlib::card_lscale },
+	{ "LinkMarker", scriptlib::card_link_marker },
+	{ "Recreate", scriptlib::card_recreate },
 	{ NULL, NULL }
 };
 
@@ -646,10 +659,11 @@ int32 interpreter::register_card(card *pcard) {
 	lua_setmetatable(current_state, -2);
 	lua_pop(current_state, 1);
 	//Initial
-	if(pcard->data.code && (!(pcard->data.type & TYPE_NORMAL) || (pcard->data.type & TYPE_PENDULUM))) {
+	if(pcard->data.code) {
+		bool forced = !(pcard->data.type & TYPE_NORMAL) || (pcard->data.type & TYPE_PENDULUM);
 		pcard->set_status(STATUS_INITIALIZING, TRUE);
 		add_param(pcard, PARAM_TYPE_CARD);
-		call_card_function(pcard, (char*) "initial_effect", 1, 0);
+		call_card_function(pcard, (char*) "initial_effect", 1, 0, forced);
 		pcard->set_status(STATUS_INITIALIZING, FALSE);
 	}
 	pcard->cardid = pduel->game_field->infos.card_id++;
@@ -866,7 +880,7 @@ int32 interpreter::call_function(int32 f, uint32 param_count, int32 ret_count) {
 	}
 	return OPERATION_SUCCESS;
 }
-int32 interpreter::call_card_function(card* pcard, char* f, uint32 param_count, int32 ret_count) {
+int32 interpreter::call_card_function(card* pcard, char* f, uint32 param_count, int32 ret_count, bool forced) {
 	if (param_count != params.size()) {
 		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): incorrect parameter count", pcard->data.code, f);
 		handle_message(pduel, 1);
@@ -876,8 +890,10 @@ int32 interpreter::call_card_function(card* pcard, char* f, uint32 param_count, 
 	card2value(current_state, pcard);
 	lua_getfield(current_state, -1, f);
 	if (!lua_isfunction(current_state, -1)) {
-		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): attempt to call an error function", pcard->data.code, f);
-		handle_message(pduel, 1);
+		if(forced) {
+			sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): attempt to call an error function", pcard->data.code, f);
+			handle_message(pduel, 1);
+		}
 		lua_pop(current_state, 2);
 		params.clear();
 		return OPERATION_FAIL;

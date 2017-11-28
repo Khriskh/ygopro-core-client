@@ -1241,9 +1241,38 @@ void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
 }
 // put all cards in the target of peffect into cset
 void field::filter_affected_cards(effect* peffect, card_set* cset) {
-	if((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD))
+	if((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET))
 		return;
-	filter_inrange_cards(peffect, cset);
+	uint8 self = peffect->get_handler_player();
+	if(self == PLAYER_NONE)
+		return;
+	std::vector<card_vector*> cvec;
+	uint16 range = peffect->s_range;
+	for(uint32 p = 0; p < 2; ++p) {
+		if(range & LOCATION_MZONE)
+			cvec.push_back(&player[self].list_mzone);
+		if(range & LOCATION_SZONE)
+			cvec.push_back(&player[self].list_szone);
+		if(range & LOCATION_GRAVE)
+			cvec.push_back(&player[self].list_grave);
+		if(range & LOCATION_REMOVED)
+			cvec.push_back(&player[self].list_remove);
+		if(range & LOCATION_HAND)
+			cvec.push_back(&player[self].list_hand);
+		if(range & LOCATION_DECK)
+			cvec.push_back(&player[self].list_main);
+		if(range & LOCATION_EXTRA)
+			cvec.push_back(&player[self].list_extra);
+		range = peffect->o_range;
+		self = 1 - self;
+	}
+	for(auto cvit = cvec.begin(); cvit != cvec.end(); ++cvit) {
+		for(auto it = (*cvit)->begin(); it != (*cvit)->end(); ++it) {
+			card* pcard = *it;
+			if(pcard && peffect->is_target(pcard))
+				cset->insert(pcard);
+		}
+	}
 }
 void field::filter_inrange_cards(effect* peffect, card_set* cset) {
 	if(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET))
@@ -1252,58 +1281,31 @@ void field::filter_inrange_cards(effect* peffect, card_set* cset) {
 	if(self == PLAYER_NONE)
 		return;
 	uint16 range = peffect->s_range;
+	std::vector<card_vector*> cvec;
 	for(uint32 p = 0; p < 2; ++p) {
-		if (range & LOCATION_MZONE) {
-			for (auto it = player[self].list_mzone.begin(); it != player[self].list_mzone.end(); ++it) {
-				card* pcard = *it;
-				if (pcard && peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if (range & LOCATION_SZONE) {
-			for (auto it = player[self].list_szone.begin(); it != player[self].list_szone.end(); ++it) {
-				card* pcard = *it;
-				if (pcard && peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if (range & LOCATION_GRAVE) {
-			for (auto it = player[self].list_grave.begin(); it != player[self].list_grave.end(); ++it) {
-				card* pcard = *it;
-				if (peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if (range & LOCATION_REMOVED) {
-			for (auto it = player[self].list_remove.begin(); it != player[self].list_remove.end(); ++it) {
-				card* pcard = *it;
-				if (peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if (range & LOCATION_HAND) {
-			for (auto it = player[self].list_hand.begin(); it != player[self].list_hand.end(); ++it) {
-				card* pcard = *it;
-				if (peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if(range & LOCATION_DECK) {
-			for(auto it = player[self].list_main.begin(); it != player[self].list_main.end(); ++it) {
-				card* pcard = *it;
-				if(peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if(range & LOCATION_EXTRA) {
-			for(auto it = player[self].list_extra.begin(); it != player[self].list_extra.end(); ++it) {
-				card* pcard = *it;
-				if(peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
+		if(range & LOCATION_MZONE)
+			cvec.push_back(&player[self].list_mzone);
+		if(range & LOCATION_SZONE)
+			cvec.push_back(&player[self].list_szone);
+		if(range & LOCATION_GRAVE)
+			cvec.push_back(&player[self].list_grave);
+		if(range & LOCATION_REMOVED)
+			cvec.push_back(&player[self].list_remove);
+		if(range & LOCATION_HAND)
+			cvec.push_back(&player[self].list_hand);
+		if(range & LOCATION_DECK)
+			cvec.push_back(&player[self].list_main);
+		if(range & LOCATION_EXTRA)
+			cvec.push_back(&player[self].list_extra);
 		range = peffect->o_range;
 		self = 1 - self;
+	}
+	for(auto cvit = cvec.begin(); cvit != cvec.end(); ++cvit) {
+		for(auto it = (*cvit)->begin(); it != (*cvit)->end(); ++it) {
+			card* pcard = *it;
+			if(pcard && peffect->is_fit_target_function(pcard))
+				cset->insert(pcard);
+		}
 	}
 }
 void field::filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, uint8 sort) {
@@ -1782,9 +1784,31 @@ void field::get_fusion_material(uint8 playerid, card_set* material) {
 		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
 			material->insert(pcard);
 	}
-	for(auto cit = player[playerid].list_hand.begin(); cit != player[playerid].list_hand.end(); ++cit)
-		if((*cit)->data.type & TYPE_MONSTER)
+	for(auto cit = player[playerid].list_hand.begin(); cit != player[playerid].list_hand.end(); ++cit) {
+		card* pcard = *cit;
+		if (pcard && ((pcard->data.type & TYPE_MONSTER) || pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL)))
 			material->insert(*cit);
+	}
+	for(auto cit = player[playerid].list_main.begin(); cit != player[playerid].list_main.end(); ++cit) {
+		card* pcard = *cit;
+		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+			material->insert(pcard);
+	}
+	for(auto cit = player[playerid].list_extra.begin(); cit != player[playerid].list_extra.end(); ++cit) {
+		card* pcard = *cit;
+		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+			material->insert(pcard);
+	}
+	for(auto cit = player[playerid].list_grave.begin(); cit != player[playerid].list_grave.end(); ++cit) {
+		card* pcard = *cit;
+		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+			material->insert(pcard);
+	}
+	for(auto cit = player[playerid].list_remove.begin(); cit != player[playerid].list_remove.end(); ++cit) {
+		card* pcard = *cit;
+		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+			material->insert(pcard);
+	}
 }
 void field::ritual_release(card_set* material) {
 	card_set rel;
@@ -3409,6 +3433,60 @@ chain* field::get_chain(uint32 chaincount) {
 			return 0;
 	}
 	return &core.current_chain[chaincount - 1];
+}
+int32 field::get_cteffect(effect* peffect, int32 playerid, int32 store) {
+	card* phandler = peffect->get_handler();
+	if(phandler->data.type != (TYPE_TRAP | TYPE_CONTINUOUS))
+		return FALSE;
+	if(!(peffect->type & EFFECT_TYPE_ACTIVATE))
+		return FALSE;
+	if(peffect->code != EVENT_FREE_CHAIN)
+		return FALSE;
+	if(peffect->cost || peffect->target || peffect->operation)
+		return FALSE;
+	if(store) {
+		core.select_chains.clear();
+		core.select_options.clear();
+	}
+	for(auto efit = phandler->field_effect.begin(); efit != phandler->field_effect.end(); ++efit) {
+		effect* feffect = efit->second;
+		if(!(feffect->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_QUICK_O)))
+			continue;
+		if(!feffect->in_range(phandler))
+			continue;
+		uint32 code = efit->first;
+		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {
+			nil_event.event_code = code;
+			if(get_cteffect_evt(feffect, playerid, nil_event, store) && !store)
+				return TRUE;
+		} else {
+			for(auto evit = core.point_event.begin(); evit != core.point_event.end(); ++evit) {
+				if(code != evit->event_code)
+					continue;
+				if(get_cteffect_evt(feffect, playerid, *evit, store) && !store)
+					return TRUE;
+			}
+			for(auto evit = core.instant_event.begin(); evit != core.instant_event.end(); ++evit) {
+				if(code != evit->event_code)
+					continue;
+				if(get_cteffect_evt(feffect, playerid, *evit, store) && !store)
+					return TRUE;
+			}
+		}
+	}
+	return (store && !core.select_chains.empty()) ? TRUE : FALSE;
+}
+int32 field::get_cteffect_evt(effect* feffect, int32 playerid, const tevent& e, int32 store) {
+	if(!feffect->is_activateable(playerid, e, FALSE, FALSE, FALSE, FALSE, TRUE))
+		return FALSE;
+	if(store) {
+		chain newchain;
+		newchain.evt = e;
+		newchain.triggering_effect = feffect;
+		core.select_chains.push_back(newchain);
+		core.select_options.push_back(feffect->description);
+	}
+	return TRUE;
 }
 int32 field::is_able_to_enter_bp() {
 	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1 || is_player_affected_by_effect(infos.turn_player, EFFECT_BP_FIRST_TURN))

@@ -126,12 +126,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					mainGame->btnCreateHost->setEnabled(true);
 					mainGame->btnJoinHost->setEnabled(true);
 					mainGame->btnJoinCancel->setEnabled(true);
-					mainGame->btnStartBot->setEnabled(true);
- 					mainGame->btnBotCancel->setEnabled(true);
-					if(bot_mode)
- 						mainGame->ShowElement(mainGame->wSinglePlay);
- 					else
- 						mainGame->ShowElement(mainGame->wLanWindow);
+					mainGame->ShowElement(mainGame->wLanWindow);
 				} else {
 					DuelClient::SendPacketToServer(CTOS_SURRENDER);
 				}
@@ -1118,7 +1113,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					mainGame->stDataInfo->setText(L"");
 					mainGame->stSetName->setText(L"");
 					mainGame->stText->setText(L"");
-					mainGame->texty = 0;
+					mainGame->showingcard = 0;
 					mainGame->scrCardText->setVisible(false);
 				}
 			}
@@ -1134,7 +1129,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					mainGame->stDataInfo->setText(L"");
 					mainGame->stSetName->setText(L"");
 					mainGame->stText->setText(L"");
-					mainGame->texty = 0;
+					mainGame->showingcard = 0;
 					mainGame->scrCardText->setVisible(false);
 				}
 			}
@@ -1839,7 +1834,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 						mainGame->stDataInfo->setText(L"");
 						mainGame->stSetName->setText(L"");
 						mainGame->stText->setText(L"");
-						mainGame->texty = 0;
+						mainGame->showingcard = 0;
 						mainGame->scrCardText->setVisible(false);
 					}
 				}
