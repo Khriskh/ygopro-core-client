@@ -916,13 +916,13 @@ void Game::LoadExpansionDB() {
 #ifdef _WIN32
 	char fpath[1000];
 	WIN32_FIND_DATAW fdataw;
-	HANDLE fh = FindFirstFileW(L"./expansions/live2017links/*.cdb", &fdataw);
+	HANDLE fh = FindFirstFileW(L"./expansions/*.cdb", &fdataw);
 	if(fh != INVALID_HANDLE_VALUE) {
 		do {
 			if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				char fname[780];
 				BufferIO::EncodeUTF8(fdataw.cFileName, fname);
-				sprintf(fpath, "./expansions/live2017links/%s", fname);
+				sprintf(fpath, "./expansions/%s", fname);
 				dataManager.LoadDB(fpath);
 			}
 		} while(FindNextFileW(fh, &fdataw));
@@ -931,13 +931,13 @@ void Game::LoadExpansionDB() {
 #else
 	DIR * dir;
 	struct dirent * dirp;
-	if((dir = opendir("./expansions/live2017links/")) != NULL) {
+	if((dir = opendir("./expansions/")) != NULL) {
 		while((dirp = readdir(dir)) != NULL) {
 			size_t len = strlen(dirp->d_name);
 			if(len < 5 || strcasecmp(dirp->d_name + len - 4, ".cdb") != 0)
 				continue;
 			char filepath[1000];
-			sprintf(filepath, "./expansions/live2017links/%s", dirp->d_name);
+			sprintf(filepath, "./expansions/%s", dirp->d_name);
 			dataManager.LoadDB(filepath);
 		}
 		closedir(dir);
