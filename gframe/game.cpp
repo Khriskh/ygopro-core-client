@@ -79,9 +79,9 @@ bool Game::Initialize() {
 	LoadExpansionDB();
 	if(!dataManager.LoadDB("cards.cdb"))
 		return false;
-	if(!dataManager.LoadStrings("strings.conf"))
+	if(!dataManager.LoadStrings("stringsIA.conf"))
 		return false;
-	dataManager.LoadStrings("./expansions/strings.conf");
+	dataManager.LoadStrings("./expansions/stringsIA.conf");
 	env = device->getGUIEnvironment();
 	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 16);
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 12);
@@ -89,7 +89,7 @@ bool Game::Initialize() {
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	textFont = guiFont;
 	smgr = device->getSceneManager();
-	device->setWindowCaption(L"EDOPro");
+	device->setWindowCaption(L"YGOPRO (YGOProES)");
 	device->setResizable(true);
 #ifdef _WIN32
 	HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
@@ -106,7 +106,7 @@ bool Game::Initialize() {
 #endif
 	//main menu
 	wchar_t strbuf[256];
-	myswprintf(strbuf, L"EDOPro Version:%X.0%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
+	myswprintf(strbuf, L"YGOPRO (YGOProES) Version:%X.0%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
 	wMainMenu = env->addWindow(rect<s32>(370, 200, 650, 415), false, strbuf);
 	wMainMenu->getCloseButton()->setVisible(false);
 	btnLanMode = env->addButton(rect<s32>(10, 30, 270, 60), wMainMenu, BUTTON_LAN_MODE, dataManager.GetSysString(1200));
@@ -803,7 +803,7 @@ void Game::MainLoop() {
 			usleep(20000);
 #endif
 		if(cur_time >= 1000) {
-			myswprintf(cap, L"EDOPro FPS: %d", fps);
+			myswprintf(cap, L"YGOPRO (YGOProES) FPS: %d", fps);
 			device->setWindowCaption(cap);
 			fps = 0;
 			cur_time -= 1000;
@@ -1110,7 +1110,7 @@ void Game::RefreshBot() {
  		SetStaticText(stBotInfo, 200, guiFont, dataManager.GetSysString(1385));
 }
 void Game::LoadConfig() {
-	FILE* fp = fopen("system.conf", "r");
+	FILE* fp = fopen("systemIA.conf", "r");
 	if(!fp)
 		return;
 	char linebuf[256];
@@ -1230,7 +1230,7 @@ void Game::LoadConfig() {
 	fclose(fp);
 }
 void Game::SaveConfig() {
-	FILE* fp = fopen("system.conf", "w");
+	FILE* fp = fopen("systemIA.conf", "w");
 	fprintf(fp, "#config file\n#nickname & gamename should be less than 20 characters\n");
 	char linebuf[256];
 	fprintf(fp, "use_d3d = %d\n", gameConf.use_d3d ? 1 : 0);
