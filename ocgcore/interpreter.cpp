@@ -637,10 +637,8 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	luaL_newlib(lua_state, debuglib);
 	lua_setglobal(lua_state, "Debug");
 	//extra scripts
-//	load_script((char*) "./script/constant.lua");
-//	load_script((char*) "./script/utility.lua");
-	load_script((char*) "./expansions/live2017links/script/constant.lua");
-	load_script((char*) "./expansions/live2017links/script/utility.lua");
+	load_script((char*) "./script/constant.lua");
+	load_script((char*) "./script/utility.lua");
 }
 interpreter::~interpreter() {
 	lua_close(lua_state);
@@ -755,7 +753,7 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushvalue(current_state, -2);
 		lua_rawset(current_state, -3);
 		//load extra scripts
-		sprintf(script_name, "./expansions/live2017links/script/c%d.lua", code);
+		sprintf(script_name, "./expansions/script/c%d.lua", code);
 		if (!load_script(script_name)) {
 			sprintf(script_name, "./script/c%d.lua", code);
 	 		if (!load_script(script_name)) {
