@@ -7,11 +7,6 @@
 
 class BufferIO {
 public:
-	inline static unsigned long long ReadInt64(char*& p) {
-		unsigned long long ret = *(unsigned long long*)p;
-		p += 8;
-		return ret;
-	}
 	inline static int ReadInt32(char*& p) {
 		int ret = *(int*)p;
 		p += 4;
@@ -117,9 +112,7 @@ public:
 			ret = ret * 10 + (*pstr - L'0');
 			pstr++;
 		}
-		if(*pstr == 0)
-			return ret;
-		return 0;
+		return ret;
 	}
 };
 

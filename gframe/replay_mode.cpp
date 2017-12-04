@@ -87,87 +87,17 @@ int ReplayMode::ReplayThread(void* param) {
 		set_message_handler((message_handler)MessageHandler);
 		mainGame->dInfo.isSingleMode = false;
 	}
-	mainGame->dInfo.lua64 = (rh.flag & REPLAY_LUA64) ? 1 : 0;
 	pduel = create_duel(rnd.rand());
 	int start_lp = cur_replay.ReadInt32();
 	int start_hand = cur_replay.ReadInt32();
 	int draw_count = cur_replay.ReadInt32();
 	int opt = cur_replay.ReadInt32();
-	int rule = opt >> 16; //backwards compatibility with master rule replays
-	if(rule)
-		switch (rule) {
-		case 1: {
-			opt |= MASTER_RULE_1;
-			break;
-		}
-		case 2: {
-			opt |= MASTER_RULE_2;
-			break;
-		}
-		case 3: {
-			opt |= MASTER_RULE_3;
-			break;
-		}
-		case 4: {
-			opt |= MASTER_RULE_4;
-			break;
-		}
-		}
-	//pre mr4 replay compatibility
-	if(opt & DUEL_OBSOLETE_RULING) {
-		opt &= ~DUEL_OBSOLETE_RULING;
-		opt |= MASTER_RULE_1;
-	} else if (!(opt & 0xff80))
-		opt |= MASTER_RULE_3;
-	mainGame->dInfo.duel_field = 2;
-	if ((opt & DUEL_PZONE) && (opt & DUEL_SEPARATE_PZONE) && (opt & DUEL_EMZONE))
-		mainGame->dInfo.duel_field = 5;
-	else if (opt & DUEL_EMZONE)
-		mainGame->dInfo.duel_field = 4;
-	else if(opt & DUEL_PZONE)
-		mainGame->dInfo.duel_field = 3;
-	mainGame->dInfo.extraval = (opt & SPEED_DUEL) ? 1 : 0;
+	int duel_rule = opt >> 16;
+	mainGame->dInfo.duel_rule = duel_rule;
 	set_player_info(pduel, 0, start_lp, start_hand, draw_count);
 	set_player_info(pduel, 1, start_lp, start_hand, draw_count);
 	mainGame->dInfo.lp[0] = start_lp;
 	mainGame->dInfo.lp[1] = start_lp;
-	// reset master rule 4 phase button position
-	mainGame->wPhase->setRelativePosition(mainGame->Resize(480, 310, 855, 330));
-	if(mainGame->dInfo.extraval) {
-		if(mainGame->dInfo.duel_field >= 4) {
-			mainGame->wPhase->setRelativePosition(mainGame->Resize(480, 290, 855, 350));
-			mainGame->btnShuffle->setRelativePosition(mainGame->Resize(0, 40, 50, 60));
-			mainGame->btnDP->setRelativePosition(mainGame->Resize(0, 40, 50, 60));
-			mainGame->btnSP->setRelativePosition(mainGame->Resize(0, 40, 50, 60));
-			mainGame->btnM1->setRelativePosition(mainGame->Resize(160, 20, 210, 40));
-			mainGame->btnBP->setRelativePosition(mainGame->Resize(160, 20, 210, 40));
-			mainGame->btnM2->setRelativePosition(mainGame->Resize(160, 20, 210, 40));
-			mainGame->btnEP->setRelativePosition(mainGame->Resize(310, 0, 360, 20));
-		} else {
-			mainGame->btnShuffle->setRelativePosition(mainGame->Resize(65, 0, 115, 20));
-			mainGame->btnDP->setRelativePosition(mainGame->Resize(65, 0, 115, 20));
-			mainGame->btnSP->setRelativePosition(mainGame->Resize(65, 0, 115, 20));
-			mainGame->btnM1->setRelativePosition(mainGame->Resize(130, 0, 180, 20));
-			mainGame->btnBP->setRelativePosition(mainGame->Resize(195, 0, 245, 20));
-			mainGame->btnM2->setRelativePosition(mainGame->Resize(260, 0, 310, 20));
-			mainGame->btnEP->setRelativePosition(mainGame->Resize(260, 0, 310, 20));
-		}
-	} else {
-		mainGame->btnDP->setRelativePosition(mainGame->Resize(0, 0, 50, 20));
-		if(mainGame->dInfo.duel_field >= 4) {
-			mainGame->btnSP->setRelativePosition(mainGame->Resize(0, 0, 50, 20));
-			mainGame->btnM1->setRelativePosition(mainGame->Resize(160, 0, 210, 20));
-			mainGame->btnBP->setRelativePosition(mainGame->Resize(160, 0, 210, 20));
-			mainGame->btnM2->setRelativePosition(mainGame->Resize(160, 0, 210, 20));
-		} else {
-			mainGame->btnSP->setRelativePosition(mainGame->Resize(65, 0, 115, 20));
-			mainGame->btnM1->setRelativePosition(mainGame->Resize(130, 0, 180, 20));
-			mainGame->btnBP->setRelativePosition(mainGame->Resize(195, 0, 245, 20));
-			mainGame->btnM2->setRelativePosition(mainGame->Resize(260, 0, 310, 20));
-		}
-		mainGame->btnEP->setRelativePosition(mainGame->Resize(320, 0, 370, 20));
-		mainGame->btnShuffle->setRelativePosition(mainGame->Resize(0, 0, 50, 20));
-	}
 	if(!mainGame->dInfo.isSingleMode) {
 		if(!(opt & DUEL_TAG_MODE)) {
 			int main = cur_replay.ReadInt32();
@@ -321,7 +251,6 @@ void ReplayMode::Restart(bool refresh) {
 	set_player_info(pduel, 1, start_lp, start_hand, draw_count);
 	mainGame->dInfo.lp[0] = start_lp;
 	mainGame->dInfo.lp[1] = start_lp;
-	mainGame->dInfo.startlp = start_lp;
 	myswprintf(mainGame->dInfo.strLP[0], L"%d", mainGame->dInfo.lp[0]);
 	myswprintf(mainGame->dInfo.strLP[1], L"%d", mainGame->dInfo.lp[1]);
 	mainGame->dInfo.turn = 0;
@@ -437,7 +366,7 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			return false;
 		}
 		case MSG_HINT: {
-			pbuf += (mainGame->dInfo.lua64) ? 10 : 6;
+			pbuf += 6;
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
 			break;
 		}
@@ -454,7 +383,7 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 		case MSG_SELECT_BATTLECMD: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
-			pbuf += count * (mainGame->dInfo.lua64) ? 15 : 11;
+			pbuf += count * 11;
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 8 + 2;
 			ReplayRefresh();
@@ -473,24 +402,24 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 7;
 			count = BufferIO::ReadInt8(pbuf);
-			pbuf += count * (mainGame->dInfo.lua64) ? 15 : 11 + 3;
+			pbuf += count * 11 + 3;
 			ReplayRefresh();
 			return ReadReplayResponse();
 		}
 		case MSG_SELECT_EFFECTYN: {
 			player = BufferIO::ReadInt8(pbuf);
-			pbuf += (mainGame->dInfo.lua64) ? 16 : 12;
+			pbuf += 12;
 			return ReadReplayResponse();
 		}
 		case MSG_SELECT_YESNO: {
 			player = BufferIO::ReadInt8(pbuf);
-			pbuf += (mainGame->dInfo.lua64) ? 8 : 4;
+			pbuf += 4;
 			return ReadReplayResponse();
 		}
 		case MSG_SELECT_OPTION: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
-			pbuf += count * (mainGame->dInfo.lua64) ? 8 : 4;
+			pbuf += count * 4;
 			return ReadReplayResponse();
 		}
 		case MSG_SELECT_CARD:
@@ -501,19 +430,10 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			pbuf += count * 8;
 			return ReadReplayResponse();
 		}
-		case MSG_SELECT_UNSELECT_CARD: {
-			player = BufferIO::ReadInt8(pbuf);
-			pbuf += 4;
-			count = BufferIO::ReadInt8(pbuf);
-			pbuf += count * 8;
-			count = BufferIO::ReadInt8(pbuf);
-			pbuf += count * 8;
-			return ReadReplayResponse();
-		}
 		case MSG_SELECT_CHAIN: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
-			pbuf += 10 + count * (mainGame->dInfo.lua64) ? 17 : 13;
+			pbuf += 10 + count * 13;
 			return ReadReplayResponse();
 		}
 		case MSG_SELECT_PLACE:
@@ -558,13 +478,6 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
 			break;
 		}
-		case MSG_CONFIRM_EXTRATOP: {
-			player = BufferIO::ReadInt8(pbuf);
-			count = BufferIO::ReadInt8(pbuf);
-			pbuf += count * 7;
-			DuelClient::ClientAnalyze(offset, pbuf - offset);
-			break;
-		}
 		case MSG_CONFIRM_CARDS: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
@@ -579,13 +492,6 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			break;
 		}
 		case MSG_SHUFFLE_HAND: {
-			/*int oplayer = */BufferIO::ReadInt8(pbuf);
-			int count = BufferIO::ReadInt8(pbuf);
-			pbuf += count * 4;
-			DuelClient::ClientAnalyze(offset, pbuf - offset);
-			break;
-		}
-		case MSG_SHUFFLE_EXTRA: {
 			/*int oplayer = */BufferIO::ReadInt8(pbuf);
 			int count = BufferIO::ReadInt8(pbuf);
 			pbuf += count * 4;
@@ -710,7 +616,7 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 			break;
 		}
 		case MSG_CHAINING: {
-			pbuf += (mainGame->dInfo.lua64) ? 20 : 16;
+			pbuf += 16;
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
 			break;
 		}
@@ -900,16 +806,16 @@ bool ReplayMode::ReplayAnalyze(char* msg, unsigned int len) {
 		case MSG_ANNOUNCE_CARD_FILTER: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadInt8(pbuf);
-			pbuf += (mainGame->dInfo.lua64) ? 8 : 4 * count;
+			pbuf += 4 * count;
 			return ReadReplayResponse();
 		}
 		case MSG_CARD_HINT: {
-			pbuf += (mainGame->dInfo.lua64) ? 13 : 9;
+			pbuf += 9;
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
 			break;
 		}
 		case MSG_PLAYER_HINT: {
-			pbuf += (mainGame->dInfo.lua64) ? 10 : 6;
+			pbuf += 6;
 			DuelClient::ClientAnalyze(offset, pbuf - offset);
 			break;
 		}
