@@ -97,6 +97,7 @@ int SingleMode::SinglePlayThread(void* param) {
 	mainGame->dField.Clear();
 	mainGame->dInfo.isFirst = true;
 	mainGame->dInfo.isStarted = true;
+	mainGame->dInfo.isFinished = false;
 	mainGame->dInfo.isSingleMode = true;
 	mainGame->device->setEventReceiver(&mainGame->dField);
 	mainGame->gMutex.Unlock();
@@ -108,8 +109,11 @@ int SingleMode::SinglePlayThread(void* param) {
 		is_continuing = SinglePlayAnalyze(engineBuffer, len);
 	last_replay.BeginRecord();
 	last_replay.WriteHeader(rh);
-	last_replay.WriteData(mainGame->dInfo.hostname, 40, false);
-	last_replay.WriteData(mainGame->dInfo.clientname, 40, false);
+	unsigned short buffer[20];
+	BufferIO::CopyWStr(mainGame->dInfo.hostname, buffer, 20);
+	last_replay.WriteData(buffer, 40, false);
+	BufferIO::CopyWStr(mainGame->dInfo.clientname, buffer, 20);
+	last_replay.WriteData(buffer, 40, false);
 	last_replay.WriteInt32(start_lp, false);
 	last_replay.WriteInt32(start_hand, false);
 	last_replay.WriteInt32(draw_count, false);
@@ -146,6 +150,7 @@ int SingleMode::SinglePlayThread(void* param) {
 	if(!is_closing) {
 		mainGame->gMutex.Lock();
 		mainGame->dInfo.isStarted = false;
+		mainGame->dInfo.isFinished = true;
 		mainGame->dInfo.isSingleMode = false;
 		mainGame->gMutex.Unlock();
 		mainGame->closeDoneSignal.Reset();
@@ -174,6 +179,7 @@ bool SingleMode::SinglePlayAnalyze(char* msg, unsigned int len) {
 			mainGame->gMutex.Lock();
 			mainGame->stMessage->setText(L"Error occurs.");
 			mainGame->PopupElement(mainGame->wMessage);
+			mainGame->PlaySoundEffect(SOUND_INFO);
 			mainGame->gMutex.Unlock();
 			mainGame->actionSignal.Reset();
 			mainGame->actionSignal.Wait();
@@ -780,6 +786,7 @@ bool SingleMode::SinglePlayAnalyze(char* msg, unsigned int len) {
 			mainGame->gMutex.Lock();
 			mainGame->SetStaticText(mainGame->stMessage, 310, mainGame->textFont, msg);
 			mainGame->PopupElement(mainGame->wMessage);
+			mainGame->PlaySoundEffect(SOUND_INFO);
 			mainGame->gMutex.Unlock();
 			mainGame->actionSignal.Reset();
 			mainGame->actionSignal.Wait();
