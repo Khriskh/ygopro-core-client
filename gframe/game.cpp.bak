@@ -56,9 +56,9 @@ bool Game::Initialize() {
 	LoadExpansionDB();
 	if(!dataManager.LoadDB("cards.cdb"))
 		return false;
-	if(!dataManager.LoadStrings("stringsIA.conf"))
+	if(!dataManager.LoadStrings("strings.conf"))
 		return false;
-	dataManager.LoadStrings("./expansionsIA/strings.conf");
+	dataManager.LoadStrings("./expansions/strings.conf");
 	env = device->getGUIEnvironment();
 	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 16);
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 12);
@@ -66,7 +66,7 @@ bool Game::Initialize() {
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	textFont = guiFont;
 	smgr = device->getSceneManager();
-	device->setWindowCaption(L"YGOPro (YGOProES)");
+	device->setWindowCaption(L"YGOPro");
 	device->setResizable(false);
 #ifdef _WIN32
 	irr::video::SExposedVideoData exposedData = driver->getExposedVideoData();
@@ -84,7 +84,7 @@ bool Game::Initialize() {
 	SetWindowsIcon();
 	//main menu
 	wchar_t strbuf[256];
-	myswprintf(strbuf, L"YGOPro (YGOProES) Version:%X.0%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
+	myswprintf(strbuf, L"YGOPro Version:%X.0%X.%X", PRO_VERSION >> 12, (PRO_VERSION >> 4) & 0xff, PRO_VERSION & 0xf);
 	wMainMenu = env->addWindow(rect<s32>(370, 200, 650, 415), false, strbuf);
 	wMainMenu->getCloseButton()->setVisible(false);
 	btnLanMode = env->addButton(rect<s32>(10, 30, 270, 60), wMainMenu, BUTTON_LAN_MODE, dataManager.GetSysString(1200));
@@ -714,7 +714,7 @@ void Game::MainLoop() {
 			usleep(20000);
 #endif
 		if(cur_time >= 1000) {
-			myswprintf(cap, L"YGOPro (YGOProES) FPS: %d", fps);
+			myswprintf(cap, L"YGOPro FPS: %d", fps);
 			device->setWindowCaption(cap);
 			fps = 0;
 			cur_time -= 1000;
@@ -794,13 +794,13 @@ void Game::LoadExpansionDB() {
 #ifdef _WIN32
 	char fpath[1000];
 	WIN32_FIND_DATAW fdataw;
-	HANDLE fh = FindFirstFileW(L"./expansionsIA/*.cdb", &fdataw);
+	HANDLE fh = FindFirstFileW(L"./expansions/*.cdb", &fdataw);
 	if(fh != INVALID_HANDLE_VALUE) {
 		do {
 			if(!(fdataw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				char fname[780];
 				BufferIO::EncodeUTF8(fdataw.cFileName, fname);
-				sprintf(fpath, "./expansionsIA/%s", fname);
+				sprintf(fpath, "./expansions/%s", fname);
 				dataManager.LoadDB(fpath);
 			}
 		} while(FindNextFileW(fh, &fdataw));
@@ -809,13 +809,13 @@ void Game::LoadExpansionDB() {
 #else
 	DIR * dir;
 	struct dirent * dirp;
-	if((dir = opendir("./expansionsIA/")) != NULL) {
+	if((dir = opendir("./expansions/")) != NULL) {
 		while((dirp = readdir(dir)) != NULL) {
 			size_t len = strlen(dirp->d_name);
 			if(len < 5 || strcasecmp(dirp->d_name + len - 4, ".cdb") != 0)
 				continue;
 			char filepath[1000];
-			sprintf(filepath, "./expansionsIA/%s", dirp->d_name);
+			sprintf(filepath, "./expansions/%s", dirp->d_name);
 			dataManager.LoadDB(filepath);
 		}
 		closedir(dir);
@@ -961,7 +961,7 @@ void Game::RefreshBot() {
 		SetStaticText(stBotInfo, 200, guiFont, dataManager.GetSysString(1385));
 }
 void Game::LoadConfig() {
-	FILE* fp = fopen("systemIA.conf", "r");
+	FILE* fp = fopen("system.conf", "r");
 	if(!fp)
 		return;
 	char linebuf[256];
@@ -1078,7 +1078,7 @@ void Game::LoadConfig() {
 	fclose(fp);
 }
 void Game::SaveConfig() {
-	FILE* fp = fopen("systemIA.conf", "w");
+	FILE* fp = fopen("system.conf", "w");
 	fprintf(fp, "#config file\n#nickname & gamename should be less than 20 characters\n");
 	char linebuf[256];
 	fprintf(fp, "use_d3d = %d\n", gameConf.use_d3d ? 1 : 0);
