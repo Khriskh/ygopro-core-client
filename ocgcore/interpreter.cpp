@@ -315,6 +315,7 @@ static const struct luaL_Reg effectlib[] = {
 	{ "IsActivatable", scriptlib::effect_is_activatable },
 	{ "IsActivated", scriptlib::effect_is_activated },
 	{ "GetActivateLocation", scriptlib::effect_get_activate_location },
+	{ "GetActivateSequence", scriptlib::effect_get_activate_sequence },
 	{ NULL, NULL }
 };
 
@@ -399,6 +400,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SetChainLimitTillChainEnd", scriptlib::duel_set_chain_limit_p },
 	{ "GetChainMaterial", scriptlib::duel_get_chain_material },
 	{ "ConfirmDecktop", scriptlib::duel_confirm_decktop },
+	{ "ConfirmExtratop", scriptlib::duel_confirm_extratop },
 	{ "ConfirmCards", scriptlib::duel_confirm_cards },
 	{ "SortDecktop", scriptlib::duel_sort_decktop },
 	{ "CheckEvent", scriptlib::duel_check_event },
@@ -422,6 +424,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "DiscardHand", scriptlib::duel_discard_hand },
 	{ "DisableShuffleCheck", scriptlib::duel_disable_shuffle_check },
 	{ "ShuffleDeck", scriptlib::duel_shuffle_deck },
+	{ "ShuffleExtra", scriptlib::duel_shuffle_extra },
 	{ "ShuffleHand", scriptlib::duel_shuffle_hand },
 	{ "ShuffleSetCard", scriptlib::duel_shuffle_setcard },
 	{ "ChangeAttacker", scriptlib::duel_change_attacker },
@@ -465,6 +468,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetFieldGroup", scriptlib::duel_get_field_group },
 	{ "GetFieldGroupCount", scriptlib::duel_get_field_group_count },
 	{ "GetDecktopGroup", scriptlib::duel_get_decktop_group },
+	{ "GetExtraTopGroup", scriptlib::duel_get_extratop_group },
 	{ "GetMatchingGroup", scriptlib::duel_get_matching_group },
 	{ "GetMatchingGroupCount", scriptlib::duel_get_matching_count },
 	{ "GetFirstMatchingCard", scriptlib::duel_get_first_matching_card },
@@ -614,8 +618,8 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	luaL_newlib(lua_state, debuglib);
 	lua_setglobal(lua_state, "Debug");
 	//extra scripts
-	load_script((char*) "./scriptIA/constant.lua");
-	load_script((char*) "./scriptIA/utility.lua");
+	load_script((char*) "./script/constant.lua");
+	load_script((char*) "./script/utility.lua");
 }
 interpreter::~interpreter() {
 	lua_close(lua_state);
@@ -729,9 +733,9 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushvalue(current_state, -2);
 		lua_rawset(current_state, -3);
 		//load extra scripts
-		sprintf(script_name, "./expansionsIA/script/c%d.lua", code);
+		sprintf(script_name, "./expansions/script/c%d.lua", code);
 		if (!load_script(script_name)) {
-			sprintf(script_name, "./scriptIA/c%d.lua", code);
+			sprintf(script_name, "./script/c%d.lua", code);
 	 		if (!load_script(script_name)) {
 	 			return OPERATION_FAIL;
  			}

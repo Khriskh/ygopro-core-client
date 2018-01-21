@@ -1801,6 +1801,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		deffect->description = 64;
 		deffect->reset_flag = RESET_EVENT + 0x1fe0000;
 		target->add_effect(deffect);
+		core.summoning_card = target;
 		return FALSE;
 	}
 	case 10: {
@@ -1821,7 +1822,6 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 				add_process(PROCESSOR_EXECUTE_OPERATION, 0, pextra, 0, sumplayer, 0);
 			}
 		}
-		core.summoning_card = target;
 		return FALSE;
 	}
 	case 11: {
@@ -4378,6 +4378,8 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				if((opos & POS_FACEUP) && (npos & POS_FACEDOWN)) {
 					if(pcard->get_type() & TYPE_TRAPMONSTER)
 						trapmonster = true;
+					if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED))
+						pcard->set_status(STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED, FALSE);
 					pcard->reset(RESET_TURN_SET, RESET_EVENT);
 					pcard->set_status(STATUS_SET_TURN, TRUE);
 					pcard->enable_field_effect(false);
