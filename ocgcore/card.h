@@ -44,6 +44,7 @@ struct card_state {
 	uint32 level;
 	uint32 rank;
 	uint32 link;
+	uint32 link_marker;
 	uint32 lscale;
 	uint32 rscale;
 	uint32 attribute;
@@ -196,11 +197,11 @@ public:
 	int32 is_pre_set_card(uint32 set_code);
 	int32 is_fusion_set_card(uint32 set_code);
 	int32 is_link_set_card(uint32 set_code);
-	uint32 get_type();
-	uint32 get_fusion_type();
-	uint32 get_synchro_type();
-	uint32 get_xyz_type();
-	uint32 get_link_type();
+	uint32 get_set_card();
+	uint32 get_origin_set_card();
+	uint32 get_pre_set_card();
+	uint32 get_fusion_set_card();
+	uint32 get_type(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 0);
 	int32 get_base_attack();
 	int32 get_attack();
 	int32 get_base_defense();
@@ -211,16 +212,14 @@ public:
 	uint32 get_synchro_level(card* pcard);
 	uint32 get_ritual_level(card* pcard);
 	uint32 check_xyz_level(card* pcard, uint32 lv);
-	uint32 get_attribute();
-	uint32 get_fusion_attribute(uint8 playerid);
-	uint32 get_link_attribute(uint8 playerid);
-	uint32 get_race();
-	uint32 get_link_race(uint8 playerid);
+	uint32 get_attribute(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 0);
+	uint32 get_race(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 0);
 	uint32 get_lscale();
 	uint32 get_rscale();
 	uint32 get_link_marker();
 	int32 is_link_marker(uint32 dir);
 	uint32 get_linked_zone();
+	uint32 get_free_linked_zone();
 	void get_linked_cards(card_set* cset);
 	uint32 get_mutual_linked_zone();
 	void get_mutual_linked_cards(card_set * cset);
@@ -287,9 +286,10 @@ public:
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
 	effect* is_affected_by_effect(int32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
+	int32 get_card_effect(int32 code);
 	effect* check_control_effect();
-	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf);
-	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf);
+	int32 fusion_check(group* fusion_m, group* cg, uint32 chkf);
+	void fusion_filter_valid(group* fusion_m, group* cg, uint32 chkf, effect_set* eset);
 	int32 check_fusion_substitute(card* fcard);
 
 	int32 check_unique_code(card* pcard);
@@ -313,8 +313,8 @@ public:
 	int32 is_destructable_by_battle(card* pcard);
 	effect* check_indestructable_by_effect(effect* peffect, uint8 playerid);
 	int32 is_destructable_by_effect(effect* peffect, uint8 playerid);
-	int32 is_removeable(uint8 playerid);
-	int32 is_removeable_as_cost(uint8 playerid);
+	int32 is_removeable(uint8 playerid, int32 pos = 0x5);
+	int32 is_removeable_as_cost(uint8 playerid, int32 pos = 0x5);
 	int32 is_releasable_by_summon(uint8 playerid, card* pcard);
 	int32 is_releasable_by_nonsummon(uint8 playerid);
 	int32 is_releasable_by_effect(uint8 playerid, effect* peffect);
@@ -336,10 +336,11 @@ public:
 	int32 is_capable_be_battle_target(card* pcard);
 	int32 is_capable_be_effect_target(effect* peffect, uint8 playerid);
 	int32 is_can_be_fusion_material(card* fcard);
-	int32 is_can_be_synchro_material(card* scard, card* tuner = 0);
+	int32 is_can_be_synchro_material(card* scard, uint8 playerid, card* tuner = 0);
 	int32 is_can_be_ritual_material(card* scard);
-	int32 is_can_be_xyz_material(card* scard);
-	int32 is_can_be_link_material(card* scard);
+	int32 is_can_be_xyz_material(card* scard, uint8 playerid);
+	int32 is_can_be_link_material(card* scard, uint8 playerid);
+	bool recreate(uint32 code);
 };
 
 //Locations
@@ -536,6 +537,8 @@ public:
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
+#define ASSUME_LINK         9
+#define ASSUME_LINKMARKER   10
 
 #define LINK_MARKER_BOTTOM_LEFT		0001
 #define LINK_MARKER_BOTTOM			0002

@@ -60,6 +60,9 @@ void ClientField::Clear() {
 			delete *cit;
 		extra[i].clear();
 	}
+	for(auto cit = limbo_temp.begin(); cit != limbo_temp.end(); ++cit)
+			delete *cit;
+	limbo_temp.clear();
 	for(auto sit = overlay_cards.begin(); sit != overlay_cards.end(); ++sit)
 		delete *sit;
 	overlay_cards.clear();
@@ -99,7 +102,7 @@ void ClientField::Initial(int player, int deckc, int extrac) {
 		deck[player].push_back(pcard);
 		pcard->owner = player;
 		pcard->controler = player;
-		pcard->location = 0x1;
+		pcard->location = LOCATION_DECK;
 		pcard->sequence = i;
 		pcard->position = POS_FACEDOWN_DEFENSE;
 		GetCardLocation(pcard, &pcard->curPos, &pcard->curRot, true);
@@ -109,7 +112,7 @@ void ClientField::Initial(int player, int deckc, int extrac) {
 		extra[player].push_back(pcard);
 		pcard->owner = player;
 		pcard->controler = player;
-		pcard->location = 0x40;
+		pcard->location = LOCATION_EXTRA;
 		pcard->sequence = i;
 		pcard->position = POS_FACEDOWN_DEFENSE;
 		GetCardLocation(pcard, &pcard->curPos, &pcard->curRot, true);
@@ -117,8 +120,8 @@ void ClientField::Initial(int player, int deckc, int extrac) {
 }
 ClientCard* ClientField::GetCard(int controler, int location, int sequence, int sub_seq) {
 	std::vector<ClientCard*>* lst = 0;
-	bool is_xyz = (location & 0x80) != 0;
-	location &= 0x7f;
+	bool is_xyz = (location & LOCATION_OVERLAY) != 0;
+	location &= (~LOCATION_OVERLAY);
 	switch(location) {
 	case LOCATION_DECK:
 		lst = &deck[controler];
@@ -415,31 +418,37 @@ void ClientField::ShowSelectCard(bool buttonok, bool chain) {
 				myswprintf(formatBuffer, L"%ls[%d](%d)", 
 					dataManager.FormatLocation(selectable_cards[i]->overlayTarget->location, selectable_cards[i]->overlayTarget->sequence),
 					selectable_cards[i]->overlayTarget->sequence + 1, selectable_cards[i]->sequence + 1);
+			else if (selectable_cards[i]->location == 0)
+				myswprintf(formatBuffer, L"");
 			else
 				myswprintf(formatBuffer, L"%ls[%d]", dataManager.FormatLocation(selectable_cards[i]->location, selectable_cards[i]->sequence),
 					selectable_cards[i]->sequence + 1);
 			mainGame->stCardPos[i]->setText(formatBuffer);
 			// color
-			if(conti_selecting)
-				mainGame->stCardPos[i]->setBackgroundColor(0xffffffff);
-			else if(selectable_cards[i]->location == LOCATION_OVERLAY) {
-				if(selectable_cards[i]->owner != selectable_cards[i]->overlayTarget->controler)
-					mainGame->stCardPos[i]->setOverrideColor(0xff0000ff);
-				if(selectable_cards[i]->overlayTarget->controler)
-					mainGame->stCardPos[i]->setBackgroundColor(0xffd0d0d0);
-				else mainGame->stCardPos[i]->setBackgroundColor(0xffffffff);
-			} else if(selectable_cards[i]->location == LOCATION_DECK || selectable_cards[i]->location == LOCATION_EXTRA || selectable_cards[i]->location == LOCATION_REMOVED) {
-				if(selectable_cards[i]->position & POS_FACEDOWN)
-					mainGame->stCardPos[i]->setOverrideColor(0xff0000ff);
-				if(selectable_cards[i]->controler)
-					mainGame->stCardPos[i]->setBackgroundColor(0xffd0d0d0);
-				else
+			if (selectable_cards[i]->is_selected)
+				mainGame->stCardPos[i]->setBackgroundColor(0xffffff00);
+			else {
+				if(conti_selecting)
 					mainGame->stCardPos[i]->setBackgroundColor(0xffffffff);
-			} else {
-				if(selectable_cards[i]->controler)
-					mainGame->stCardPos[i]->setBackgroundColor(0xffd0d0d0);
-				else
-					mainGame->stCardPos[i]->setBackgroundColor(0xffffffff);
+				else if(selectable_cards[i]->location == LOCATION_OVERLAY) {
+					if(selectable_cards[i]->owner != selectable_cards[i]->overlayTarget->controler)
+						mainGame->stCardPos[i]->setOverrideColor(0xff0000ff);
+					if(selectable_cards[i]->overlayTarget->controler)
+						mainGame->stCardPos[i]->setBackgroundColor(0xffd0d0d0);
+					else mainGame->stCardPos[i]->setBackgroundColor(0xffffffff);
+				} else if(selectable_cards[i]->location == LOCATION_DECK || selectable_cards[i]->location == LOCATION_EXTRA || selectable_cards[i]->location == LOCATION_REMOVED) {
+					if(selectable_cards[i]->position & POS_FACEDOWN)
+						mainGame->stCardPos[i]->setOverrideColor(0xff0000ff);
+					if(selectable_cards[i]->controler)
+						mainGame->stCardPos[i]->setBackgroundColor(0xffd0d0d0);
+					else
+						mainGame->stCardPos[i]->setBackgroundColor(0xffffffff);
+				} else {
+					if(selectable_cards[i]->controler)
+						mainGame->stCardPos[i]->setBackgroundColor(0xffd0d0d0);
+					else
+						mainGame->stCardPos[i]->setBackgroundColor(0xffffffff);
+				}
 			}
 		} else {
 			if(sort_list[i]) {
@@ -699,15 +708,10 @@ void ClientField::GetChainLocation(int controler, int location, int sequence, ir
 	t->X = 0;
 	t->Y = 0;
 	t->Z = 0;
-	int rule = (mainGame->dInfo.duel_rule >= 4) ? 1 : 0;
-	switch((location & 0x7f)) {
-	case LOCATION_DECK: {
-		t->X = (matManager.vFieldDeck[controler][0].Pos.X + matManager.vFieldDeck[controler][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldDeck[controler][0].Pos.Y + matManager.vFieldDeck[controler][2].Pos.Y) / 2;
-		t->Z = deck[controler].size() * 0.01f + 0.03f;
-		break;
-	}
-	case LOCATION_HAND: {
+	int field = (mainGame->dInfo.duel_field == 3 || mainGame->dInfo.duel_field == 5) ? 0 : 1;
+	int speed = (mainGame->dInfo.extraval & 0x1) ? 1 : 0;
+	S3DVertex loc[4];
+	if ((location & (~LOCATION_OVERLAY)) == LOCATION_HAND) {
 		if (controler == 0) {
 			t->X = 2.95f;
 			t->Y = 3.15f;
@@ -717,54 +721,67 @@ void ClientField::GetChainLocation(int controler, int location, int sequence, ir
 			t->Y = -3.15f;
 			t->Z = 0.03f;
 		}
+		return;
+	}
+	bool chk = false;
+	switch((location & (~LOCATION_OVERLAY))) {
+	case LOCATION_DECK: {
+		std::copy(matManager.vFieldDeck[controler][speed], matManager.vFieldDeck[controler][speed] + 4, loc);
+		t->Z = deck[controler].size() * 0.01f + 0.03f;
+		chk = true;
 		break;
 	}
 	case LOCATION_MZONE: {
-		t->X = (matManager.vFieldMzone[controler][sequence][0].Pos.X + matManager.vFieldMzone[controler][sequence][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldMzone[controler][sequence][0].Pos.Y + matManager.vFieldMzone[controler][sequence][2].Pos.Y) / 2;
+		std::copy(matManager.vFieldMzone[controler][sequence], matManager.vFieldMzone[controler][sequence] + 4, loc);
 		t->Z = 0.03f;
+		chk = true;
 		break;
 	}
 	case LOCATION_SZONE: {
-		t->X = (matManager.vFieldSzone[controler][sequence][rule][0].Pos.X + matManager.vFieldSzone[controler][sequence][rule][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldSzone[controler][sequence][rule][0].Pos.Y + matManager.vFieldSzone[controler][sequence][rule][2].Pos.Y) / 2;
+		std::copy(matManager.vFieldSzone[controler][sequence][field][speed], matManager.vFieldSzone[controler][sequence][field][speed] + 4, loc);
 		t->Z = 0.03f;
+		chk = true;
 		break;
 	}
 	case LOCATION_GRAVE: {
-		t->X = (matManager.vFieldGrave[controler][rule][0].Pos.X + matManager.vFieldGrave[controler][rule][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldGrave[controler][rule][0].Pos.Y + matManager.vFieldGrave[controler][rule][2].Pos.Y) / 2;
+		std::copy(matManager.vFieldGrave[controler][field][speed], matManager.vFieldGrave[controler][field][speed] + 4, loc);
 		t->Z = grave[controler].size() * 0.01f + 0.03f;
+		chk = true;
 		break;
 	}
 	case LOCATION_REMOVED: {
-		t->X = (matManager.vFieldRemove[controler][rule][0].Pos.X + matManager.vFieldRemove[controler][rule][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldRemove[controler][rule][0].Pos.Y + matManager.vFieldRemove[controler][rule][2].Pos.Y) / 2;
+		std::copy(matManager.vFieldRemove[controler][field][speed], matManager.vFieldRemove[controler][field][speed] + 4, loc);
 		t->Z = remove[controler].size() * 0.01f + 0.03f;
+		chk = true;
 		break;
 	}
 	case LOCATION_EXTRA: {
-		t->X = (matManager.vFieldExtra[controler][0].Pos.X + matManager.vFieldExtra[controler][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldExtra[controler][0].Pos.Y + matManager.vFieldExtra[controler][2].Pos.Y) / 2;
+		std::copy(matManager.vFieldExtra[controler][speed], matManager.vFieldExtra[controler][speed] + 4, loc);
 		t->Z = extra[controler].size() * 0.01f + 0.03f;
+		chk = true;
 		break;
 	}
+	}
+	if(chk) {
+		t->X = (loc[0].Pos.X + loc[1].Pos.X) / 2;
+		t->Y = (loc[0].Pos.Y + loc[2].Pos.Y) / 2;
 	}
 }
 void ClientField::GetCardLocation(ClientCard* pcard, irr::core::vector3df* t, irr::core::vector3df* r, bool setTrans) {
 	int controler = pcard->controler;
 	int sequence = pcard->sequence;
 	int location = pcard->location;
-	int rule = (mainGame->dInfo.duel_rule >= 4) ? 1 : 0;
+	int field = (mainGame->dInfo.duel_field == 3 || mainGame->dInfo.duel_field == 5) ? 0 : 1;
+	int speed = (mainGame->dInfo.extraval & 0x1) ? 1 : 0;
 	switch (location) {
 	case LOCATION_DECK: {
-		t->X = (matManager.vFieldDeck[controler][0].Pos.X + matManager.vFieldDeck[controler][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldDeck[controler][0].Pos.Y + matManager.vFieldDeck[controler][2].Pos.Y) / 2;
+		t->X = (matManager.vFieldDeck[controler][speed][0].Pos.X + matManager.vFieldDeck[controler][speed][1].Pos.X) / 2;
+		t->Y = (matManager.vFieldDeck[controler][speed][0].Pos.Y + matManager.vFieldDeck[controler][speed][2].Pos.Y) / 2;
 		t->Z = 0.01f + 0.01f * sequence;
 		if (controler == 0) {
 			if(deck_reversed == pcard->is_reversed) {
 				r->X = 0.0f;
-				r->Y = 3.1415926f;
+				r->Y = PI;
 				r->Z = 0.0f;
 			} else {
 				r->X = 0.0f;
@@ -774,12 +791,12 @@ void ClientField::GetCardLocation(ClientCard* pcard, irr::core::vector3df* t, ir
 		} else {
 			if(deck_reversed == pcard->is_reversed) {
 				r->X = 0.0f;
-				r->Y = 3.1415926f;
-				r->Z = 3.1415926f;
+				r->Y = PI;
+				r->Z = PI;
 			} else {
 				r->X = 0.0f;
 				r->Y = 0.0f;
-				r->Z = 3.1415926f;
+				r->Z = PI;
 			}
 		}
 		break;
@@ -788,10 +805,13 @@ void ClientField::GetCardLocation(ClientCard* pcard, irr::core::vector3df* t, ir
 	case LOCATION_HAND: {
 		int count = hand[controler].size();
 		if (controler == 0) {
-			if (count <= 6)
+			if (count <= (6 - speed * 2))
 				t->X = (5.5f - 0.8f * count) / 2 + 1.55f + sequence * 0.8f;
 			else
-				t->X = 1.9f + sequence * 4.0f / (count - 1);
+				if(speed)
+					t->X = 2.7f + sequence * 2.4f / (count - 1);
+				else
+					t->X = 1.9f + sequence * 4.0f / (count - 1);
 			if (pcard->is_hovered) {
 				t->Y = 3.84f;
 				t->Z = 0.656f + 0.001f * sequence;
@@ -800,19 +820,22 @@ void ClientField::GetCardLocation(ClientCard* pcard, irr::core::vector3df* t, ir
 				t->Z = 0.5f + 0.001f * sequence;
 			}
 			if(pcard->code) {
-				r->X = -0.798056f;
+				r->X = -mainGame->board.atan;
 				r->Y = 0.0f;
 				r->Z = 0.0f;
 			} else {
-				r->X = 0.798056f;
-				r->Y = 3.1415926f;
+				r->X = mainGame->board.atan;
+				r->Y = PI;
 				r->Z = 0;
 			}
 		} else {
-			if (count <= 6)
+			if (count <= (6 - speed * 2))
 				t->X = 6.25f - (5.5f - 0.8f * count) / 2 - sequence * 0.8f;
 			else
-				t->X = 5.9f - sequence * 4.0f / (count - 1);
+				if(speed)
+					t->X = 5.1f - sequence * 2.4f / (count - 1);
+				else
+					t->X = 5.9f - sequence * 4.0f / (count - 1);
 			if (pcard->is_hovered) {
 				t->Y = -3.56f;
 				t->Z = 0.656f - 0.001f * sequence;
@@ -821,11 +844,11 @@ void ClientField::GetCardLocation(ClientCard* pcard, irr::core::vector3df* t, ir
 				t->Z = 0.5f - 0.001f * sequence;
 			}
 			if (pcard->code == 0) {
-				r->X = 0.798056f;
-				r->Y = 3.1415926f;
+				r->X = mainGame->board.atan;
+				r->Y = PI;
 				r->Z = 0;
 			} else {
-				r->X = -0.798056f;
+				r->X = -mainGame->board.atan;
 				r->Y = 0;
 				r->Z = 0;
 			}
@@ -839,56 +862,56 @@ void ClientField::GetCardLocation(ClientCard* pcard, irr::core::vector3df* t, ir
 		if (controler == 0) {
 			if (pcard->position & POS_DEFENSE) {
 				r->X = 0.0f;
-				r->Z = -3.1415926f / 2.0f;
+				r->Z = -HALF_PI;
 				if (pcard->position & POS_FACEDOWN)
-					r->Y = 3.1415926f + 0.001f;
+					r->Y = PI + 0.001f;
 				else r->Y = 0.0f;
 			} else {
 				r->X = 0.0f;
 				r->Z = 0.0f;
 				if (pcard->position & POS_FACEDOWN)
-					r->Y = 3.1415926f;
+					r->Y = PI;
 				else r->Y = 0.0f;
 			}
 		} else {
 			if (pcard->position & POS_DEFENSE) {
 				r->X = 0.0f;
-				r->Z = 3.1415926f / 2.0f;
+				r->Z = HALF_PI;
 				if (pcard->position & POS_FACEDOWN)
-					r->Y = 3.1415926f + 0.001f;
+					r->Y = PI + 0.001f;
 				else r->Y = 0.0f;
 			} else {
 				r->X = 0.0f;
-				r->Z = 3.1415926f;
+				r->Z = PI;
 				if (pcard->position & POS_FACEDOWN)
-					r->Y = 3.1415926f;
+					r->Y = PI;
 				else r->Y = 0.0f;
 			}
 		}
 		break;
 	}
 	case LOCATION_SZONE: {
-		t->X = (matManager.vFieldSzone[controler][sequence][rule][0].Pos.X + matManager.vFieldSzone[controler][sequence][rule][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldSzone[controler][sequence][rule][0].Pos.Y + matManager.vFieldSzone[controler][sequence][rule][2].Pos.Y) / 2;
+		t->X = (matManager.vFieldSzone[controler][sequence][field][speed][0].Pos.X + matManager.vFieldSzone[controler][sequence][field][speed][1].Pos.X) / 2;
+		t->Y = (matManager.vFieldSzone[controler][sequence][field][speed][0].Pos.Y + matManager.vFieldSzone[controler][sequence][field][speed][2].Pos.Y) / 2;
 		t->Z = 0.01f;
 		if (controler == 0) {
 			r->X = 0.0f;
 			r->Z = 0.0f;
 			if (pcard->position & POS_FACEDOWN)
-				r->Y = 3.1415926f;
+				r->Y = PI;
 			else r->Y = 0.0f;
 		} else {
 			r->X = 0.0f;
-			r->Z = 3.1415926f;
+			r->Z = PI;
 			if (pcard->position & POS_FACEDOWN)
-				r->Y = 3.1415926f;
+				r->Y = PI;
 			else r->Y = 0.0f;
 		}
 		break;
 	}
 	case LOCATION_GRAVE: {
-		t->X = (matManager.vFieldGrave[controler][rule][0].Pos.X + matManager.vFieldGrave[controler][rule][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldGrave[controler][rule][0].Pos.Y + matManager.vFieldGrave[controler][rule][2].Pos.Y) / 2;
+		t->X = (matManager.vFieldGrave[controler][field][speed][0].Pos.X + matManager.vFieldGrave[controler][field][speed][1].Pos.X) / 2;
+		t->Y = (matManager.vFieldGrave[controler][field][speed][0].Pos.Y + matManager.vFieldGrave[controler][field][speed][2].Pos.Y) / 2;
 		t->Z = 0.01f + 0.01f * sequence;
 		if (controler == 0) {
 			r->X = 0.0f;
@@ -897,13 +920,13 @@ void ClientField::GetCardLocation(ClientCard* pcard, irr::core::vector3df* t, ir
 		} else {
 			r->X = 0.0f;
 			r->Y = 0.0f;
-			r->Z = 3.1415926f;
+			r->Z = PI;
 		}
 		break;
 	}
 	case LOCATION_REMOVED: {
-		t->X = (matManager.vFieldRemove[controler][rule][0].Pos.X + matManager.vFieldRemove[controler][rule][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldRemove[controler][rule][0].Pos.Y + matManager.vFieldRemove[controler][rule][2].Pos.Y) / 2;
+		t->X = (matManager.vFieldRemove[controler][field][speed][0].Pos.X + matManager.vFieldRemove[controler][field][speed][1].Pos.X) / 2;
+		t->Y = (matManager.vFieldRemove[controler][field][speed][0].Pos.Y + matManager.vFieldRemove[controler][field][speed][2].Pos.Y) / 2;
 		t->Z = 0.01f + 0.01f * sequence;
 		if (controler == 0) {
 			if(pcard->position & POS_FACEUP) {
@@ -912,60 +935,80 @@ void ClientField::GetCardLocation(ClientCard* pcard, irr::core::vector3df* t, ir
 				r->Z = 0.0f;
 			} else {
 				r->X = 0.0f;
-				r->Y = 3.1415926f;
+				r->Y = PI;
 				r->Z = 0.0f;
 			}
 		} else {
 			if(pcard->position & POS_FACEUP) {
 				r->X = 0.0f;
 				r->Y = 0.0f;
-				r->Z = 3.1415926f;
+				r->Z = PI;
 			} else {
 				r->X = 0.0f;
-				r->Y = 3.1415926f;
-				r->Z = 3.1415926f;
+				r->Y = PI;
+				r->Z = PI;
 			}
 		}
 		break;
 	}
 	case LOCATION_EXTRA: {
-		t->X = (matManager.vFieldExtra[controler][0].Pos.X + matManager.vFieldExtra[controler][1].Pos.X) / 2;
-		t->Y = (matManager.vFieldExtra[controler][0].Pos.Y + matManager.vFieldExtra[controler][2].Pos.Y) / 2;
+		t->X = (matManager.vFieldExtra[controler][speed][0].Pos.X + matManager.vFieldExtra[controler][speed][1].Pos.X) / 2;
+		t->Y = (matManager.vFieldExtra[controler][speed][0].Pos.Y + matManager.vFieldExtra[controler][speed][2].Pos.Y) / 2;
 		t->Z = 0.01f + 0.01f * sequence;
 		if (controler == 0) {
 			r->X = 0.0f;
 			if(pcard->position & POS_FACEUP)
 				r->Y = 0.0f;
-			else r->Y = 3.1415926f;
+			else r->Y = PI;
 			r->Z = 0.0f;
 		} else {
 			r->X = 0.0f;
 			if(pcard->position & POS_FACEUP)
 				r->Y = 0.0f;
-			else r->Y = 3.1415926f;
-			r->Z = 3.1415926f;
+			else r->Y = PI;
+			r->Z = PI;
 		}
 		break;
 	}
 	case LOCATION_OVERLAY: {
-		if (pcard->overlayTarget->location != 0x4) {
+		if (!(pcard->overlayTarget->location & LOCATION_ONFIELD)) {
 			return;
 		}
 		int oseq = pcard->overlayTarget->sequence;
-		if (pcard->overlayTarget->controler == 0) {
-			t->X = (matManager.vFieldMzone[0][oseq][0].Pos.X + matManager.vFieldMzone[0][oseq][1].Pos.X) / 2 - 0.12f + 0.06f * sequence;
-			t->Y = (matManager.vFieldMzone[0][oseq][0].Pos.Y + matManager.vFieldMzone[0][oseq][2].Pos.Y) / 2 + 0.05f;
-			t->Z = 0.005f + pcard->sequence * 0.0001f;
-			r->X = 0.0f;
-			r->Y = 0.0f;
-			r->Z = 0.0f;
+		if (pcard->overlayTarget->location == LOCATION_MZONE) {
+			if (pcard->overlayTarget->controler == 0) {
+				t->X = (matManager.vFieldMzone[0][oseq][0].Pos.X + matManager.vFieldMzone[0][oseq][1].Pos.X) / 2 - 0.12f + 0.06f * sequence;
+				t->Y = (matManager.vFieldMzone[0][oseq][0].Pos.Y + matManager.vFieldMzone[0][oseq][2].Pos.Y) / 2 + 0.05f;
+				t->Z = 0.005f + pcard->sequence * 0.0001f;
+				r->X = 0.0f;
+				r->Y = 0.0f;
+				r->Z = 0.0f;
+			}
+			else {
+				t->X = (matManager.vFieldMzone[1][oseq][0].Pos.X + matManager.vFieldMzone[1][oseq][1].Pos.X) / 2 + 0.12f - 0.06f * sequence;
+				t->Y = (matManager.vFieldMzone[1][oseq][0].Pos.Y + matManager.vFieldMzone[1][oseq][2].Pos.Y) / 2 - 0.05f;
+				t->Z = 0.005f + pcard->sequence * 0.0001f;
+				r->X = 0.0f;
+				r->Y = 0.0f;
+				r->Z = PI;
+			}
 		} else {
-			t->X = (matManager.vFieldMzone[1][oseq][0].Pos.X + matManager.vFieldMzone[1][oseq][1].Pos.X) / 2 + 0.12f - 0.06f * sequence;
-			t->Y = (matManager.vFieldMzone[1][oseq][0].Pos.Y + matManager.vFieldMzone[1][oseq][2].Pos.Y) / 2 - 0.05f;
-			t->Z = 0.005f + pcard->sequence * 0.0001f;
-			r->X = 0.0f;
-			r->Y = 0.0f;
-			r->Z = 3.1415926f;
+			if (pcard->overlayTarget->controler == 0) {
+				t->X = (matManager.vFieldSzone[0][oseq][field][speed][0].Pos.X + matManager.vFieldSzone[0][oseq][field][speed][1].Pos.X) / 2 - 0.12f + 0.06f * sequence;
+				t->Y = (matManager.vFieldSzone[0][oseq][field][speed][0].Pos.Y + matManager.vFieldSzone[0][oseq][field][speed][2].Pos.Y) / 2 + 0.05f;
+				t->Z = 0.005f + pcard->sequence * 0.0001f;
+				r->X = 0.0f;
+				r->Y = 0.0f;
+				r->Z = 0.0f;
+			}
+			else {
+				t->X = (matManager.vFieldSzone[1][oseq][field][speed][0].Pos.X + matManager.vFieldSzone[1][oseq][field][speed][1].Pos.X) / 2 + 0.12f - 0.06f * sequence;
+				t->Y = (matManager.vFieldSzone[1][oseq][field][speed][0].Pos.Y + matManager.vFieldSzone[1][oseq][field][speed][2].Pos.Y) / 2 - 0.05f;
+				t->Z = 0.005f + pcard->sequence * 0.0001f;
+				r->X = 0.0f;
+				r->Y = 0.0f;
+				r->Z = PI;
+			}
 		}
 		break;
 	}
@@ -981,27 +1024,27 @@ void ClientField::MoveCard(ClientCard * pcard, int frame) {
 	GetCardLocation(pcard, &trans, &rot);
 	pcard->dPos = (trans - pcard->curPos) / frame;
 	float diff = rot.X - pcard->curRot.X;
-	while (diff < 0) diff += 3.1415926f * 2;
-	while (diff > 3.1415926f * 2)
-		diff -= 3.1415926f * 2;
-	if (diff < 3.1415926f)
+	while (diff < 0) diff += PI * 2;
+	while (diff > PI * 2)
+		diff -= PI * 2;
+	if (diff < PI)
 		pcard->dRot.X = diff / frame;
 	else
-		pcard->dRot.X = -(3.1415926f * 2 - diff) / frame;
+		pcard->dRot.X = -(PI * 2 - diff) / frame;
 	diff = rot.Y - pcard->curRot.Y;
-	while (diff < 0) diff += 3.1415926f * 2;
-	while (diff > 3.1415926f * 2) diff -= 3.1415926f * 2;
-	if (diff < 3.1415926f)
+	while (diff < 0) diff += PI * 2;
+	while (diff > PI * 2) diff -= PI * 2;
+	if (diff < PI)
 		pcard->dRot.Y = diff / frame;
 	else
-		pcard->dRot.Y = -(3.1415926f * 2 - diff) / frame;
+		pcard->dRot.Y = -(PI * 2 - diff) / frame;
 	diff = rot.Z - pcard->curRot.Z;
-	while (diff < 0) diff += 3.1415926f * 2;
-	while (diff > 3.1415926f * 2) diff -= 3.1415926f * 2;
-	if (diff < 3.1415926f)
+	while (diff < 0) diff += PI * 2;
+	while (diff > PI * 2) diff -= PI * 2;
+	if (diff < PI)
 		pcard->dRot.Z = diff / frame;
 	else
-		pcard->dRot.Z = -(3.1415926f * 2 - diff) / frame;
+		pcard->dRot.Z = -(PI * 2 - diff) / frame;
 	pcard->is_moving = true;
 	pcard->aniFrame = frame;
 }
@@ -1058,7 +1101,8 @@ bool ClientField::ShowSelectSum(bool panelmode) {
 	}
 	if (select_ready) {
 		ShowCancelOrFinishButton(1);
-	} else {
+	}
+	else {
 		ShowCancelOrFinishButton(0);
 	}
 	return false;
@@ -1378,7 +1422,7 @@ void ClientField::UpdateDeclarableCodeType(bool enter) {
 	mainGame->lstANCard->clear();
 	ancard.clear();
 	for(auto cit = dataManager._strings.begin(); cit != dataManager._strings.end(); ++cit) {
-		if(wcsstr(cit->second.name, pname) != 0) {
+		if(DeckBuilder::CardNameCompare(cit->second.name, pname) != 0) {
 			auto cp = dataManager.GetCodePointer(cit->first);	//verified by _strings
 			//datas.alias can be double card names or alias
 			if(is_declarable(cp->second, declarable_type)) {
@@ -1410,7 +1454,7 @@ void ClientField::UpdateDeclarableCodeOpcode(bool enter) {
 	mainGame->lstANCard->clear();
 	ancard.clear();
 	for(auto cit = dataManager._strings.begin(); cit != dataManager._strings.end(); ++cit) {
-		if(wcsstr(cit->second.name, pname) != 0) {
+		if(DeckBuilder::CardNameCompare(cit->second.name, pname)) {
 			auto cp = dataManager.GetCodePointer(cit->first);	//verified by _strings
 			//datas.alias can be double card names or alias
 			if(is_declarable(cp->second, opcode)) {

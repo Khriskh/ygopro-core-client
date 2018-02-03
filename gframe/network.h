@@ -22,6 +22,24 @@ struct HostInfo {
 	unsigned char start_hand;
 	unsigned char draw_count;
 	unsigned short time_limit;
+	unsigned char check;
+	unsigned int duel_flag;
+	int forbiddentypes;
+	bool destiny_draw;
+	bool sealed;
+	bool booster;
+	bool speed;
+	bool concentration;
+	bool boss;
+	bool city;
+	bool kingdom;
+	bool dimension;
+	bool turbo1;
+	bool turbo2;
+	bool doubled;
+	bool command;
+	bool master;
+	int rule_count;
 };
 struct HostPacket {
 	unsigned short identifier;
@@ -197,6 +215,9 @@ public:
 #define STOC_HS_PLAYER_CHANGE	0x21
 #define STOC_HS_WATCH_CHANGE	0x22
 
+
+#define STOC_NEW_REPLAY			0x30
+
 #define PLAYERCHANGE_OBSERVE	0x8
 #define PLAYERCHANGE_READY		0x9
 #define PLAYERCHANGE_NOTREADY	0xa
@@ -215,8 +236,10 @@ public:
 #define DECKERROR_MAINCOUNT		0x6
 #define DECKERROR_EXTRACOUNT	0x7
 #define DECKERROR_SIDECOUNT		0x8
+#define DECKERROR_FORBTYPE		0x9
 
 #define MODE_SINGLE		0x0
 #define MODE_MATCH		0x1
 #define MODE_TAG		0x2
+#define MODE_RELAY		0x3
 #endif //NETWORK_H

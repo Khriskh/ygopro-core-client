@@ -6,7 +6,9 @@
 #include "replay_mode.h"
 #include "single_mode.h"
 #include "image_manager.h"
+#include "../ocgcore/duel.h"
 #include "game.h"
+#include "utils.h"
 
 namespace ygo {
 
@@ -30,7 +32,27 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 	case irr::EET_GUI_EVENT: {
 		irr::gui::IGUIElement* caller = event.GUIEvent.Caller;
 		s32 id = caller->getID();
+		if(mainGame->wRules->isVisible() && (id != BUTTON_RULE_OK && (id < CHECK_SEALED_DUEL || id > CHECK_DECK_MASTER_DUEL)))
+			break;
+		if(mainGame->wCustomRules->isVisible() && id != BUTTON_CUSTOM_RULE_OK && (id < CHECKBOX_OBSOLETE || id > CHECKBOX_EMZONE))
+			break;
 		switch(event.GUIEvent.EventType) {
+		case irr::gui::EGET_ELEMENT_HOVERED: {
+			// Set cursor to an I-Beam if hovering over an edit box
+			if (event.GUIEvent.Caller->getType() == EGUIET_EDIT_BOX)
+			{
+				utils.changeCursor(ECI_IBEAM);
+			}
+			break;
+		}
+		case irr::gui::EGET_ELEMENT_LEFT: {
+			// Set cursor to normal if left an edit box
+			if (event.GUIEvent.Caller->getType() == EGUIET_EDIT_BOX)
+			{
+				utils.changeCursor(ECI_NORMAL);
+			}
+			break;
+		}
 		case irr::gui::EGET_BUTTON_CLICKED: {
 			switch(id) {
 			case BUTTON_MODE_EXIT: {
@@ -46,7 +68,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_JOIN_HOST: {
-				bot_mode = false;
 				char ip[20];
 				const wchar_t* pstr = mainGame->ebJoinHost->getText();
 				BufferIO::CopyWStr(pstr, ip, 16);
@@ -103,8 +124,55 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->ShowElement(mainGame->wCreateHost);
 				break;
 			}
+			case BUTTON_RULE_CARDS: {
+				mainGame->PopupElement(mainGame->wRules);
+				break;
+			}
+			case BUTTON_RULE_OK: {
+				mainGame->HideElement(mainGame->wRules);
+				break;
+			}
+			case BUTTON_CUSTOM_RULE: {
+				switch (mainGame->cbDuelRule->getSelected()) {
+				case 0: {
+					mainGame->duel_param = MASTER_RULE_1;
+					mainGame->forbiddentypes = MASTER_RULE_1_FORB;
+					break;
+				}
+				case 1: {
+					mainGame->duel_param = MASTER_RULE_2;
+					mainGame->forbiddentypes = MASTER_RULE_2_FORB;
+					break;
+				}
+				case 2: {
+					mainGame->duel_param = MASTER_RULE_3;
+					mainGame->forbiddentypes = MASTER_RULE_3_FORB;
+					break;
+				}
+				case 3: {
+					mainGame->duel_param = MASTER_RULE_4;
+					mainGame->forbiddentypes = MASTER_RULE_4_FORB;
+					break;
+				}
+				}
+				uint32 filter = 0x100;
+				for (int i = 0; i < 6; ++i, filter <<= 1) {
+						mainGame->chkCustomRules[i]->setChecked(mainGame->duel_param & filter);
+					if(i == 3)
+						mainGame->chkCustomRules[4]->setEnabled(mainGame->duel_param & filter);
+				}
+				uint32 limits[] = { TYPE_FUSION, TYPE_SYNCHRO, TYPE_XYZ, TYPE_PENDULUM, TYPE_LINK };
+				for (int i = 0; i < 5; ++i, filter <<= 1)
+						mainGame->chkTypeLimit[i]->setChecked(mainGame->forbiddentypes & limits[i]);
+				mainGame->PopupElement(mainGame->wCustomRules);
+				break;
+			}
+			case BUTTON_CUSTOM_RULE_OK: {
+				mainGame->UpdateDuelParam();
+				mainGame->HideElement(mainGame->wCustomRules);
+				break;
+			}
 			case BUTTON_HOST_CONFIRM: {
-				bot_mode = false;
 				BufferIO::CopyWStr(mainGame->ebServerName->getText(), mainGame->gameConf.gamename, 20);
 				if(!NetServer::StartServer(mainGame->gameConf.serverport))
 					break;
@@ -120,6 +188,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
+				if(mainGame->wRules->isVisible())
+					mainGame->HideElement(mainGame->wRules);
 				mainGame->HideElement(mainGame->wCreateHost);
 				mainGame->ShowElement(mainGame->wLanWindow);
 				break;
@@ -146,18 +216,27 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HP_READY: {
-				if(mainGame->cbDeckSelect->getSelected() == -1 ||
-					!deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()))) {
+				bool check = false;
+				if(!mainGame->cbDeckSelect2->isVisible())
+					check = (mainGame->cbDeckSelect->getSelected() == -1 || !deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected())));
+				else
+					check = (mainGame->cbDeckSelect->getSelected() == -1 || mainGame->cbDeckSelect2->getSelected() == -1 || !deckManager.LoadDeckDouble(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()), mainGame->cbDeckSelect2->getItem(mainGame->cbDeckSelect2->getSelected())));
+				if(check)
 					break;
-				}
 				UpdateDeck();
 				DuelClient::SendPacketToServer(CTOS_HS_READY);
 				mainGame->cbDeckSelect->setEnabled(false);
+				mainGame->cbDeckSelect2->setEnabled(false);
+				if(mainGame->dInfo.isTag || mainGame->dInfo.isRelay)
+					mainGame->btnHostPrepDuelist->setEnabled(false);
 				break;
 			}
 			case BUTTON_HP_NOTREADY: {
 				DuelClient::SendPacketToServer(CTOS_HS_NOTREADY);
 				mainGame->cbDeckSelect->setEnabled(true);
+				mainGame->cbDeckSelect2->setEnabled(true);
+				if(mainGame->dInfo.isTag || mainGame->dInfo.isRelay)
+					mainGame->btnHostPrepDuelist->setEnabled(true);
 				break;
 			}
 			case BUTTON_HP_START: {
@@ -169,13 +248,10 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
-				mainGame->btnStartBot->setEnabled(true);
-				mainGame->btnBotCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wHostPrepare);
-				if(bot_mode)
-					mainGame->ShowElement(mainGame->wSinglePlay);
-				else
-					mainGame->ShowElement(mainGame->wLanWindow);
+				if(mainGame->wHostPrepare2->isVisible())
+					mainGame->HideElement(mainGame->wHostPrepare2);
+				mainGame->ShowElement(mainGame->wLanWindow);
 				mainGame->wChat->setVisible(false);
 				if(exit_on_return)
 					mainGame->device->closeDevice();
@@ -192,7 +268,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->HideElement(mainGame->wMainMenu);
 				mainGame->ShowElement(mainGame->wSinglePlay);
 				mainGame->RefreshSingleplay();
-				mainGame->RefreshBot();
 				break;
 			}
 			case BUTTON_LOAD_REPLAY: {
@@ -205,6 +280,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					if(!ReplayMode::cur_replay.OpenReplay(mainGame->lstReplayList->getListItem(mainGame->lstReplayList->getSelected())))
 						break;
 				}
+				if(mainGame->chkYrp->isChecked() && !ReplayMode::cur_replay.LoadYrp())
+					break;
 				mainGame->imgCard->setImage(imageManager.tCover[0]);
 				mainGame->wCardImg->setVisible(true);
 				mainGame->wInfos->setVisible(true);
@@ -214,6 +291,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->stDataInfo->setText(L"");
 				mainGame->stSetName->setText(L"");
 				mainGame->stText->setText(L"");
+				mainGame->showingcard = 0;
 				mainGame->scrCardText->setVisible(false);
 				mainGame->wReplayControl->setVisible(true);
 				mainGame->btnReplayStart->setVisible(false);
@@ -233,58 +311,6 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_CANCEL_REPLAY: {
 				mainGame->HideElement(mainGame->wReplay);
 				mainGame->ShowElement(mainGame->wMainMenu);
-				break;
-			}
-			case BUTTON_BOT_START: {
-				int sel = mainGame->lstBotList->getSelected();
-				if(sel == -1)
-					break;
-				bot_mode = true;
-#ifdef _WIN32
-				if(!NetServer::StartServer(mainGame->gameConf.serverport))
-					break;
-				if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
-					NetServer::StopServer();
-					break;
-				}
-				STARTUPINFO si;
-				PROCESS_INFORMATION pi;
-				ZeroMemory(&si, sizeof(si));
-				si.cb = sizeof(si);
-				ZeroMemory(&pi, sizeof(pi));
-				wchar_t cmd[MAX_PATH];
-				int flag = 0;
-				flag += (mainGame->chkBotHand->isChecked() ? 0x1 : 0);
-				myswprintf(cmd, L"Bot.exe \"%ls\" %d %d", mainGame->botInfo[sel].command, flag, mainGame->gameConf.serverport);
-				if(!CreateProcessW(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-				{
-					NetServer::StopServer();
-					break;
-				}
-#else
-				if(fork() == 0) {
-					usleep(100000);
-					char arg1[512];
-					BufferIO::EncodeUTF8(mainGame->botInfo[sel].command, arg1);
-					int flag = 0;
-					flag += (mainGame->chkBotHand->isChecked() ? 0x1 : 0);
-					char arg2[8];
-					sprintf(arg2, "%d", flag);
-					char arg3[8];
-					sprintf(arg3, "%d", mainGame->gameConf.serverport);
-					execl("./bot", "bot", arg1, arg2, arg3, NULL);
-					exit(0);
-				} else {
-					if(!NetServer::StartServer(mainGame->gameConf.serverport))
-						break;
-					if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
-						NetServer::StopServer();
-						break;
-					}
-				}
-#endif
-				mainGame->btnStartBot->setEnabled(false);
-				mainGame->btnBotCancel->setEnabled(false);
 				break;
 			}
 			case BUTTON_LOAD_SINGLEPLAY: {
@@ -375,13 +401,11 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				repinfo.append(infobuf);
 				mainGame->ebRepStartTurn->setText(L"1");
 				mainGame->SetStaticText(mainGame->stReplayInfo, 180, mainGame->guiFont, (wchar_t*)repinfo.c_str());
-				break;
-			}
-			case LISTBOX_BOT_LIST: {
-				int sel = mainGame->lstBotList->getSelected();
-				if(sel == -1)
-					break;
-				mainGame->SetStaticText(mainGame->stBotInfo, 200, mainGame->guiFont, mainGame->botInfo[sel].desc);
+				if(ReplayMode::cur_replay.pheader.id == 0x31707279) {
+					mainGame->chkYrp->setChecked(false);
+					mainGame->chkYrp->setEnabled(false);
+				} else
+					mainGame->chkYrp->setEnabled(true);
 				break;
 			}
 			}
@@ -394,23 +418,120 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					break;
 				mainGame->env->setFocus(mainGame->wHostPrepare);
 				if(static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
-					if(mainGame->cbDeckSelect->getSelected() == -1 ||
-					        !deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()))) {
+					bool check = false;
+					if (!mainGame->cbDeckSelect2->isVisible())
+						check = (mainGame->cbDeckSelect->getSelected() == -1 || !deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected())));
+					else
+						check = (mainGame->cbDeckSelect->getSelected() == -1 || mainGame->cbDeckSelect2->getSelected() == -1 || !deckManager.LoadDeckDouble(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()), mainGame->cbDeckSelect2->getItem(mainGame->cbDeckSelect2->getSelected())));
+					if(check) {
 						static_cast<irr::gui::IGUICheckBox*>(caller)->setChecked(false);
 						break;
 					}
 					UpdateDeck();
 					DuelClient::SendPacketToServer(CTOS_HS_READY);
 					mainGame->cbDeckSelect->setEnabled(false);
+					mainGame->cbDeckSelect2->setEnabled(false);
+					if(mainGame->dInfo.isTag || mainGame->dInfo.isRelay)
+						mainGame->btnHostPrepDuelist->setEnabled(false);
 				} else {
 					DuelClient::SendPacketToServer(CTOS_HS_NOTREADY);
 					mainGame->cbDeckSelect->setEnabled(true);
+					mainGame->cbDeckSelect2->setEnabled(true);
+					if(mainGame->dInfo.isTag || mainGame->dInfo.isRelay)
+						mainGame->btnHostPrepDuelist->setEnabled(true);
 				}
 				break;
 			}
-			case CHECKBOX_BOT_OLD_RULE: {
-				mainGame->RefreshBot();
+			case CHECK_SEALED_DUEL: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 1; i < 14; ++i)
+						if (i != 2 && i != 3 && i != 9)
+						mainGame->chkRules[i]->setEnabled(false);
+				}
+				else {
+					for (int i = 1; i < 14; ++i)
+						if (i != 2 && i != 3 && i != 9)
+						mainGame->chkRules[i]->setEnabled(true);
+				}
 				break;
+			}
+			case CHECK_BOOSTER_DUEL: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 0; i < 14; ++i)
+						if(i != 1 && i != 2 && i != 3 && i != 9)
+						mainGame->chkRules[i]->setEnabled(false);
+				}
+				else {
+					for (int i = 0; i < 14; ++i)
+						if (i != 1 && i != 2 && i != 3 && i != 9)
+						mainGame->chkRules[i]->setEnabled(true);
+				}
+				break;
+			}
+			case CHECK_CONCENTRATION_DUEL:
+			case CHECK_BOSS_DUEL:
+			case CHECK_BATTLE_CITY:
+			case CHECK_DUELIST_KINGDOM:
+			case CHECK_COMMAND_DUEL:
+			case CHECK_DECK_MASTER_DUEL: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 0; i < 2; ++i)
+						mainGame->chkRules[i]->setEnabled(false);
+				}
+				else {
+					for (int i = 0; i < 2; ++i)
+						mainGame->chkRules[i]->setEnabled(true);
+					for (int i = 0; i < 16; ++i) {
+						if (mainGame->chkRules[i]->isChecked() && i != 3 && i != 9)
+							for (int i = 0; i < 2; ++i)
+								mainGame->chkRules[i]->setEnabled(false);
+					}
+				}
+				break;
+			}
+			case CHECK_TURBO_DUEL_1: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 0; i < 3; ++i)
+						mainGame->chkRules[i]->setEnabled(false);
+					mainGame->chkRules[10]->setEnabled(false);
+				}
+				else {
+					for (int i = 0; i < 3; ++i)
+						mainGame->chkRules[i]->setEnabled(true);
+					mainGame->chkRules[10]->setEnabled(true);
+					for (int i = 0; i < 16; ++i) {
+						if (mainGame->chkRules[i]->isChecked() && i != 3 && i != 9)
+							for (int i = 0; i < 1; ++i)
+								mainGame->chkRules[i]->setEnabled(false);
+					}
+				}
+				break;
+			}
+			case CHECK_TURBO_DUEL_2: {
+				if (static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
+					for (int i = 0; i < 3; ++i)
+						mainGame->chkRules[i]->setEnabled(false);
+					mainGame->chkRules[11]->setEnabled(false);
+				}
+				else {
+					for (int i = 0; i < 3; ++i)
+						mainGame->chkRules[i]->setEnabled(true);
+					mainGame->chkRules[11]->setEnabled(true);
+					for (int i = 0; i < 16; ++i) {
+						if (mainGame->chkRules[i]->isChecked() && i != 3 && i != 9)
+							for (int i = 0; i < 1; ++i)
+								mainGame->chkRules[i]->setEnabled(false);
+					}
+				}
+				break;
+			}
+			case CHECKBOX_PZONE: {
+				if(static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked())
+					mainGame->chkCustomRules[4]->setEnabled(true);
+				else {
+					mainGame->chkCustomRules[4]->setChecked(false);
+					mainGame->chkCustomRules[4]->setEnabled(false);
+				}
 			}
 			}
 			break;
@@ -442,6 +563,38 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			break;
 		}
+		case irr::gui::EGET_COMBO_BOX_CHANGED: {
+			switch (id) {
+			case COMBOBOX_DUEL_RULE: {
+				switch (mainGame->cbDuelRule->getSelected()) {
+				case 0:{
+					mainGame->cbDuelRule->removeItem(4);
+					mainGame->duel_param = MASTER_RULE_1;
+					mainGame->forbiddentypes = MASTER_RULE_1_FORB;
+					break;
+				}
+				case 1: {
+					mainGame->cbDuelRule->removeItem(4);
+					mainGame->duel_param = MASTER_RULE_2;
+					mainGame->forbiddentypes = MASTER_RULE_2_FORB;
+					break;
+				}
+				case 2: {
+					mainGame->cbDuelRule->removeItem(4);
+					mainGame->duel_param = MASTER_RULE_3;
+					mainGame->forbiddentypes = MASTER_RULE_3_FORB;
+					break;
+				}
+				case 3: {
+					mainGame->cbDuelRule->removeItem(4);
+					mainGame->duel_param = MASTER_RULE_4;
+					mainGame->forbiddentypes = MASTER_RULE_4_FORB;
+					break;
+				}
+				}
+			}
+			}
+		}
 		default: break;
 		}
 		break;
@@ -456,6 +609,12 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		case irr::KEY_ESCAPE: {
 			if(!mainGame->HasFocus(EGUIET_EDIT_BOX))
 				mainGame->device->minimizeWindow();
+			break;
+		}
+		case irr::KEY_F12: {
+			if (!event.KeyInput.PressedDown)
+				utils.takeScreenshot(mainGame->device);
+			return true;
 			break;
 		}
 		default: break;
