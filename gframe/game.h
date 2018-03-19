@@ -2,15 +2,20 @@
 #define GAME_H
 
 #include "config.h"
+#ifndef YGOPRO_SERVER_MODE
 #include "client_field.h"
 #include "deck_con.h"
 #include "menu_handler.h"
+#else
+#include "netserver.h"
+#endif //YGOPRO_SERVER_MODE
 #include <unordered_map>
 #include <vector>
 #include <list>
 
 namespace ygo {
 
+#ifndef YGOPRO_SERVER_MODE
 struct Config {
 	bool use_d3d;
 	bool use_image_scale;
@@ -42,16 +47,10 @@ struct Config {
 	int chkIgnoreDeckChanges;
 	int defaultOT;
 	int enable_bot_mode;
-	bool enable_sound;
-	bool enable_music;
-	double sound_volume;
-	double music_volume;
-	int music_mode;
 };
 
 struct DuelInfo {
 	bool isStarted;
-	bool isFinished;
 	bool isReplay;
 	bool isReplaySkiping;
 	bool isFirst;
@@ -95,11 +94,17 @@ struct FadingUnit {
 	irr::core::vector2di fadingLR;
 	irr::core::vector2di fadingDiff;
 };
+#endif //YGOPRO_SERVER_MODE
 
 class Game {
 
 public:
 	bool Initialize();
+#ifdef YGOPRO_SERVER_MODE
+	void MainServerLoop();
+	void LoadExpansionDB();
+	void AddDebugMsg(char* msgbuf);
+#else
 	void MainLoop();
 	void BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 right, f32 bottom, f32 top, f32 znear, f32 zfar);
 	void InitStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, u32 cHeight, irr::gui::CGUITTFont* font, const wchar_t* text);
@@ -124,7 +129,7 @@ public:
 	void HideElement(irr::gui::IGUIElement* element, bool set_action = false);
 	void PopupElement(irr::gui::IGUIElement* element, int hideframe = 0);
 	void WaitFrameSignal(int frame);
-	void DrawThumb(code_pointer cp, position2di pos, std::unordered_map<int, int>* lflist, bool drag = false);
+	void DrawThumb(code_pointer cp, position2di pos, std::unordered_map<int, int>* lflist);
 	void DrawDeckBd();
 	void LoadConfig();
 	void SaveConfig();
@@ -141,14 +146,6 @@ public:
 		irr::gui::IGUIElement* focus = env->getFocus();
 		return focus && focus->hasType(type);
 	}
-
-	void OnResize();
-	recti Resize(s32 x, s32 y, s32 x2, s32 y2);
-	recti Resize(s32 x, s32 y, s32 x2, s32 y2, s32 dx, s32 dy, s32 dx2, s32 dy2);
-	position2di Resize(s32 x, s32 y);
-	position2di ResizeReverse(s32 x, s32 y);
-	recti ResizeElem(s32 x, s32 y, s32 x2, s32 y2);
-	recti ResizeWin(s32 x, s32 y, s32 x2, s32 y2, bool chat = false);
 
 	void SetWindowsIcon();
 	void FlashWindow();
@@ -200,10 +197,6 @@ public:
 	bool is_building;
 	bool is_siding;
 
-	irr::core::dimension2d<irr::u32> window_size;
-	float xScale;
-	float yScale;
-
 	ClientField dField;
 	DeckBuilder deckBuilder;
 	MenuHandler menuHandler;
@@ -238,9 +231,6 @@ public:
 	irr::gui::IGUIStaticText* stSetName;
 	irr::gui::IGUIStaticText* stText;
 	irr::gui::IGUIScrollBar* scrCardText;
-	irr::gui::IGUIListBox* lstLog;
-	irr::gui::IGUIButton* btnClearLog;
-	irr::gui::IGUIButton* btnSaveLog;
 	irr::gui::IGUICheckBox* chkMAutoPos;
 	irr::gui::IGUICheckBox* chkSTAutoPos;
 	irr::gui::IGUICheckBox* chkRandomPos;
@@ -250,11 +240,9 @@ public:
 	irr::gui::IGUICheckBox* chkHideHintButton;
 	irr::gui::IGUICheckBox* chkIgnoreDeckChanges;
 	irr::gui::IGUICheckBox* chkAutoSearch;
-	irr::gui::IGUICheckBox* chkEnableSound;
-	irr::gui::IGUICheckBox* chkEnableMusic;
-	irr::gui::IGUIScrollBar* scrSoundVolume;
-	irr::gui::IGUIScrollBar* scrMusicVolume;
-	irr::gui::IGUICheckBox* chkMusicMode;
+	irr::gui::IGUIListBox* lstLog;
+	irr::gui::IGUIButton* btnClearLog;
+	irr::gui::IGUIButton* btnSaveLog;
 	//main menu
 	irr::gui::IGUIWindow* wMainMenu;
 	irr::gui::IGUIButton* btnLanMode;
@@ -425,17 +413,6 @@ public:
 	irr::gui::IGUIButton* btnSideSort;
 	irr::gui::IGUIButton* btnSideReload;
 	irr::gui::IGUIEditBox* ebDeckname;
-	irr::gui::IGUIStaticText* stBanlist;
-	irr::gui::IGUIStaticText* stDeck;
-	irr::gui::IGUIStaticText* stCategory;
-	irr::gui::IGUIStaticText* stLimit;
-	irr::gui::IGUIStaticText* stAttribute;
-	irr::gui::IGUIStaticText* stRace;
-	irr::gui::IGUIStaticText* stAttack;
-	irr::gui::IGUIStaticText* stDefense;
-	irr::gui::IGUIStaticText* stStar;
-	irr::gui::IGUIStaticText* stSearch;
-	irr::gui::IGUIStaticText* stScale;
 	//filter
 	irr::gui::IGUIStaticText* wFilter;
 	irr::gui::IGUIScrollBar* scrFilter;
@@ -485,9 +462,15 @@ public:
 	irr::gui::IGUIButton* btnChainWhenAvail;
 	//cancel or finish
 	irr::gui::IGUIButton* btnCancelOrFinish;
+#endif //YGOPRO_SERVER_MODE
 };
 
 extern Game* mainGame;
+#ifdef YGOPRO_SERVER_MODE
+extern unsigned short aServerPort;
+extern unsigned short replay_mode;
+extern HostInfo game_info;
+#endif
 
 }
 
@@ -631,10 +614,6 @@ extern Game* mainGame;
 #define BUTTON_LOAD_SINGLEPLAY		351
 #define BUTTON_CANCEL_SINGLEPLAY	352
 #define CHECKBOX_AUTO_SEARCH		360
-#define CHECKBOX_ENABLE_SOUND		361
-#define CHECKBOX_ENABLE_MUSIC		362
-#define SCROLL_VOLUME				363
-
 #define COMBOBOX_SORTTYPE			370
 #define COMBOBOX_LIMIT				371
 

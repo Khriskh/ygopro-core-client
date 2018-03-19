@@ -2,10 +2,9 @@ solution "ygo"
     location "build"
     language "C++"
     objdir "obj"
-    		startproject "ygopro"
 
     configurations { "Debug", "Release" }
-    		defines { "LUA_COMPAT_5_2" }
+	 defines { "LUA_COMPAT_5_2" }
 
     configuration "windows"
         defines { "WIN32", "_WIN32" }
@@ -17,13 +16,13 @@ solution "ygo"
 
     configuration "macosx"
         defines { "LUA_USE_MACOSX" }
-        includedirs { "/opt/local/include" }
-        libdirs { "/opt/local/lib" }
+        includedirs { "/usr/local/include/*" }
+        libdirs { "/usr/local/lib", "/usr/X11/lib" }
+        buildoptions { "-stdlib=libc++" }
+        links {"OpenGL.framework","Cocoa.framework","IOKit.framework"}
 
     configuration "linux"
         defines { "LUA_USE_LINUX" }
-					includedirs { "irrKlang/include" }
- 					libdirs { "irrKlang/lib" }
 
     configuration "vs*"
         flags "EnableSSE2"
@@ -49,7 +48,7 @@ solution "ygo"
         defines { "_ITERATOR_DEBUG_LEVEL=0" }
 
     configuration "Release"
-        flags { "OptimizeSpeed" }
+        --flags { "OptimizeSpeed" }
         targetdir "bin/release"
 
     include "ocgcore"
