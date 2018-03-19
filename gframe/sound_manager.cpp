@@ -2,7 +2,7 @@
 #ifndef _WIN32
 #include <dirent.h>
 #endif
-#ifdef IRRKLANG_STATIC
+#ifdef YGOPRO_USE_IRRKLANG
 #include "../ikpmp3/ikpMP3.h"
 #endif
 
@@ -19,9 +19,7 @@ bool SoundManager::Init() {
 	if(!engineSound || !engineMusic) {
 		return false;
 	} else {
-#ifdef IRRKLANG_STATIC
 		irrklang::ikpMP3Init(engineMusic);
-#endif
 		return true;
 	}
 #endif // YGOPRO_USE_IRRKLANG
@@ -29,6 +27,7 @@ bool SoundManager::Init() {
 	return false;
 }
 void SoundManager::RefreshBGMList() {
+#ifdef YGOPRO_USE_IRRKLANG
 	RefershBGMDir(L"", BGM_DUEL);
 	RefershBGMDir(L"duel/", BGM_DUEL);
 	RefershBGMDir(L"menu/", BGM_MENU);
@@ -37,8 +36,10 @@ void SoundManager::RefreshBGMList() {
 	RefershBGMDir(L"disadvantage/", BGM_DISADVANTAGE);
 	RefershBGMDir(L"win/", BGM_WIN);
 	RefershBGMDir(L"lose/", BGM_LOSE);
+#endif
 }
 void SoundManager::RefershBGMDir(std::wstring path, int scene) {
+#ifdef YGOPRO_USE_IRRKLANG
 #ifdef _WIN32
 	WIN32_FIND_DATAW fdataw;
 	std::wstring search = L"./sound/BGM/" + path + L"*.*";
@@ -74,6 +75,7 @@ void SoundManager::RefershBGMDir(std::wstring path, int scene) {
 		BGMList[scene].push_back(filename);
 	}
 	closedir(dir);
+#endif
 #endif
 }
 void SoundManager::PlaySoundEffect(int sound) {
