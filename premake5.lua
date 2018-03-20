@@ -4,7 +4,7 @@ solution "ygo"
     objdir "obj"
 
     USE_IRRKLANG = true
-    IRRKLANG_PRO = true
+    IRRKLANG_PRO = false
 
     configurations { "Release", "Debug" }
 
