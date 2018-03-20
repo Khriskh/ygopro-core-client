@@ -45,8 +45,9 @@ install:
   # let premake happy
   - xcopy /E premake\* .
 
-
-
+  # patch irrlicht
+  - patch -p1 < irrlicht\irrlicht.patch
+  
   # premake
   - premake5 vs2015
   
@@ -57,7 +58,7 @@ build:
     parallel: true
 
 after_build:
-  - mv bin\release\ygopro.exe .
+  - ps: move bin\release\ygopro.exe .
 
 test: off
 
