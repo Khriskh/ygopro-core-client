@@ -4,6 +4,10 @@ solution "ygo"
     objdir "obj"
     		startproject "ygopro"
 
+    USE_IRRKLANG = true
+    IRRKLANG_PRO = true
+
+
     configurations { "Debug", "Release" }
     		defines { "LUA_COMPAT_5_2" }
 
@@ -60,10 +64,13 @@ solution "ygo"
 
     include "ocgcore"
     include "gframe"
-    if os.is("windows") then
+    if os.ishost("windows") then
     include "event"
     include "freetype"
     include "irrlicht"
     include "lua"
     include "sqlite3"
+    if IRRKLANG_PRO then
+    include "ikpmp3"
+    end
     end
