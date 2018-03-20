@@ -45,12 +45,7 @@ install:
   # let premake happy
   - xcopy /E premake\* .
 
-  # use irrklang pro
-  #- 7z x irrklang\irrKlang.7z -p%irrklang_pro_passwd% -oirrklang\lib\Win32-visualStudio -y
-  
-  # patch irrlicht
-  - patch -p0 < irrlicht\irrlicht.patch
-  - patch -p0 < ikpmp3\ikpmp3.patch
+
 
   # premake
   - premake5 vs2015
