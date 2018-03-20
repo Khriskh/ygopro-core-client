@@ -46,7 +46,8 @@ install:
   - xcopy /E premake\* .
 
   # patch irrlicht
-  - patch -p1 < irrlicht\irrlicht.patch
+  - patch -p0 < irrlicht\irrlicht.patch
+  - patch -p0 < ikpmp3\ikpmp3.patch
   
   # premake
   - premake5 vs2015
