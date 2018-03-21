@@ -61,6 +61,7 @@ struct DuelInfo {
 	bool tag_player[2];
 	int lp[2];
 	int start_lp[2];
+	int duel_field;
 	int duel_rule;
 	int lua64;
 	int turn;
