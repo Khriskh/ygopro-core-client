@@ -3639,7 +3639,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			int cc = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
 			int cl = BufferIO::ReadInt8(pbuf);
 			int cs = BufferIO::ReadInt8(pbuf);
-			u64 desc = (mainGame->dInfo.lua64) ? BufferIO::ReadInt64(pbuf) : BufferIO::ReadInt32(pbuf
+			u64 desc = (mainGame->dInfo.lua64) ? BufferIO::ReadInt64(pbuf) : BufferIO::ReadInt32(pbuf);
 			ClientCard* pcard = mainGame->dField.GetCard(pcc, pcl, pcs, subs);
 			mainGame->dField.current_chain.chain_card = pcard;
 			mainGame->dField.current_chain.code = code;
