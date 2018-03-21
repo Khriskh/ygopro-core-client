@@ -1,2 +1,2 @@
 ## KoishiPro
-The client of KoishiPro original version.
+The client of YGOProES original version.
