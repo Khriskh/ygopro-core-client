@@ -62,6 +62,7 @@ struct DuelInfo {
 	int lp[2];
 	int start_lp[2];
 	int duel_rule;
+	int lua64;
 	int turn;
 	short curMsg;
 	wchar_t hostname[20];
