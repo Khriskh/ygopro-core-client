@@ -32,6 +32,11 @@ int DuelClient::match_kill = 0;
 std::vector<HostPacket> DuelClient::hosts;
 std::set<unsigned int> DuelClient::remotes;
 event* DuelClient::resp_event = 0;
+//modded
+unsigned int DuelClient::temp_ip = 0;
+unsigned short DuelClient::temp_port = 0;
+unsigned short DuelClient::temp_ver = 0;
+bool DuelClient::try_needed = false;
 
 bool DuelClient::StartClient(unsigned int ip, unsigned short port, bool create_game) {
 	if(connect_state)
@@ -46,6 +51,10 @@ bool DuelClient::StartClient(unsigned int ip, unsigned short port, bool create_g
 	sin.sin_port = htons(port);
 	client_bev = bufferevent_socket_new(client_base, -1, BEV_OPT_CLOSE_ON_FREE);
 	bufferevent_setcb(client_bev, ClientRead, NULL, ClientEvent, (void*)create_game);
+	//modded
+	temp_ip = ip;
+	temp_port = port;
+	
 	if (bufferevent_socket_connect(client_bev, (sockaddr*)&sin, sizeof(sin)) < 0) {
 		bufferevent_free(client_bev);
 		event_base_free(client_base);
@@ -67,6 +76,8 @@ void DuelClient::ConnectTimeout(evutil_socket_t fd, short events, void* arg) {
 	if(connect_state == 0x7)
 		return;
 	if(!is_closing) {
+		//modded
+		temp_ver = 0;
 		mainGame->btnCreateHost->setEnabled(true);
 		mainGame->btnJoinHost->setEnabled(true);
 		mainGame->btnJoinCancel->setEnabled(true);
@@ -147,7 +158,10 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 			SendPacketToServer(CTOS_CREATE_GAME, cscg);
 		} else {
 			CTOS_JoinGame csjg;
-			csjg.version = PRO_VERSION;
+			if (temp_ver)
+				csjg.version = temp_ver;
+			else
+				csjg.version = PRO_VERSION;
 			csjg.gameid = 0;
 			BufferIO::CopyWStr(mainGame->ebJoinPass->getText(), csjg.pass, 20);
 			SendPacketToServer(CTOS_JOIN_GAME, csjg);
@@ -158,6 +172,8 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 		bufferevent_disable(bev, EV_READ);
 		if(!is_closing) {
 			if(connect_state == 0x1) {
+				//modded
+				temp_ver = 0;
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
@@ -240,6 +256,8 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		STOC_ErrorMsg* pkt = (STOC_ErrorMsg*)pdata;
 		switch(pkt->msg) {
 		case ERRMSG_JOINERROR: {
+			//modded
+			temp_ver = 0;
 			mainGame->btnCreateHost->setEnabled(true);
 			mainGame->btnJoinHost->setEnabled(true);
 			mainGame->btnJoinCancel->setEnabled(true);
@@ -317,19 +335,27 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			mainGame->gMutex.Unlock();
 			break;
 		}
+		//modded
 		case ERRMSG_VERERROR: {
-			mainGame->btnCreateHost->setEnabled(true);
-			mainGame->btnJoinHost->setEnabled(true);
-			mainGame->btnJoinCancel->setEnabled(true);
-			mainGame->btnStartBot->setEnabled(true);
-			mainGame->btnBotCancel->setEnabled(true);
-			mainGame->gMutex.Lock();
-			wchar_t msgbuf[256];
-			myswprintf(msgbuf, dataManager.GetSysString(1411), pkt->code >> 12, (pkt->code >> 4) & 0xff, pkt->code & 0xf);
-			soundManager.PlaySoundEffect(SOUND_INFO);
-			mainGame->env->addMessageBox(L"", msgbuf);
-			mainGame->gMutex.Unlock();
-			event_base_loopbreak(client_base);
+			if (temp_ver) {
+				temp_ver = 0;
+				mainGame->btnCreateHost->setEnabled(true);
+				mainGame->btnJoinHost->setEnabled(true);
+				mainGame->btnJoinCancel->setEnabled(true);
+				mainGame->btnStartBot->setEnabled(true);
+				mainGame->btnBotCancel->setEnabled(true);
+				mainGame->gMutex.Lock();
+				wchar_t msgbuf[256];
+				myswprintf(msgbuf, dataManager.GetSysString(1411), pkt->code >> 12, (pkt->code >> 4) & 0xff, pkt->code & 0xf);
+				soundManager.PlaySoundEffect(SOUND_INFO);
+				mainGame->env->addMessageBox(L"", msgbuf);
+				mainGame->gMutex.Unlock();
+				event_base_loopbreak(client_base);
+			} else {
+				event_base_loopbreak(client_base);
+				temp_ver = pkt->code;
+				try_needed = true;
+			}	
 			break;
 		}
 		}
@@ -369,7 +395,6 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->wDeckEdit->setVisible(false);
 		mainGame->wFilter->setVisible(false);
 		mainGame->wSort->setVisible(false);
-		mainGame->stTip->setVisible(false);
 		mainGame->btnSideOK->setVisible(true);
 		mainGame->btnSideShuffle->setVisible(true);
 		mainGame->btnSideSort->setVisible(true);
@@ -404,6 +429,8 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		break;
 	}
 	case STOC_JOIN_GAME: {
+		//modded
+		temp_ver = 0;
 		STOC_JoinGame* pkt = (STOC_JoinGame*)pdata;
 		std::wstring str;
 		wchar_t msgbuf[256];
@@ -457,6 +484,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->dInfo.time_limit = pkt->info.time_limit;
 		mainGame->dInfo.time_left[0] = 0;
 		mainGame->dInfo.time_left[1] = 0;
+		mainGame->RefreshTimeDisplay();
 		mainGame->deckBuilder.filterList = 0;
 		for(auto lit = deckManager._lfList.begin(); lit != deckManager._lfList.end(); ++lit)
 			if(lit->hash == pkt->info.lflist)
@@ -567,11 +595,14 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->dInfo.isFinished = false;
 		mainGame->dInfo.lp[0] = 0;
 		mainGame->dInfo.lp[1] = 0;
+		mainGame->dInfo.start_lp[0] = 0;
+		mainGame->dInfo.start_lp[1] = 0;
 		mainGame->dInfo.strLP[0][0] = 0;
 		mainGame->dInfo.strLP[1][0] = 0;
 		mainGame->dInfo.turn = 0;
 		mainGame->dInfo.time_left[0] = 0;
 		mainGame->dInfo.time_left[1] = 0;
+		mainGame->RefreshTimeDisplay();
 		mainGame->dInfo.time_player = 2;
 		mainGame->dInfo.isReplaySwapped = false;
 		mainGame->is_building = false;
@@ -710,6 +741,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			DuelClient::SendPacketToServer(CTOS_TIME_CONFIRM);
 		mainGame->dInfo.time_player = lplayer;
 		mainGame->dInfo.time_left[lplayer] = pkt->left_time;
+		mainGame->RefreshTimeDisplay();
 		break;
 	}
 	case STOC_CHAT: {
@@ -1058,6 +1090,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		}
 		mainGame->dInfo.lp[mainGame->LocalPlayer(0)] = BufferIO::ReadInt32(pbuf);
 		mainGame->dInfo.lp[mainGame->LocalPlayer(1)] = BufferIO::ReadInt32(pbuf);
+		mainGame->dInfo.start_lp[0] = mainGame->dInfo.lp[0];
+		mainGame->dInfo.start_lp[1] = mainGame->dInfo.lp[1];
 		myswprintf(mainGame->dInfo.strLP[0], L"%d", mainGame->dInfo.lp[0]);
 		myswprintf(mainGame->dInfo.strLP[1], L"%d", mainGame->dInfo.lp[1]);
 		int deckc = BufferIO::ReadInt16(pbuf);
@@ -1405,7 +1439,6 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		ClientCard* pcard;
 		bool panelmode = false;
 		bool conti_exist = false;
-		bool select_trigger = (specount == 0x7f);
 		mainGame->dField.chain_forced = (forced != 0);
 		mainGame->dField.activatable_cards.clear();
 		mainGame->dField.activatable_descs.clear();
@@ -1443,7 +1476,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 					panelmode = true;
 			}
 		}
-		if(!select_trigger && !forced && (mainGame->ignore_chain || ((count == 0 || specount == 0) && !mainGame->always_chain)) && (count == 0 || !mainGame->chain_when_avail)) {
+		if(!forced && (mainGame->ignore_chain || ((count == 0 || specount == 0) && !mainGame->always_chain)) && (count == 0 || !mainGame->chain_when_avail)) {
 			SetResponseI(-1);
 			mainGame->dField.ClearChainSelect();
 			if(mainGame->chkWaitChain->isChecked() && !mainGame->ignore_chain) {
@@ -2387,7 +2420,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 					pcard->overlayTarget = olcard;
 					pcard->location = 0x80;
 					pcard->sequence = olcard->overlayed.size() - 1;
-					if (olcard->location == 0x4) {
+					if (olcard->location & 0x0c) {
 						mainGame->gMutex.Lock();
 						mainGame->dField.MoveCard(pcard, 10);
 						if (pl == 0x2)
@@ -3776,7 +3809,8 @@ void DuelClient::BroadcastReply(evutil_socket_t fd, short events, void * arg) {
 		/*int ret = */recvfrom(fd, buf, 256, 0, (sockaddr*)&bc_addr, &sz);
 		unsigned int ipaddr = bc_addr.sin_addr.s_addr;
 		HostPacket* pHP = (HostPacket*)buf;
-		if(!is_closing && pHP->identifier == NETWORK_SERVER_ID && pHP->version == PRO_VERSION && remotes.find(ipaddr) == remotes.end() ) {
+		//modded
+		if(!is_closing && pHP->identifier == NETWORK_SERVER_ID && remotes.find(ipaddr) == remotes.end() ) {
 			mainGame->gMutex.Lock();
 			remotes.insert(ipaddr);
 			pHP->ipaddr = ipaddr;
