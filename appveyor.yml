@@ -43,7 +43,7 @@ install:
   - move irrklang\plugins\ikpMP3 ikpmp3
 
   # let premake happy
-  - xcopy /E premake\* .
+  - cp -rf premake/* .
 
   # patch irrlicht
   - patch -p0 < irrlicht\irrlicht.patch
