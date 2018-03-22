@@ -40,13 +40,17 @@ struct Config {
 	int separate_clear_button;
 	int auto_search_limit;
 	int chkIgnoreDeckChanges;
+	int defaultOT;
+	int enable_bot_mode;
+	bool window_maximized;
+	int window_width;
+	int window_height;
+	bool resize_popup_menu;
 	bool enable_sound;
 	bool enable_music;
 	double sound_volume;
 	double music_volume;
 	int music_mode;
-	int defaultOT;
-	int enable_bot_mode;
 };
 
 struct DuelInfo {
@@ -60,10 +64,7 @@ struct DuelInfo {
 	bool is_shuffling;
 	bool tag_player[2];
 	int lp[2];
-	int start_lp[2];
-	int duel_field;
 	int duel_rule;
-	int lua64;
 	int turn;
 	short curMsg;
 	wchar_t hostname[20];
@@ -76,8 +77,6 @@ struct DuelInfo {
 	unsigned char time_player;
 	unsigned short time_limit;
 	unsigned short time_left[2];
-	wchar_t str_time_limit[16];
-	wchar_t str_time_left[2][16];
 	bool isReplaySwapped;
 };
 
@@ -106,7 +105,6 @@ class Game {
 public:
 	bool Initialize();
 	void MainLoop();
-	void RefreshTimeDisplay();
 	void BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 right, f32 bottom, f32 top, f32 znear, f32 zfar);
 	void InitStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, u32 cHeight, irr::gui::CGUITTFont* font, const wchar_t* text);
 	void SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gui::CGUITTFont* font, const wchar_t* text, u32 pos = 0);
@@ -121,6 +119,7 @@ public:
 	void CheckMutual(ClientCard* pcard, int mark);
 	void DrawCards();
 	void DrawCard(ClientCard* pcard);
+	void DrawShadowText(irr::gui::CGUITTFont* font, const core::stringw& text, const core::rect<s32>& position, const core::rect<s32>& padding, video::SColor color = 0xffffffff, video::SColor shadowcolor = 0xff000000, bool hcenter = false, bool vcenter = false, const core::rect<s32>* clip = 0);
 	void DrawMisc();
 	void DrawStatus(ClientCard* pcard, int x1, int y1, int x2, int y2);
 	void DrawGUI();
@@ -134,7 +133,7 @@ public:
 	void DrawDeckBd();
 	void LoadConfig();
 	void SaveConfig();
-	void ShowCardInfo(int code);
+	void ShowCardInfo(int code, bool resize = false);
 	void AddChatMsg(wchar_t* msg, int player);
 	void AddDebugMsg(char* msgbuf);
 	void ClearTextures();
@@ -184,6 +183,7 @@ public:
 	int waitFrame;
 	int signalFrame;
 	int actionParam;
+	int showingcode;
 	const wchar_t* showingtext;
 	int showcard;
 	int showcardcode;
@@ -646,16 +646,6 @@ extern Game* mainGame;
 
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381
-
-#define TEXTURE_DUEL				0
-#define TEXTURE_DECK				1
-#define TEXTURE_MENU				2
-#define TEXTURE_COVER_S				3
-#define TEXTURE_COVER_O				4
-#define TEXTURE_ATTACK				5
-#define TEXTURE_ACTIVATE			6
-
-
 
 #define DEFAULT_DUEL_RULE			4
 #endif // GAME_H
