@@ -64,7 +64,9 @@ struct DuelInfo {
 	bool is_shuffling;
 	bool tag_player[2];
 	int lp[2];
+	int duel_field;
 	int duel_rule;
+	int lua64;
 	int turn;
 	short curMsg;
 	wchar_t hostname[20];
