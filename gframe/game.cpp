@@ -1454,7 +1454,7 @@ void Game::OnResize() {
 	old_lpcFont->drop();
 	//guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize * yScale);
 	//env->getSkin()->setFont(guiFont);
-
+ 
 	recti menuposition = ResizeWin(370, 200, 650, 415);
 	wMainMenu->setRelativePosition(recti(menuposition.UpperLeftCorner.X, menuposition.UpperLeftCorner.Y, menuposition.LowerRightCorner.X, menuposition.LowerRightCorner.Y));
 	wDeckEdit->setRelativePosition(Resize(309, 8, 605, 130));
