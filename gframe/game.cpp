@@ -1042,6 +1042,7 @@ void Game::LoadConfig() {
 	gameConf.lastdeck[0] = 0;
 	gameConf.numfont[0] = 0;
 	gameConf.textfont[0] = 0;
+	gameConf.namefont[0] = 0;
 	gameConf.lasthost[0] = 0;
 	gameConf.lastport[0] = 0;
 	gameConf.roompass[0] = 0;
@@ -1087,6 +1088,9 @@ void Game::LoadConfig() {
 			sscanf(linebuf, "%s = %s %d", strbuf, valbuf, &textfontsize);
 			gameConf.textfontsize = textfontsize;
 			BufferIO::CopyWStr(wstr, gameConf.textfont, 256);
+		} else if(!strcmp(strbuf, "namefont")) {
+			BufferIO::DecodeUTF8(valbuf, wstr);
+			BufferIO::CopyWStr(wstr, gameConf.namefont, 256);
 		} else if(!strcmp(strbuf, "numfont")) {
 			BufferIO::DecodeUTF8(valbuf, wstr);
 			BufferIO::CopyWStr(wstr, gameConf.numfont, 256);
@@ -1185,6 +1189,8 @@ void Game::SaveConfig() {
 	fprintf(fp, "lastdeck = %s\n", linebuf);
 	BufferIO::EncodeUTF8(gameConf.textfont, linebuf);
 	fprintf(fp, "textfont = %s %d\n", linebuf, gameConf.textfontsize);
+	BufferIO::EncodeUTF8(gameConf.namefont, linebuf);
+	fprintf(fp, "namefont = %s %d\n", linebuf, gameConf.textfontsize);
 	BufferIO::EncodeUTF8(gameConf.numfont, linebuf);
 	fprintf(fp, "numfont = %s\n", linebuf);
 	fprintf(fp, "serverport = %d\n", gameConf.serverport);
