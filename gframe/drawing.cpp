@@ -460,16 +460,16 @@ void Game::DrawMisc() {
 	}
 	//lp bar
 	if((dInfo.turn % 2 && dInfo.isFirst) || (!(dInfo.turn % 2) && !dInfo.isFirst)) {
-		driver->draw2DRectangle(0xa0000000, Resize(327, 8, 630, 51));
-		driver->draw2DRectangleOutline(Resize(327, 8, 630, 51), 0xffff8080);
+		//driver->draw2DRectangle(0xa0000000, Resize(327, 8, 630, 51));
+		//driver->draw2DRectangleOutline(Resize(327, 8, 630, 51), 0xffff8080);
 		
-		driver->draw2DImage(imageManager.tAvatar1, Resize(330, 50, 629, 150), recti(0, 0, 600, 150), 0, 0, true);
+		driver->draw2DImage(imageManager.tAvatar1, Resize(330, 20, 629, 150), recti(0, 0, 600, 150), 0, 0, true);
 		driver->draw2DImage(imageManager.tAvatar2, Resize(691, 50, 990, 150), recti(0, 0, 600, 150), 0, 0, true);
 	} else {
-		driver->draw2DRectangle(0xa0000000, Resize(689, 8, 991, 51));
-		driver->draw2DRectangleOutline(Resize(689, 8, 991, 51), 0xffff8080);
+		//driver->draw2DRectangle(0xa0000000, Resize(689, 8, 991, 51));
+		//driver->draw2DRectangleOutline(Resize(689, 8, 991, 51), 0xffff8080);
 		
-		driver->draw2DImage(imageManager.tAvatar2, Resize(330, 50, 629, 150), recti(0, 0, 600, 150), 0, 0, true);
+		driver->draw2DImage(imageManager.tAvatar2, Resize(330, 20, 629, 150), recti(0, 0, 600, 150), 0, 0, true);
 		driver->draw2DImage(imageManager.tAvatar1, Resize(691, 50, 990, 150), recti(0, 0, 600, 150), 0, 0, true);
 	}
 
