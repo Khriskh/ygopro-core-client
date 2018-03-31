@@ -34,7 +34,7 @@ public:
 	irr::video::ITexture* tAvatar1;
 	irr::video::ITexture* tAvatar2;
 	irr::video::ITexture* tLPBar1;
-	irr::video::ITexture* tLPBars;
+	irr::video::ITexture* tLPBar1s;
 	irr::video::ITexture* tLPBar2;
 	irr::video::ITexture* tLPBar2s;
 	irr::video::ITexture* tLPBar;
