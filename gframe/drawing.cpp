@@ -459,7 +459,9 @@ void Game::DrawMisc() {
 		}
 	}
 	
-
+	//avatar
+	driver->draw2DImage(imageManager.tAvatar1, Resize(324, 34, 362, 82), recti(0, 0, 75, 75), 0, 0, true);
+	driver->draw2DImage(imageManager.tAvatar2, Resize(959, 34, 997, 82), recti(0, 0, 75, 75), 0, 0, true);
 	
 	//lp bar
 	if((dInfo.turn % 2 && dInfo.isFirst) || (!(dInfo.turn % 2) && !dInfo.isFirst)) {
@@ -475,10 +477,6 @@ void Game::DrawMisc() {
 		driver->draw2DImage(imageManager.tLPBar1s, Resize(310, 5, 630, 105), recti(0, 0, 600, 150), 0, 0, true);
 		driver->draw2DImage(imageManager.tLPBar2, Resize(691, 5, 1011, 105), recti(0, 0, 600, 150), 0, 0, true);
 	}
-
-	//avatar
-	driver->draw2DImage(imageManager.tAvatar1, Resize(324, 34, 362, 82), recti(0, 0, 75, 75), 0, 0, true);
-	driver->draw2DImage(imageManager.tAvatar2, Resize(959, 34, 997, 82), recti(0, 0, 75, 75), 0, 0, true);
 
 	//driver->draw2DImage(imageManager.tLPFrame, Resize(330, 10, 629, 30), recti(0, 0, 200, 20), 0, 0, true);
 	//driver->draw2DImage(imageManager.tLPFrame, Resize(691, 10, 990, 30), recti(0, 0, 200, 20), 0, 0, true);
