@@ -490,9 +490,9 @@ void Game::DrawMisc() {
 	}
 	if(lpcstring) {
 		if(lpplayer == 0) {
-			DrawShadowText(lpcFont, lpcstring, Resize(400, 472, 922, 520), Resize(0, 2, 2, 0), lpccolor, lpccolor | 0x00ffffff, true, false, 0);
+			DrawShadowText(lpcFont, lpcstring, Resize(400, 472, 922, 520), Resize(0, 0, 2, 0), lpccolor, lpccolor | 0x00ffffff, true, false, 0);
 		} else {
-			DrawShadowText(lpcFont, lpcstring, Resize(400, 162, 922, 210), Resize(0, 2, 2, 0), lpccolor, lpccolor | 0x00ffffff, true, false, 0);
+			DrawShadowText(lpcFont, lpcstring, Resize(400, 162, 922, 210), Resize(0, 0, 2, 0), lpccolor, lpccolor | 0x00ffffff, true, false, 0);
 		}
 	}
 	if(!dInfo.isReplay && dInfo.player_type < 7 && dInfo.time_limit) {
@@ -504,8 +504,8 @@ void Game::DrawMisc() {
 	DrawShadowText(numFont, dInfo.strLP[0], Resize(330, 12, 631, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
 	DrawShadowText(numFont, dInfo.strLP[1], Resize(691, 12, 992, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
 
-	recti p1size = Resize(335, 28, 629, 50);
-	recti p2size = Resize(986, 28, 986, 50);
+	recti p1size = Resize(335, 31, 629, 50);
+	recti p2size = Resize(986, 31, 986, 50);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
 		textFont->draw(dInfo.hostname, p1size, 0xffffffff, false, false, 0);
 	else
