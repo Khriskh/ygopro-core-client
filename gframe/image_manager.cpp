@@ -18,6 +18,8 @@ bool ImageManager::Initial() {
 	tNumber = driver->getTexture("textures/number.png");
 	tLPBar = driver->getTexture("textures/lp.png");
 	tLPFrame = driver->getTexture("textures/lpf.png");
+	tAvatar1 = driver->getTexture("textures/avatar1.png");
+	tAvatar2 = driver->getTexture("textures/avatar2.png");
 	tMask = driver->getTexture("textures/mask.png");
 	tEquip = driver->getTexture("textures/equip.png");
 	tTarget = driver->getTexture("textures/target.png");
