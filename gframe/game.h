@@ -23,7 +23,6 @@ struct Config {
 	wchar_t gamename[20];
 	wchar_t lastdeck[64];
 	wchar_t textfont[256];
-	wchar_t namefont[256];
 	wchar_t numfont[256];
 	wchar_t roompass[20];
 	//settings
@@ -229,7 +228,6 @@ public:
 	irr::gui::IGUIEnvironment* env;
 	irr::gui::CGUITTFont* guiFont;
 	irr::gui::CGUITTFont* textFont;
-	irr::gui::CGUITTFont* nameFont;
 	irr::gui::CGUITTFont* numFont;
 	irr::gui::CGUITTFont* adFont;
 	irr::gui::CGUITTFont* lpcFont;
