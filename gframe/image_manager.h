@@ -32,9 +32,11 @@ public:
 	irr::video::ITexture* tNumber;
 	irr::video::ITexture* tLPFrame;
 	irr::video::ITexture* tAvatar1;
-	irr::video::ITexture* tAvatar1s;
 	irr::video::ITexture* tAvatar2;
-	irr::video::ITexture* tAvatar2s;
+	irr::video::ITexture* tLPBar1;
+	irr::video::ITexture* tLPBars;
+	irr::video::ITexture* tLPBar2;
+	irr::video::ITexture* tLPBar2s;
 	irr::video::ITexture* tLPBar;
 	irr::video::ITexture* tMask;
 	irr::video::ITexture* tEquip;
