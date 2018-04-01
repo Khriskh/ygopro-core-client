@@ -460,8 +460,8 @@ void Game::DrawMisc() {
 	}
 	
 	//avatar
-	driver->draw2DImage(imageManager.tAvatar1, Resize(351, 28, 405, 82), recti(0, 0, 84, 84), 0, 0, true);
-	driver->draw2DImage(imageManager.tAvatar2, Resize(916, 28, 967, 82), recti(0, 0, 84, 84), 0, 0, true);
+	driver->draw2DImage(imageManager.tAvatar1, Resize(362, 28, 405, 82), recti(0, 0, 84, 84), 0, 0, true);
+	driver->draw2DImage(imageManager.tAvatar2, Resize(916, 28, 959, 82), recti(0, 0, 84, 84), 0, 0, true);
 	
 	if(dInfo.lp[0] >= 8000)
 		driver->draw2DImage(imageManager.tLPBar, Resize(335, 12, 625, 28), recti(0, 0, 16, 16), 0, 0, true);
@@ -507,9 +507,12 @@ void Game::DrawMisc() {
 		driver->draw2DRectangle(Resize(795 - dInfo.time_left[1] * 100 / dInfo.time_limit, 34, 795, 44), 0xa0e0e0e0, 0xa0e0e0e0, 0xa0c0c0c0, 0xa0c0c0c0);
 		driver->draw2DRectangleOutline(Resize(695, 34, 795, 44), 0xffffffff);
 	}
+	
+	//LP
 	DrawShadowText(numFont, dInfo.strLP[0], Resize(330, 27, 631, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
 	DrawShadowText(numFont, dInfo.strLP[1], Resize(691, 27, 992, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
 
+	//name 
 	recti p1size = Resize(420, 57, 629, 50);
 	recti p2size = Resize(900, 57, 986, 50);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
@@ -528,6 +531,7 @@ void Game::DrawMisc() {
 	driver->draw2DRectangle(Resize(632, 10, 688, 30), 0x00000000, 0x00000000, 0xffffffff, 0xffffffff);
 	driver->draw2DRectangle(Resize(632, 30, 688, 50), 0xffffffff, 0xffffffff, 0x00000000, 0x00000000);
 	
+	//turn
 	DrawShadowText(lpcFont, dataManager.GetNumString(dInfo.turn), Resize(635, 20, 687, 40), Resize(0, 0, 2, 0), 0x8000ffff, 0x80000000, true, false, 0);
 	
 	ClientCard* pcard;
