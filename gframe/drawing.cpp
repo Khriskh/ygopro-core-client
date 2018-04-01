@@ -458,7 +458,10 @@ void Game::DrawMisc() {
 			driver->drawVertexPrimitiveList(matManager.vChainNum, 4, matManager.iRectangle, 2);
 		}
 	}
-	
+
+	//Turn Imagen
+	driver->draw2DImage(imageManager.tAvatar1, Resize(700, 30, 805, 105), recti(0, 0, 105, 105), 0, 0, true);
+
 	//avatar
 	driver->draw2DImage(imageManager.tAvatar1, Resize(362, 28, 405, 82), recti(0, 0, 84, 84), 0, 0, true);
 	driver->draw2DImage(imageManager.tAvatar2, Resize(916, 28, 959, 82), recti(0, 0, 84, 84), 0, 0, true);
@@ -531,7 +534,7 @@ void Game::DrawMisc() {
 	driver->draw2DRectangle(Resize(632, 10, 688, 30), 0x00000000, 0x00000000, 0xffffffff, 0xffffffff);
 	driver->draw2DRectangle(Resize(632, 30, 688, 50), 0xffffffff, 0xffffffff, 0x00000000, 0x00000000);
 	
-	//turn
+	//turn String
 	DrawShadowText(lpcFont, dataManager.GetNumString(dInfo.turn), Resize(635, 20, 687, 40), Resize(0, 0, 2, 0), 0x8000ffff, 0x80000000, true, false, 0);
 	
 	ClientCard* pcard;

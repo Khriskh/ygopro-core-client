@@ -37,6 +37,7 @@ public:
 	irr::video::ITexture* tLPBar1s;
 	irr::video::ITexture* tLPBar2;
 	irr::video::ITexture* tLPBar2s;
+	irr::video::ITexture* tTurn;
 	irr::video::ITexture* tLPBar;
 	irr::video::ITexture* tMask;
 	irr::video::ITexture* tEquip;

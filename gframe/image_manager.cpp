@@ -24,6 +24,7 @@ bool ImageManager::Initial() {
 	tLPBar1s = driver->getTexture("textures/LPBar1s.png");
 	tLPBar2 = driver->getTexture("textures/LPBar2.png");
 	tLPBar2s = driver->getTexture("textures/LPBar2s.png");
+	tTurn = driver->getTexture("textures/turn.png");
 	tMask = driver->getTexture("textures/mask.png");
 	tEquip = driver->getTexture("textures/equip.png");
 	tTarget = driver->getTexture("textures/target.png");
