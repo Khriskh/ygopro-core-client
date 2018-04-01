@@ -460,7 +460,7 @@ void Game::DrawMisc() {
 	}
 
 	//Turn Imagen
-	driver->draw2DImage(imageManager.tTurn, Resize(632, 26, 687, 95), recti(0, 0, 105, 105), 0, 0, true);
+	driver->draw2DImage(imageManager.tTurn, Resize(632, 26, 688, 95), recti(0, 0, 105, 105), 0, 0, true);
 
 	//avatar
 	driver->draw2DImage(imageManager.tAvatar1, Resize(361, 28, 405, 82), recti(0, 0, 84, 84), 0, 0, true);
@@ -531,8 +531,8 @@ void Game::DrawMisc() {
 		p2size.UpperLeftCorner.X -= cld.Width;
 		textFont->draw(dInfo.clientname_tag, p2size, 0xffffffff, false, false, 0);
 	}
-	driver->draw2DRectangle(Resize(632, 10, 688, 30), 0x00000000, 0x00000000, 0xffffffff, 0xffffffff);
-	driver->draw2DRectangle(Resize(632, 30, 688, 50), 0xffffffff, 0xffffffff, 0x00000000, 0x00000000);
+	//driver->draw2DRectangle(Resize(632, 10, 688, 30), 0x00000000, 0x00000000, 0xffffffff, 0xffffffff);
+	//driver->draw2DRectangle(Resize(632, 30, 688, 50), 0xffffffff, 0xffffffff, 0x00000000, 0x00000000);
 	
 	//turn String
 	DrawShadowText(lpcFont, dataManager.GetNumString(dInfo.turn), Resize(635, 20, 687, 40), Resize(0, 0, 2, 0), 0x8000ffff, 0x80000000, true, false, 0);
