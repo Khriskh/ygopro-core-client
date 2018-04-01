@@ -460,8 +460,8 @@ void Game::DrawMisc() {
 	}
 	
 	//avatar
-	driver->draw2DImage(imageManager.tAvatar1, Resize(324, 25, 403, 82), recti(0, 0, 84, 84), 0, 0, true);
-	driver->draw2DImage(imageManager.tAvatar2, Resize(958, 25, 957, 82), recti(0, 0, 84, 84), 0, 0, true);
+	driver->draw2DImage(imageManager.tAvatar1, Resize(334, 27, 408, 82), recti(0, 0, 84, 84), 0, 0, true);
+	driver->draw2DImage(imageManager.tAvatar2, Resize(913, 27, 967, 82), recti(0, 0, 84, 84), 0, 0, true);
 	
 	if(dInfo.lp[0] >= 8000)
 		driver->draw2DImage(imageManager.tLPBar, Resize(335, 12, 625, 28), recti(0, 0, 16, 16), 0, 0, true);
@@ -510,8 +510,8 @@ void Game::DrawMisc() {
 	DrawShadowText(numFont, dInfo.strLP[0], Resize(330, 27, 631, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
 	DrawShadowText(numFont, dInfo.strLP[1], Resize(691, 27, 992, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
 
-	recti p1size = Resize(340, 56, 629, 50);
-	recti p2size = Resize(900, 56, 986, 50);
+	recti p1size = Resize(420, 57, 629, 50);
+	recti p2size = Resize(900, 57, 986, 50);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
 		textFont->draw(dInfo.hostname, p1size, 0xffffffff, false, false, 0);
 	else
