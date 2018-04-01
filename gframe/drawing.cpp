@@ -460,7 +460,7 @@ void Game::DrawMisc() {
 	}
 
 	//Turn Imagen
-	driver->draw2DImage(imageManager.tTurn, Resize(633, 26, 684, 95), recti(0, 0, 105, 105), 0, 0, true);
+	driver->draw2DImage(imageManager.tTurn, Resize(632, 26, 687, 95), recti(0, 0, 105, 105), 0, 0, true);
 
 	//avatar
 	driver->draw2DImage(imageManager.tAvatar1, Resize(361, 28, 405, 82), recti(0, 0, 84, 84), 0, 0, true);
