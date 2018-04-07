@@ -696,12 +696,12 @@ int32 field::process() {
 			add_process(PROCESSOR_SELECT_UNSELECT_CARD, 0, it->peffect, it->ptarget, it->arg1, it->arg2, it->arg3);
 			it->step++;
 		} else {
-			if (returns.bvalue[0] == -1)
+			if(returns.bvalue[0] == -1)
 				pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
 			else {
 				group* pgroup = pduel->new_group();
 				card* pcard;
-				if (returns.bvalue[1] < core.select_cards.size())
+				if(returns.bvalue[1] < core.select_cards.size())
 					pcard = core.select_cards[returns.bvalue[1]];
 				else
 					pcard = core.unselect_cards[returns.bvalue[1] - core.select_cards.size()];
@@ -3404,6 +3404,12 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer8(HINT_CARD);
 				pduel->write_buffer8(0);
 				pduel->write_buffer32(indestructable_effect->owner->data.code);
+				if(indestructable_effect->description) {
+					pduel->write_buffer8(MSG_HINT);
+					pduel->write_buffer8(HINT_SOUND);
+					pduel->write_buffer8(0);
+					pduel->write_buffer32(indestructable_effect->description);
+				}
 				bd[0] = FALSE;
 			} else
 				core.attacker->set_status(STATUS_BATTLE_RESULT, TRUE);
@@ -3415,6 +3421,12 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer8(HINT_CARD);
 				pduel->write_buffer8(0);
 				pduel->write_buffer32(indestructable_effect->owner->data.code);
+				if(indestructable_effect->description) {
+					pduel->write_buffer8(MSG_HINT);
+					pduel->write_buffer8(HINT_SOUND);
+					pduel->write_buffer8(0);
+					pduel->write_buffer32(indestructable_effect->description);
+				}
 				bd[1] = FALSE;
 			} else
 				core.attack_target->set_status(STATUS_BATTLE_RESULT, TRUE);
@@ -5151,7 +5163,9 @@ int32 field::adjust_step(uint16 step) {
 	case 1: {
 		//win check(deck=0 or lp=0)
 		uint32 winp = 5, rea = 1;
-		if(player[0].lp <= 0 && player[1].lp > 0) {
+		bool lp_zero_0 = (player[0].lp <= 0 && !is_player_affected_by_effect(0, EFFECT_CANNOT_LOSE_KOISHI));
+		bool lp_zero_1 = (player[1].lp <= 0 && !is_player_affected_by_effect(1, EFFECT_CANNOT_LOSE_KOISHI));
+		if(lp_zero_0 && !lp_zero_1) {
 			winp = 1;
 			rea = 1;
 		}
@@ -5159,7 +5173,7 @@ int32 field::adjust_step(uint16 step) {
 			winp = 1;
 			rea = 2;
 		}
-		if(player[1].lp <= 0 && player[0].lp > 0) {
+		if(lp_zero_1 && !lp_zero_0) {
 			winp = 0;
 			rea = 1;
 		}
@@ -5167,7 +5181,7 @@ int32 field::adjust_step(uint16 step) {
 			winp = 0;
 			rea = 2;
 		}
-		if(player[1].lp <= 0 && player[0].lp <= 0) {
+		if(lp_zero_0 && lp_zero_1) {
 			winp = PLAYER_NONE;
 			rea = 1;
 		}

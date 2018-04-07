@@ -51,6 +51,7 @@ struct Config {
 	double sound_volume;
 	double music_volume;
 	int music_mode;
+	int chkEnablePScale;
 };
 
 struct DuelInfo {
@@ -62,11 +63,11 @@ struct DuelInfo {
 	bool isTag;
 	bool isSingleMode;
 	bool is_shuffling;
+	bool is_swapped;
 	bool tag_player[2];
 	int lp[2];
-	int duel_field;
+	int start_lp[2];
 	int duel_rule;
-	int lua64;
 	int turn;
 	short curMsg;
 	wchar_t hostname[20];
@@ -79,6 +80,9 @@ struct DuelInfo {
 	unsigned char time_player;
 	unsigned short time_limit;
 	unsigned short time_left[2];
+	wchar_t str_time_limit[16];
+	wchar_t str_time_left[2][16];
+	video::SColor time_color[2];
 	bool isReplaySwapped;
 };
 
@@ -107,6 +111,7 @@ class Game {
 public:
 	bool Initialize();
 	void MainLoop();
+	void RefreshTimeDisplay();
 	void BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 right, f32 bottom, f32 top, f32 znear, f32 zfar);
 	void InitStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, u32 cHeight, irr::gui::CGUITTFont* font, const wchar_t* text);
 	void SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gui::CGUITTFont* font, const wchar_t* text, u32 pos = 0);
@@ -116,6 +121,7 @@ public:
 	void RefreshSingleplay();
 	void RefreshBot();
 	void DrawSelectionLine(irr::video::S3DVertex* vec, bool strip, int width, float* cv);
+	void DrawSelectionLine(irr::gui::IGUIElement* element, int width, irr::video::SColor color);
 	void DrawBackGround();
 	void DrawLinkedZones(ClientCard* pcard);
 	void CheckMutual(ClientCard* pcard, int mark);
@@ -181,7 +187,8 @@ public:
 	bool hideChat;
 	int chatTiming[8];
 	int chatType[8];
-	unsigned short linePattern;
+	unsigned short linePatternD3D;
+	unsigned short linePatternGL;
 	int waitFrame;
 	int signalFrame;
 	int actionParam;
@@ -263,6 +270,7 @@ public:
 	irr::gui::IGUIScrollBar* scrSoundVolume;
 	irr::gui::IGUIScrollBar* scrMusicVolume;
 	irr::gui::IGUICheckBox* chkMusicMode;
+	irr::gui::IGUICheckBox* chkEnablePScale;
 	//main menu
 	irr::gui::IGUIWindow* wMainMenu;
 	irr::gui::IGUIButton* btnLanMode;
@@ -444,6 +452,12 @@ public:
 	irr::gui::IGUIStaticText* stStar;
 	irr::gui::IGUIStaticText* stSearch;
 	irr::gui::IGUIStaticText* stScale;
+	irr::gui::IGUIButton* btnRenameDeck;
+	//deck rename
+	irr::gui::IGUIWindow* wRenameDeck;
+	irr::gui::IGUIEditBox* ebREName;
+	irr::gui::IGUIButton* btnREYes;
+	irr::gui::IGUIButton* btnRENo;
 	//filter
 	irr::gui::IGUIStaticText* wFilter;
 	irr::gui::IGUIScrollBar* scrFilter;
@@ -648,6 +662,18 @@ extern Game* mainGame;
 
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381
+
+#define BUTTON_RENAME_DECK			386
+#define BUTTON_RENAME_DECK_SAVE			387
+#define BUTTON_RENAME_DECK_CANCEL		388
+
+#define TEXTURE_DUEL				0
+#define TEXTURE_DECK				1
+#define TEXTURE_MENU				2
+#define TEXTURE_COVER_S				3
+#define TEXTURE_COVER_O				4
+#define TEXTURE_ATTACK				5
+#define TEXTURE_ACTIVATE			6
 
 #define DEFAULT_DUEL_RULE			4
 #endif // GAME_H

@@ -12,7 +12,7 @@ void Game::DrawSelectionLine(irr::video::S3DVertex* vec, bool strip, int width, 
 	if(!gameConf.use_d3d) {
 		float origin[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		glLineWidth(width);
-		glLineStipple(1, linePattern);
+		glLineStipple(1, linePatternGL);
 		if(strip)
 			glEnable(GL_LINE_STIPPLE);
 		glDisable(GL_TEXTURE_2D);
@@ -29,16 +29,16 @@ void Game::DrawSelectionLine(irr::video::S3DVertex* vec, bool strip, int width, 
 	} else {
 		driver->setMaterial(matManager.mOutLine);
 		if(strip) {
-			if(linePattern < 15) {
-				driver->draw3DLine(vec[0].Pos, vec[0].Pos + (vec[1].Pos - vec[0].Pos) * (linePattern + 1) / 15.0);
-				driver->draw3DLine(vec[1].Pos, vec[1].Pos + (vec[3].Pos - vec[1].Pos) * (linePattern + 1) / 15.0);
-				driver->draw3DLine(vec[3].Pos, vec[3].Pos + (vec[2].Pos - vec[3].Pos) * (linePattern + 1) / 15.0);
-				driver->draw3DLine(vec[2].Pos, vec[2].Pos + (vec[0].Pos - vec[2].Pos) * (linePattern + 1) / 15.0);
+			if(linePatternD3D < 15) {
+				driver->draw3DLine(vec[0].Pos, vec[0].Pos + (vec[1].Pos - vec[0].Pos) * (linePatternD3D + 1) / 15.0);
+				driver->draw3DLine(vec[1].Pos, vec[1].Pos + (vec[3].Pos - vec[1].Pos) * (linePatternD3D + 1) / 15.0);
+				driver->draw3DLine(vec[3].Pos, vec[3].Pos + (vec[2].Pos - vec[3].Pos) * (linePatternD3D + 1) / 15.0);
+				driver->draw3DLine(vec[2].Pos, vec[2].Pos + (vec[0].Pos - vec[2].Pos) * (linePatternD3D + 1) / 15.0);
 			} else {
-				driver->draw3DLine(vec[0].Pos + (vec[1].Pos - vec[0].Pos) * (linePattern - 14) / 15.0, vec[1].Pos);
-				driver->draw3DLine(vec[1].Pos + (vec[3].Pos - vec[1].Pos) * (linePattern - 14) / 15.0, vec[3].Pos);
-				driver->draw3DLine(vec[3].Pos + (vec[2].Pos - vec[3].Pos) * (linePattern - 14) / 15.0, vec[2].Pos);
-				driver->draw3DLine(vec[2].Pos + (vec[0].Pos - vec[2].Pos) * (linePattern - 14) / 15.0, vec[0].Pos);
+				driver->draw3DLine(vec[0].Pos + (vec[1].Pos - vec[0].Pos) * (linePatternD3D - 14) / 15.0, vec[1].Pos);
+				driver->draw3DLine(vec[1].Pos + (vec[3].Pos - vec[1].Pos) * (linePatternD3D - 14) / 15.0, vec[3].Pos);
+				driver->draw3DLine(vec[3].Pos + (vec[2].Pos - vec[3].Pos) * (linePatternD3D - 14) / 15.0, vec[2].Pos);
+				driver->draw3DLine(vec[2].Pos + (vec[0].Pos - vec[2].Pos) * (linePatternD3D - 14) / 15.0, vec[0].Pos);
 			}
 		} else {
 			driver->draw3DLine(vec[0].Pos, vec[1].Pos);
@@ -46,6 +46,26 @@ void Game::DrawSelectionLine(irr::video::S3DVertex* vec, bool strip, int width, 
 			driver->draw3DLine(vec[3].Pos, vec[2].Pos);
 			driver->draw3DLine(vec[2].Pos, vec[0].Pos);
 		}
+	}
+}
+void Game::DrawSelectionLine(irr::gui::IGUIElement* element, int width, irr::video::SColor color) {
+	recti pos = element->getAbsolutePosition();
+	float x1 = pos.UpperLeftCorner.X;
+	float x2 = pos.LowerRightCorner.X;
+	float y1 = pos.UpperLeftCorner.Y;
+	float y2 = pos.LowerRightCorner.Y;
+	float w = pos.getWidth();
+	float h = pos.getHeight();
+	if(linePatternD3D < 15) {
+		driver->draw2DRectangle(color, recti(x1 - 1 - width, y1 - 1 - width, x1 + (w * (linePatternD3D + 1) / 15.0) + 1 + width, y1 - 1));
+		driver->draw2DRectangle(color, recti(x2 - (w * (linePatternD3D + 1) / 15.0) - 1 - width, y2 + 1, x2 + 1 + width, y2 + 1 + width));
+		driver->draw2DRectangle(color, recti(x1 - 1 - width, y1 - 1 - width, x1 - 1, y2 - (h * (linePatternD3D + 1) / 15.0) + 1 + width));
+		driver->draw2DRectangle(color, recti(x2 + 1, y1 + (h * (linePatternD3D + 1) / 15.0) - 1 - width, x2 + 1 + width, y2 + 1 + width));
+	} else {
+		driver->draw2DRectangle(color, recti(x1 - 1 - width + (w * (linePatternD3D - 14) / 15.0), y1 - 1 - width, x2 + 1 + width, y1 - 1));
+		driver->draw2DRectangle(color, recti(x1 - 1 - width, y2 + 1, x2 - (w * (linePatternD3D - 14) / 15.0) + 1 + width, y2 + 1 + width));
+		driver->draw2DRectangle(color, recti(x1 - 1 - width, y2 - (h * (linePatternD3D - 14) / 15.0) - 1 - width, x1 - 1, y2 + 1 + width));
+		driver->draw2DRectangle(color, recti(x2 + 1, y1 - 1 - width, x2 + 1 + width, y1 + (h * (linePatternD3D - 14) / 15.0) + 1 + width));
 	}
 }
 void Game::DrawBackGround() {
@@ -375,6 +395,22 @@ void Game::DrawCard(ClientCard* pcard) {
 		driver->setTransform(irr::video::ETS_WORLD, atk);
 		driver->drawVertexPrimitiveList(matManager.vSymbol, 4, matManager.iRectangle, 2);
 	}
+	if(mainGame->chkEnablePScale->isChecked() && (pcard->type & TYPE_PENDULUM) && ((pcard->location & LOCATION_SZONE) && (pcard->sequence == 0 || pcard->sequence == 6))) {
+		int scale = pcard->lscale;
+		if(scale >= 0 && scale <= 13 && imageManager.tLScale[scale]) {
+			matManager.mTexture.setTexture(0, imageManager.tLScale[scale]);
+			driver->setMaterial(matManager.mTexture);
+			driver->drawVertexPrimitiveList(matManager.vPScale, 4, matManager.iRectangle, 2);
+		}
+	}
+	if(mainGame->chkEnablePScale->isChecked() && (pcard->type & TYPE_PENDULUM) && ((pcard->location & LOCATION_SZONE) && (pcard->sequence == 4 || pcard->sequence == 7))) {
+		int scale2 = pcard->rscale;
+		if(scale2 >= 0 && scale2 <= 13 && imageManager.tRScale[scale2]) {
+			matManager.mTexture.setTexture(0, imageManager.tRScale[scale2]);
+			driver->setMaterial(matManager.mTexture);
+			driver->drawVertexPrimitiveList(matManager.vPScale, 4, matManager.iRectangle, 2);
+		}
+	}
 }
 void Game::DrawShadowText(CGUITTFont * font, const core::stringw & text, const core::rect<s32>& position, const core::rect<s32>& padding,
 						  video::SColor color, video::SColor shadowcolor, bool hcenter, bool vcenter, const core::rect<s32>* clip) {
@@ -458,45 +494,48 @@ void Game::DrawMisc() {
 			driver->drawVertexPrimitiveList(matManager.vChainNum, 4, matManager.iRectangle, 2);
 		}
 	}
-
+	//finish button
+	if(btnCancelOrFinish->isVisible() && dField.select_ready)
+		DrawSelectionLine(btnCancelOrFinish, 2, 0xffffff00);
 	//Turn Imagen
 	driver->draw2DImage(imageManager.tTurn, Resize(632, 26, 688, 95), recti(0, 0, 105, 105), 0, 0, true);
-
 	//avatar
 	driver->draw2DImage(imageManager.tAvatar1, Resize(361, 28, 405, 82), recti(0, 0, 84, 84), 0, 0, true);
 	driver->draw2DImage(imageManager.tAvatar2, Resize(916, 28, 960, 82), recti(0, 0, 84, 84), 0, 0, true);
 	
-	if(dInfo.lp[0] >= 8000)
+	
+	if(!dInfo.start_lp[0])
+		driver->draw2DImage(imageManager.tLPBar, Resize(335, 12, 335, 28), recti(0, 0, 16, 16), 0, 0, true);
+	else if(dInfo.lp[0] >= dInfo.start_lp[0])
 		driver->draw2DImage(imageManager.tLPBar, Resize(335, 12, 625, 28), recti(0, 0, 16, 16), 0, 0, true);
-	else driver->draw2DImage(imageManager.tLPBar, Resize(335, 12, 335 + 290 * dInfo.lp[0] / 8000, 28), recti(0, 0, 16, 16), 0, 0, true);
-	if(dInfo.lp[1] >= 8000)
+	else driver->draw2DImage(imageManager.tLPBar, Resize(335, 12, 335 + 290 * dInfo.lp[0] / dInfo.start_lp[0], 28), recti(0, 0, 16, 16), 0, 0, true);
+	if(!dInfo.start_lp[1])
+		driver->draw2DImage(imageManager.tLPBar, Resize(986, 12, 986, 28), recti(0, 0, 16, 16), 0, 0, true);
+	else if(dInfo.lp[1] >= dInfo.start_lp[1])
 		driver->draw2DImage(imageManager.tLPBar, Resize(696, 12, 986, 28), recti(0, 0, 16, 16), 0, 0, true);
-	else driver->draw2DImage(imageManager.tLPBar, Resize(986 - 290 * dInfo.lp[1] / 8000, 12, 986, 28), recti(0, 0, 16, 16), 0, 0, true);
+	else driver->draw2DImage(imageManager.tLPBar, Resize(986 - 290 * dInfo.lp[1] / dInfo.start_lp[1], 12, 986, 28), recti(0, 0, 16, 16), 0, 0, true);
 	if(lpframe) {
 		dInfo.lp[lpplayer] -= lpd;
 		myswprintf(dInfo.strLP[lpplayer], L"%d", dInfo.lp[lpplayer]);
 		lpccolor -= 0x19000000;
 		lpframe--;
 	}
-		
+	
 	//lp bar
-	if((dInfo.turn % 2 && dInfo.isFirst) || (!(dInfo.turn % 2) && !dInfo.isFirst)) {
+	if((dInfo.turn % 2 && dInfo.isFirst && !dInfo.is_swapped) || (!(dInfo.turn % 2) && !dInfo.isFirst && !dInfo.is_swapped) || (!(dInfo.turn % 2) && dInfo.isFirst && dInfo.is_swapped) || (dInfo.turn % 2 && !dInfo.isFirst && dInfo.is_swapped)) {
 		//driver->draw2DRectangle(0xa0000000, Resize(327, 8, 630, 51));
 		//driver->draw2DRectangleOutline(Resize(327, 8, 630, 51), 0xffff8080);
-		
 		driver->draw2DImage(imageManager.tLPBar1, Resize(310, 5, 630, 105), recti(0, 0, 600, 150), 0, 0, true);
 		driver->draw2DImage(imageManager.tLPBar2s, Resize(691, 5, 1011, 105), recti(0, 0, 600, 150), 0, 0, true);
 	} else {
 		//driver->draw2DRectangle(0xa0000000, Resize(689, 8, 991, 51));
 		//driver->draw2DRectangleOutline(Resize(689, 8, 991, 51), 0xffff8080);
-		
 		driver->draw2DImage(imageManager.tLPBar1s, Resize(310, 5, 630, 105), recti(0, 0, 600, 150), 0, 0, true);
 		driver->draw2DImage(imageManager.tLPBar2, Resize(691, 5, 1011, 105), recti(0, 0, 600, 150), 0, 0, true);
 	}
-
 	//driver->draw2DImage(imageManager.tLPFrame, Resize(330, 10, 629, 30), recti(0, 0, 200, 20), 0, 0, true);
 	//driver->draw2DImage(imageManager.tLPFrame, Resize(691, 10, 990, 30), recti(0, 0, 200, 20), 0, 0, true);
-	
+
 	if(lpcstring) {
 		if(lpplayer == 0) {
 			DrawShadowText(lpcFont, lpcstring, Resize(400, 472, 922, 520), Resize(0, 2, 2, 0), lpccolor, lpccolor | 0x00ffffff, true, false, 0);
@@ -505,19 +544,30 @@ void Game::DrawMisc() {
 		}
 	}
 	if(!dInfo.isReplay && dInfo.player_type < 7 && dInfo.time_limit) {
+		DrawShadowText(numFont, L"/", Resize(455, 31, 525, 50), Resize(0, 1, 2, 0), dInfo.time_color[0], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, dInfo.str_time_left[0], Resize(455, 31, 490, 50), Resize(0, 1, 2, 0), dInfo.time_color[0], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, dInfo.str_time_limit, Resize(490, 31, 525, 50), Resize(0, 1, 2, 0), dInfo.time_color[0], 0xff000000, true, false, 0);
+
+		DrawShadowText(numFont, L"/", Resize(795, 31, 865, 50), Resize(0, 1, 2, 0), dInfo.time_color[1], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, dInfo.str_time_left[1], Resize(795, 31, 830, 50), Resize(0, 1, 2, 0), dInfo.time_color[1], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, dInfo.str_time_limit, Resize(830, 31, 865, 50), Resize(0, 1, 2, 0), dInfo.time_color[1], 0xff000000, true, false, 0);
+
 		driver->draw2DRectangle(Resize(525, 34, 525 + dInfo.time_left[0] * 100 / dInfo.time_limit, 44), 0xa0e0e0e0, 0xa0e0e0e0, 0xa0c0c0c0, 0xa0c0c0c0);
 		driver->draw2DRectangleOutline(Resize(525, 34, 625, 44), 0xffffffff);
 		driver->draw2DRectangle(Resize(795 - dInfo.time_left[1] * 100 / dInfo.time_limit, 34, 795, 44), 0xa0e0e0e0, 0xa0e0e0e0, 0xa0c0c0c0, 0xa0c0c0c0);
 		driver->draw2DRectangleOutline(Resize(695, 34, 795, 44), 0xffffffff);
 	}
-	
 	//LP
 	DrawShadowText(numFont, dInfo.strLP[0], Resize(330, 27, 631, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
 	DrawShadowText(numFont, dInfo.strLP[1], Resize(691, 27, 992, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
-
-	//name 
+	//DrawShadowText(numFont, dInfo.strLP[0], Resize(330, 12, 631, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
+	//DrawShadowText(numFont, dInfo.strLP[1], Resize(691, 12, 992, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
+	
+	//name
 	recti p1size = Resize(420, 57, 629, 50);
 	recti p2size = Resize(900, 57, 986, 50);
+	//recti p1size = Resize(335, 31, 629, 50);
+	//recti p2size = Resize(986, 31, 986, 50);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
 		textFont->draw(dInfo.hostname, p1size, 0xffffffff, false, false, 0);
 	else
@@ -533,10 +583,8 @@ void Game::DrawMisc() {
 	}
 	//driver->draw2DRectangle(Resize(632, 10, 688, 30), 0x00000000, 0x00000000, 0xffffffff, 0xffffffff);
 	//driver->draw2DRectangle(Resize(632, 30, 688, 50), 0xffffffff, 0xffffffff, 0x00000000, 0x00000000);
-	
 	//turn String
 	DrawShadowText(lpcFont, dataManager.GetNumString(dInfo.turn), Resize(635, 20, 687, 40), Resize(0, 0, 2, 0), 0x8000ffff, 0x80000000, true, false, 0);
-	
 	ClientCard* pcard;
 	for(int i = 0; i < 5; ++i) {
 		pcard = dField.mzone[0][i];
@@ -1183,7 +1231,7 @@ void Game::DrawDeckBd() {
 			myswprintf(textBuffer, L"%ls", dataManager.GetName(ptr->first));
 			DrawShadowText(textFont, textBuffer, Resize(860, 165 + i * 66, 955, 185 + i * 66), Resize(1, 1, 0, 0));
 			const wchar_t* ptype = dataManager.FormatType(ptr->second.type);
-			DrawShadowText(textFont, textBuffer, Resize(860, 187 + i * 66, 955, 207 + i * 66), Resize(1, 1, 0, 0));
+			DrawShadowText(textFont, ptype, Resize(860, 187 + i * 66, 955, 207 + i * 66), Resize(1, 1, 0, 0));
 			textBuffer[0] = 0;
 			if((ptr->second.ot & 0x3) == 1)
 				wcscat(textBuffer, L"[OCG]");

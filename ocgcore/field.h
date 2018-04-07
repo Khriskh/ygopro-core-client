@@ -226,6 +226,7 @@ struct processor {
 	card_set discarded_set;
 	card_set destroy_canceled;
 	card_set delayed_enable_set;
+	card_set temp_set;
 	effect_set_v disfield_effects;
 	effect_set_v extram_effects;
 	effect_set_v extras_effects;
@@ -342,6 +343,8 @@ public:
 	processor core;
 	return_value returns;
 	tevent nil_event;
+	card* rose_card;
+	uint32 rose_level;
 
 	static int32 field_used_count[32];
 	explicit field(duel* pduel);
@@ -676,6 +679,7 @@ public:
 #define PROCESSOR_SELECT_OPTION		14
 #define PROCESSOR_SELECT_CARD		15
 #define PROCESSOR_SELECT_CHAIN		16
+#define PROCESSOR_SELECT_UNSELECT_CARD	17
 #define PROCESSOR_SELECT_PLACE		18
 #define PROCESSOR_SELECT_POSITION	19
 #define PROCESSOR_SELECT_TRIBUTE_P	20
@@ -746,6 +750,7 @@ public:
 #define PROCESSOR_SELECT_OPTION_S	121
 #define PROCESSOR_SELECT_CARD_S		122
 #define PROCESSOR_SELECT_EFFECTYN_S	123
+#define PROCESSOR_SELECT_UNSELECT_CARD_S	124
 //#define PROCESSOR_SELECT_PLACE_S	125
 #define PROCESSOR_SELECT_POSITION_S	126
 #define PROCESSOR_SELECT_TRIBUTE_S	127
@@ -773,9 +778,6 @@ public:
 #define PROCESSOR_REMOVEOL_S		160
 #define PROCESSOR_MOVETOFIELD_S		161
 
-#define PROCESSOR_SELECT_UNSELECT_CARD		180
-#define PROCESSOR_SELECT_UNSELECT_CARD_S	181
-
 //Hints
 #define HINT_EVENT				1
 #define HINT_MESSAGE			2
@@ -787,6 +789,10 @@ public:
 #define HINT_CODE				8
 #define HINT_NUMBER				9
 #define HINT_CARD				10
+//custom hints in KoishiPro for custom sound
+#define HINT_MUSIC				11
+#define HINT_SOUND				12
+#define HINT_MUSIC_OGG			13
 //
 #define CHINT_TURN				1
 #define CHINT_CARD				2
@@ -839,6 +845,7 @@ public:
 #define MSG_SELECT_SUM			23
 #define MSG_SELECT_DISFIELD		24
 #define MSG_SORT_CARD			25
+#define MSG_SELECT_UNSELECT_CARD	26
 #define MSG_CONFIRM_DECKTOP		30
 #define MSG_CONFIRM_CARDS		31
 #define MSG_SHUFFLE_DECK		32
@@ -911,5 +918,18 @@ public:
 #define MSG_MATCH_KILL			170
 #define MSG_CUSTOM_MSG			180
 
-#define MSG_SELECT_UNSELECT_CARD	190
+//card datas for Duel.ReadCard / Card.SetCardData, arranged by database format
+#define CARDDATA_CODE			1
+#define CARDDATA_ALIAS			2
+#define CARDDATA_SETCODE		3
+#define CARDDATA_TYPE			4
+#define CARDDATA_LEVEL			5
+#define CARDDATA_ATTRIBUTE		6
+#define CARDDATA_RACE			7
+#define CARDDATA_ATTACK			8
+#define CARDDATA_DEFENSE		9
+#define CARDDATA_LSCALE			10
+#define CARDDATA_RSCALE			11
+#define CARDDATA_LINK_MARKER	12
+
 #endif /* FIELD_H_ */

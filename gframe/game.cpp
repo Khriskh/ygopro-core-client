@@ -15,7 +15,7 @@
 #include <dirent.h>
 #endif
 
-const unsigned short PRO_VERSION = 0x1342;
+unsigned short PRO_VERSION = 0x1343;
 
 namespace ygo {
 
@@ -34,7 +34,8 @@ bool Game::Initialize() {
 	device = irr::createDeviceEx(params);
 	if(!device)
 		return false;
-	linePattern = 0x0f0f;
+	linePatternD3D = 0;
+	linePatternGL = 0x0f0f;
 	waitFrame = 0;
 	signalFrame = 0;
 	showcard = 0;
@@ -288,7 +289,7 @@ bool Game::Initialize() {
 	chkAutoSearch = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, CHECKBOX_AUTO_SEARCH, dataManager.GetSysString(1358));
 	chkAutoSearch->setChecked(gameConf.auto_search_limit >= 0);
 	posY += 30;
-	chkEnableSound = env->addCheckBox(gameConf.enable_sound, rect<s32>(posX, posY, posX + 120, posY + 25), tabSystem, -1, dataManager.GetSysString(1279));
+	chkEnableSound = env->addCheckBox(gameConf.enable_sound, rect<s32>(posX, posY, posX + 120, posY + 25), tabSystem, CHECKBOX_ENABLE_SOUND, dataManager.GetSysString(1279));
 	chkEnableSound->setChecked(gameConf.enable_sound);
 	scrSoundVolume = env->addScrollBar(true, rect<s32>(posX + 126, posY + 4, posX + 260, posY + 21), tabSystem, SCROLL_VOLUME);
 	scrSoundVolume->setMax(100);
@@ -308,6 +309,9 @@ bool Game::Initialize() {
 	posY += 30;
 	chkMusicMode = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, -1, dataManager.GetSysString(1281));
 	chkMusicMode->setChecked(gameConf.music_mode != 0);
+	posY += 30;
+	chkEnablePScale = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, -1, dataManager.GetSysString(1282));
+	chkEnablePScale->setChecked(gameConf.chkEnablePScale != 0);
 	//
 	wHand = env->addWindow(rect<s32>(500, 450, 825, 605), false, L"");
 	wHand->getCloseButton()->setVisible(false);
@@ -474,11 +478,21 @@ bool Game::Initialize() {
 	btnSideSort->setVisible(false);
 	btnSideReload = env->addButton(rect<s32>(440, 100, 500, 130), 0, BUTTON_SIDE_RELOAD, dataManager.GetSysString(1309));
 	btnSideReload->setVisible(false);
+	btnRenameDeck = env->addButton(rect<s32>(170, 99, 220, 120), wDeckEdit, BUTTON_RENAME_DECK, dataManager.GetSysString(1362));
 	//
 	scrFilter = env->addScrollBar(false, recti(999, 161, 1019, 629), 0, SCROLL_FILTER);
 	scrFilter->setLargeStep(10);
 	scrFilter->setSmallStep(1);
 	scrFilter->setVisible(false);
+	//rename deck
+	wRenameDeck = env->addWindow(rect<s32>(510, 200, 820, 320), false, dataManager.GetSysString(1367));
+	wRenameDeck->getCloseButton()->setVisible(false);
+	wRenameDeck->setVisible(false);
+	env->addStaticText(dataManager.GetSysString(1368), rect<s32>(20, 25, 290, 45), false, false, wRenameDeck);
+	ebREName =  env->addEditBox(L"", rect<s32>(20, 50, 290, 70), true, wRenameDeck, -1);
+	ebREName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
+	btnREYes = env->addButton(rect<s32>(70, 80, 140, 105), wRenameDeck, BUTTON_RENAME_DECK_SAVE, dataManager.GetSysString(1341));
+	btnRENo = env->addButton(rect<s32>(170, 80, 240, 105), wRenameDeck, BUTTON_RENAME_DECK_CANCEL, dataManager.GetSysString(1212));
 	//sort type
 	wSort = env->addStaticText(L"", rect<s32>(930, 132, 1020, 156), true, false, 0, -1, true);
 	cbSortType = env->addComboBox(rect<s32>(10, 2, 85, 22), wSort, COMBOBOX_SORTTYPE);
@@ -712,10 +726,8 @@ void Game::MainLoop() {
 			yScale = window_size.Height / 640.0;
 			OnResize();
 		}
-		if(gameConf.use_d3d)
-			linePattern = (linePattern + 1) % 30;
-		else
-			linePattern = (linePattern << 1) | (linePattern >> 15);
+		linePatternD3D = (linePatternD3D + 1) % 30;
+		linePatternGL = (linePatternGL << 1) | (linePatternGL >> 15);
 		atkframe += 0.1f;
 		atkdy = (float)sin(atkframe);
 		driver->beginScene(true, true, SColor(0, 0, 0, 0));
@@ -782,8 +794,14 @@ void Game::MainLoop() {
 			cur_time -= 1000;
 			timer->setTime(0);
 			if(dInfo.time_player == 0 || dInfo.time_player == 1)
-				if(dInfo.time_left[dInfo.time_player])
+				if(dInfo.time_left[dInfo.time_player]) {
 					dInfo.time_left[dInfo.time_player]--;
+					RefreshTimeDisplay();
+				}
+		}
+		if (DuelClient::try_needed) {
+			DuelClient::try_needed = false;
+			DuelClient::StartClient(DuelClient::temp_ip, DuelClient::temp_port, false);
 		}
 	}
 	DuelClient::StopClient(true);
@@ -796,6 +814,24 @@ void Game::MainLoop() {
 #endif
 	SaveConfig();
 //	device->drop();
+}
+void Game::RefreshTimeDisplay() {
+	for(int i = 0; i < 2; ++i) {
+		if(dInfo.time_left[i] && dInfo.time_limit) {
+			if(dInfo.time_left[i] >= dInfo.time_limit / 2)
+				dInfo.time_color[i] = 0xffffffff;
+			else if(dInfo.time_left[i] >= dInfo.time_limit / 3)
+				dInfo.time_color[i] = 0xffffff00;
+			else if(dInfo.time_left[i] >= dInfo.time_limit / 6)
+				dInfo.time_color[i] = 0xffff7f00;
+			else
+				dInfo.time_color[i] = 0xffff0000;
+		} else
+			dInfo.time_color[i] = 0xffffffff;
+	}
+	myswprintf(dInfo.str_time_left[0], L"%d", dInfo.time_left[0]);
+	myswprintf(dInfo.str_time_left[1], L"%d", dInfo.time_left[1]);
+	myswprintf(dInfo.str_time_limit, L"%d", dInfo.time_limit);
 }
 void Game::BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 right, f32 bottom, f32 top, f32 znear, f32 zfar) {
 	for(int i = 0; i < 16; ++i)
@@ -1026,8 +1062,9 @@ void Game::RefreshBot() {
 }
 void Game::LoadConfig() {
 	FILE* fp = fopen("system.conf", "r");
-	if(!fp)
-		return;
+#ifndef YGOPRO_COMPAT_MYCARD
+	FILE* fp_user = fopen("system_user.conf", "r");
+#endif //YGOPRO_COMPAT_MYCARD
 	char linebuf[256];
 	char strbuf[32];
 	char valbuf[256];
@@ -1062,118 +1099,236 @@ void Game::LoadConfig() {
 	gameConf.chkIgnoreDeckChanges = 0;
 	gameConf.defaultOT = 1;
 	gameConf.enable_bot_mode = 1;
-	gameConf.window_maximized = false;
-	gameConf.window_width = 1024;
-	gameConf.window_height = 640;
-	gameConf.resize_popup_menu = false;
 	gameConf.enable_sound = true;
 	gameConf.sound_volume = 0.5;
 	gameConf.enable_music = true;
 	gameConf.music_volume = 0.5;
 	gameConf.music_mode = 1;
-	while(fgets(linebuf, 256, fp)) {
-		sscanf(linebuf, "%s = %s", strbuf, valbuf);
-		if(!strcmp(strbuf, "antialias")) {
-			gameConf.antialias = atoi(valbuf);
-		} else if(!strcmp(strbuf, "use_d3d")) {
-			gameConf.use_d3d = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf, "use_image_scale")) {
-			gameConf.use_image_scale = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf, "errorlog")) {
-			enable_log = atoi(valbuf);
-		} else if(!strcmp(strbuf, "textfont")) {
-			BufferIO::DecodeUTF8(valbuf, wstr);
-			int textfontsize;
-			sscanf(linebuf, "%s = %s %d", strbuf, valbuf, &textfontsize);
-			gameConf.textfontsize = textfontsize;
-			BufferIO::CopyWStr(wstr, gameConf.textfont, 256);
-		} else if(!strcmp(strbuf, "numfont")) {
-			BufferIO::DecodeUTF8(valbuf, wstr);
-			BufferIO::CopyWStr(wstr, gameConf.numfont, 256);
-		} else if(!strcmp(strbuf, "serverport")) {
-			gameConf.serverport = atoi(valbuf);
-		} else if(!strcmp(strbuf, "lasthost")) {
-			BufferIO::DecodeUTF8(valbuf, wstr);
-			BufferIO::CopyWStr(wstr, gameConf.lasthost, 100);
-		} else if(!strcmp(strbuf, "lastport")) {
-			BufferIO::DecodeUTF8(valbuf, wstr);
-			BufferIO::CopyWStr(wstr, gameConf.lastport, 20);
-		} else if(!strcmp(strbuf, "roompass")) {
-			BufferIO::DecodeUTF8(valbuf, wstr);
-			BufferIO::CopyWStr(wstr, gameConf.roompass, 20);
-		} else if(!strcmp(strbuf, "automonsterpos")) {
-			gameConf.chkMAutoPos = atoi(valbuf);
-		} else if(!strcmp(strbuf, "autospellpos")) {
-			gameConf.chkSTAutoPos = atoi(valbuf);
-		} else if(!strcmp(strbuf, "randompos")) {
-			gameConf.chkRandomPos = atoi(valbuf);
-		} else if(!strcmp(strbuf, "autochain")) {
-			gameConf.chkAutoChain = atoi(valbuf);
-		} else if(!strcmp(strbuf, "waitchain")) {
-			gameConf.chkWaitChain = atoi(valbuf);
-		} else if(!strcmp(strbuf, "mute_opponent")) {
-			gameConf.chkIgnore1 = atoi(valbuf);
-		} else if(!strcmp(strbuf, "mute_spectators")) {
-			gameConf.chkIgnore2 = atoi(valbuf);
-		} else if(!strcmp(strbuf, "hide_setname")) {
-			gameConf.chkHideSetname = atoi(valbuf);
-		} else if(!strcmp(strbuf, "hide_hint_button")) {
-			gameConf.chkHideHintButton = atoi(valbuf);
-		} else if(!strcmp(strbuf, "control_mode")) {
-			gameConf.control_mode = atoi(valbuf);
-		} else if(!strcmp(strbuf, "draw_field_spell")) {
-			gameConf.draw_field_spell = atoi(valbuf);
-		} else if(!strcmp(strbuf, "separate_clear_button")) {
-			gameConf.separate_clear_button = atoi(valbuf);
-		} else if(!strcmp(strbuf, "auto_search_limit")) {
-			gameConf.auto_search_limit = atoi(valbuf);
-		} else if(!strcmp(strbuf, "ignore_deck_changes")) {
-			gameConf.chkIgnoreDeckChanges = atoi(valbuf);
-		} else if(!strcmp(strbuf, "default_ot")) {
-			gameConf.defaultOT = atoi(valbuf);
-		} else if(!strcmp(strbuf, "enable_bot_mode")) {
-			gameConf.enable_bot_mode = atoi(valbuf);
-		} else if(!strcmp(strbuf, "window_maximized")) {
-			gameConf.window_maximized = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf, "window_width")) {
-			gameConf.window_width = atoi(valbuf);
-		} else if(!strcmp(strbuf, "window_height")) {
-			gameConf.window_height = atoi(valbuf);
-		} else if(!strcmp(strbuf, "resize_popup_menu")) {
-			gameConf.resize_popup_menu = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf, "enable_sound")) {
-			gameConf.enable_sound = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf, "sound_volume")) {
-			gameConf.sound_volume = atof(valbuf) / 100;
-		} else if(!strcmp(strbuf, "enable_music")) {
-			gameConf.enable_music = atoi(valbuf) > 0;
-		} else if(!strcmp(strbuf, "music_volume")) {
-			gameConf.music_volume = atof(valbuf) / 100;
-		} else if(!strcmp(strbuf, "music_mode")) {
-			gameConf.music_mode = atoi(valbuf);
-		} else {
-			// options allowing multiple words
-			sscanf(linebuf, "%s = %240[^\n]", strbuf, valbuf);
-			if (!strcmp(strbuf, "nickname")) {
+	gameConf.window_maximized = false;
+	gameConf.window_width = 1024;
+	gameConf.window_height = 640;
+	gameConf.resize_popup_menu = false;
+	gameConf.chkEnablePScale = 1;
+	if(fp) {
+		while(fgets(linebuf, 256, fp)) {
+			sscanf(linebuf, "%s = %s", strbuf, valbuf);
+			if(!strcmp(strbuf, "antialias")) {
+				gameConf.antialias = atoi(valbuf);
+			} else if(!strcmp(strbuf, "use_d3d")) {
+				gameConf.use_d3d = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "use_image_scale")) {
+				gameConf.use_image_scale = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "pro_version")) {
+				PRO_VERSION = atoi(valbuf);
+			} else if(!strcmp(strbuf, "errorlog")) {
+				enable_log = atoi(valbuf);
+			} else if(!strcmp(strbuf, "textfont")) {
 				BufferIO::DecodeUTF8(valbuf, wstr);
-				BufferIO::CopyWStr(wstr, gameConf.nickname, 20);
-			} else if (!strcmp(strbuf, "gamename")) {
+				int textfontsize;
+				sscanf(linebuf, "%s = %s %d", strbuf, valbuf, &textfontsize);
+				gameConf.textfontsize = textfontsize;
+				BufferIO::CopyWStr(wstr, gameConf.textfont, 256);
+			} else if(!strcmp(strbuf, "numfont")) {
 				BufferIO::DecodeUTF8(valbuf, wstr);
-				BufferIO::CopyWStr(wstr, gameConf.gamename, 20);
-			} else if (!strcmp(strbuf, "lastdeck")) {
+				BufferIO::CopyWStr(wstr, gameConf.numfont, 256);
+			} else if(!strcmp(strbuf, "serverport")) {
+				gameConf.serverport = atoi(valbuf);
+			} else if(!strcmp(strbuf, "lasthost")) {
 				BufferIO::DecodeUTF8(valbuf, wstr);
-				BufferIO::CopyWStr(wstr, gameConf.lastdeck, 64);
+				BufferIO::CopyWStr(wstr, gameConf.lasthost, 100);
+			} else if(!strcmp(strbuf, "lastport")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.lastport, 20);
+			} else if(!strcmp(strbuf, "roompass")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.roompass, 20);
+			} else if(!strcmp(strbuf, "automonsterpos")) {
+				gameConf.chkMAutoPos = atoi(valbuf);
+			} else if(!strcmp(strbuf, "autospellpos")) {
+				gameConf.chkSTAutoPos = atoi(valbuf);
+			} else if(!strcmp(strbuf, "randompos")) {
+				gameConf.chkRandomPos = atoi(valbuf);
+			} else if(!strcmp(strbuf, "autochain")) {
+				gameConf.chkAutoChain = atoi(valbuf);
+			} else if(!strcmp(strbuf, "waitchain")) {
+				gameConf.chkWaitChain = atoi(valbuf);
+			} else if(!strcmp(strbuf, "mute_opponent")) {
+				gameConf.chkIgnore1 = atoi(valbuf);
+			} else if(!strcmp(strbuf, "mute_spectators")) {
+				gameConf.chkIgnore2 = atoi(valbuf);
+			} else if(!strcmp(strbuf, "hide_setname")) {
+				gameConf.chkHideSetname = atoi(valbuf);
+			} else if(!strcmp(strbuf, "hide_hint_button")) {
+				gameConf.chkHideHintButton = atoi(valbuf);
+			} else if(!strcmp(strbuf, "control_mode")) {
+				gameConf.control_mode = atoi(valbuf);
+			} else if(!strcmp(strbuf, "draw_field_spell")) {
+				gameConf.draw_field_spell = atoi(valbuf);
+			} else if(!strcmp(strbuf, "separate_clear_button")) {
+				gameConf.separate_clear_button = atoi(valbuf);
+			} else if(!strcmp(strbuf, "auto_search_limit")) {
+				gameConf.auto_search_limit = atoi(valbuf);
+			} else if(!strcmp(strbuf, "ignore_deck_changes")) {
+				gameConf.chkIgnoreDeckChanges = atoi(valbuf);
+			} else if(!strcmp(strbuf, "default_ot")) {
+				gameConf.defaultOT = atoi(valbuf);
+			} else if(!strcmp(strbuf, "enable_bot_mode")) {
+				gameConf.enable_bot_mode = atoi(valbuf);
+			} else if(!strcmp(strbuf, "enable_sound")) {
+				gameConf.enable_sound = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "sound_volume")) {
+				gameConf.sound_volume = atof(valbuf) / 100;
+			} else if(!strcmp(strbuf, "enable_music")) {
+				gameConf.enable_music = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "music_volume")) {
+				gameConf.music_volume = atof(valbuf) / 100;
+			} else if(!strcmp(strbuf, "music_mode")) {
+				gameConf.music_mode = atoi(valbuf);
+			} else if(!strcmp(strbuf, "window_maximized")) {
+				gameConf.window_maximized = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "window_width")) {
+				gameConf.window_width = atoi(valbuf);
+			} else if(!strcmp(strbuf, "window_height")) {
+				gameConf.window_height = atoi(valbuf);
+			} else if(!strcmp(strbuf, "resize_popup_menu")) {
+				gameConf.resize_popup_menu = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "enable_pendulum_scale")) {
+				gameConf.chkEnablePScale = atoi(valbuf);
+			} else {
+				// options allowing multiple words
+				sscanf(linebuf, "%s = %240[^\n]", strbuf, valbuf);
+				if (!strcmp(strbuf, "nickname")) {
+					BufferIO::DecodeUTF8(valbuf, wstr);
+					BufferIO::CopyWStr(wstr, gameConf.nickname, 20);
+				} else if (!strcmp(strbuf, "gamename")) {
+					BufferIO::DecodeUTF8(valbuf, wstr);
+					BufferIO::CopyWStr(wstr, gameConf.gamename, 20);
+				} else if (!strcmp(strbuf, "lastdeck")) {
+					BufferIO::DecodeUTF8(valbuf, wstr);
+					BufferIO::CopyWStr(wstr, gameConf.lastdeck, 64);
+				}
 			}
 		}
+		fclose(fp);
 	}
-	fclose(fp);
+#ifndef YGOPRO_COMPAT_MYCARD
+	if(fp_user) {
+		while(fgets(linebuf, 256, fp_user)) {
+			sscanf(linebuf, "%s = %s", strbuf, valbuf);
+			if(!strcmp(strbuf, "antialias")) {
+				gameConf.antialias = atoi(valbuf);
+			} else if(!strcmp(strbuf, "use_d3d")) {
+				gameConf.use_d3d = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "use_image_scale")) {
+				gameConf.use_image_scale = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "pro_version")) {
+				PRO_VERSION = atoi(valbuf);
+			} else if(!strcmp(strbuf, "errorlog")) {
+				enable_log = atoi(valbuf);
+			} else if(!strcmp(strbuf, "textfont")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				int textfontsize;
+				sscanf(linebuf, "%s = %s %d", strbuf, valbuf, &textfontsize);
+				gameConf.textfontsize = textfontsize;
+				BufferIO::CopyWStr(wstr, gameConf.textfont, 256);
+			} else if(!strcmp(strbuf, "numfont")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont, 256);
+			} else if(!strcmp(strbuf, "serverport")) {
+				gameConf.serverport = atoi(valbuf);
+			} else if(!strcmp(strbuf, "lasthost")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.lasthost, 100);
+			} else if(!strcmp(strbuf, "lastport")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.lastport, 20);
+			} else if(!strcmp(strbuf, "roompass")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.roompass, 20);
+			} else if(!strcmp(strbuf, "automonsterpos")) {
+				gameConf.chkMAutoPos = atoi(valbuf);
+			} else if(!strcmp(strbuf, "autospellpos")) {
+				gameConf.chkSTAutoPos = atoi(valbuf);
+			} else if(!strcmp(strbuf, "randompos")) {
+				gameConf.chkRandomPos = atoi(valbuf);
+			} else if(!strcmp(strbuf, "autochain")) {
+				gameConf.chkAutoChain = atoi(valbuf);
+			} else if(!strcmp(strbuf, "waitchain")) {
+				gameConf.chkWaitChain = atoi(valbuf);
+			} else if(!strcmp(strbuf, "mute_opponent")) {
+				gameConf.chkIgnore1 = atoi(valbuf);
+			} else if(!strcmp(strbuf, "mute_spectators")) {
+				gameConf.chkIgnore2 = atoi(valbuf);
+			} else if(!strcmp(strbuf, "hide_setname")) {
+				gameConf.chkHideSetname = atoi(valbuf);
+			} else if(!strcmp(strbuf, "hide_hint_button")) {
+				gameConf.chkHideHintButton = atoi(valbuf);
+			} else if(!strcmp(strbuf, "control_mode")) {
+				gameConf.control_mode = atoi(valbuf);
+			} else if(!strcmp(strbuf, "draw_field_spell")) {
+				gameConf.draw_field_spell = atoi(valbuf);
+			} else if(!strcmp(strbuf, "separate_clear_button")) {
+				gameConf.separate_clear_button = atoi(valbuf);
+			} else if(!strcmp(strbuf, "auto_search_limit")) {
+				gameConf.auto_search_limit = atoi(valbuf);
+			} else if(!strcmp(strbuf, "ignore_deck_changes")) {
+				gameConf.chkIgnoreDeckChanges = atoi(valbuf);
+			} else if(!strcmp(strbuf, "default_ot")) {
+				gameConf.defaultOT = atoi(valbuf);
+			} else if(!strcmp(strbuf, "enable_bot_mode")) {
+				gameConf.enable_bot_mode = atoi(valbuf);
+			} else if(!strcmp(strbuf, "enable_sound")) {
+				gameConf.enable_sound = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "sound_volume")) {
+				gameConf.sound_volume = atof(valbuf) / 100;
+			} else if(!strcmp(strbuf, "enable_music")) {
+				gameConf.enable_music = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "music_volume")) {
+				gameConf.music_volume = atof(valbuf) / 100;
+			} else if(!strcmp(strbuf, "music_mode")) {
+				gameConf.music_mode = atoi(valbuf);
+			} else if(!strcmp(strbuf, "window_maximized")) {
+				gameConf.window_maximized = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "window_width")) {
+				gameConf.window_width = atoi(valbuf);
+			} else if(!strcmp(strbuf, "window_height")) {
+				gameConf.window_height = atoi(valbuf);
+			} else if(!strcmp(strbuf, "resize_popup_menu")) {
+				gameConf.resize_popup_menu = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "enable_pendulum_scale")) {
+				gameConf.chkEnablePScale = atoi(valbuf);
+			} else {
+				// options allowing multiple words
+				sscanf(linebuf, "%s = %240[^\n]", strbuf, valbuf);
+				if (!strcmp(strbuf, "nickname")) {
+					BufferIO::DecodeUTF8(valbuf, wstr);
+					BufferIO::CopyWStr(wstr, gameConf.nickname, 20);
+				} else if (!strcmp(strbuf, "gamename")) {
+					BufferIO::DecodeUTF8(valbuf, wstr);
+					BufferIO::CopyWStr(wstr, gameConf.gamename, 20);
+				} else if (!strcmp(strbuf, "lastdeck")) {
+					BufferIO::DecodeUTF8(valbuf, wstr);
+					BufferIO::CopyWStr(wstr, gameConf.lastdeck, 64);
+				}
+			}
+		}
+		fclose(fp_user);
+	} else {
+		SaveConfig();
+	}
+#endif //YGOPRO_COMPAT_MYCARD
 }
 void Game::SaveConfig() {
+#ifdef YGOPRO_COMPAT_MYCARD
 	FILE* fp = fopen("system.conf", "w");
+#else
+	FILE* fp = fopen("system_user.conf", "w");
+#endif //YGOPRO_COMPAT_MYCARD
 	fprintf(fp, "#config file\n#nickname & gamename should be less than 20 characters\n");
 	char linebuf[256];
 	fprintf(fp, "use_d3d = %d\n", gameConf.use_d3d ? 1 : 0);
 	fprintf(fp, "use_image_scale = %d\n", gameConf.use_image_scale ? 1 : 0);
+	fprintf(fp, "pro_version = %d\n", PRO_VERSION);
 	fprintf(fp, "antialias = %d\n", gameConf.antialias);
 	fprintf(fp, "errorlog = %d\n", enable_log);
 	BufferIO::CopyWStr(ebNickName->getText(), gameConf.nickname, 20);
@@ -1211,10 +1366,6 @@ void Game::SaveConfig() {
 	fprintf(fp, "ignore_deck_changes = %d\n", (chkIgnoreDeckChanges->isChecked() ? 1 : 0));
 	fprintf(fp, "default_ot = %d\n", gameConf.defaultOT);
 	fprintf(fp, "enable_bot_mode = %d\n", gameConf.enable_bot_mode);
-	fprintf(fp, "window_maximized = %d\n", (gameConf.window_maximized ? 1 : 0));
-	fprintf(fp, "window_width = %d\n", gameConf.window_width);
-	fprintf(fp, "window_height = %d\n", gameConf.window_height);
-	fprintf(fp, "resize_popup_menu = %d\n", gameConf.resize_popup_menu ? 1 : 0);
 	fprintf(fp, "enable_sound = %d\n", (chkEnableSound->isChecked() ? 1 : 0));
 	fprintf(fp, "enable_music = %d\n", (chkEnableMusic->isChecked() ? 1 : 0));
 	fprintf(fp, "#Volume of sound and music, between 0 and 100\n");
@@ -1225,6 +1376,11 @@ void Game::SaveConfig() {
 	if(vol < 0) vol = 0; else if(vol > 100) vol = 100;
 	fprintf(fp, "music_volume = %d\n", vol);
 	fprintf(fp, "music_mode = %d\n", (chkMusicMode->isChecked() ? 1 : 0));
+	fprintf(fp, "window_maximized = %d\n", (gameConf.window_maximized ? 1 : 0));
+	fprintf(fp, "window_width = %d\n", gameConf.window_width);
+	fprintf(fp, "window_height = %d\n", gameConf.window_height);
+	fprintf(fp, "resize_popup_menu = %d\n", gameConf.resize_popup_menu ? 1 : 0);
+	fprintf(fp, "enable_pendulum_scale = %d\n", ((mainGame->chkEnablePScale->isChecked()) ? 1 : 0));
 	fclose(fp);
 }
 void Game::ShowCardInfo(int code, bool resize) {
@@ -1290,9 +1446,17 @@ void Game::ShowCardInfo(int code, bool resize) {
 			wcscat(formatBuffer, scaleBuffer);
 		}
 		stDataInfo->setText(formatBuffer);
-		stSetName->setRelativePosition(rect<s32>(15, 83, 296 * xScale, 106));
-		stText->setRelativePosition(rect<s32>(15, 83 + offset, 287 * xScale, 324 * yScale));
-		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 83 + offset, 287 * xScale, 324 * yScale));
+		if ((cd.type & TYPE_LINK) && (cd.level > 5)) {
+			stDataInfo->setRelativePosition(rect<s32>(15, 60, 296, 98));
+			stSetName->setRelativePosition(rect<s32>(15, 98, 296 * xScale, 121));
+			stText->setRelativePosition(rect<s32>(15, 98 + offset, 287 * xScale, 324 * yScale));
+			scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 98 + offset, 287 * xScale, 324 * yScale));
+		} else {
+			stDataInfo->setRelativePosition(rect<s32>(15, 60, 296, 83));		
+			stSetName->setRelativePosition(rect<s32>(15, 83, 296 * xScale, 106));
+			stText->setRelativePosition(rect<s32>(15, 83 + offset, 287 * xScale, 324 * yScale));
+			scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 83 + offset, 287 * xScale, 324 * yScale));
+		}
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
@@ -1454,9 +1618,8 @@ void Game::OnResize() {
 	old_lpcFont->drop();
 	//guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize * yScale);
 	//env->getSkin()->setFont(guiFont);
- 
-	recti menuposition = ResizeWin(370, 200, 650, 415);
-	wMainMenu->setRelativePosition(recti(menuposition.UpperLeftCorner.X, menuposition.UpperLeftCorner.Y, menuposition.LowerRightCorner.X, menuposition.LowerRightCorner.Y));
+
+	wMainMenu->setRelativePosition(ResizeWin(370, 200, 650, 415));
 	wDeckEdit->setRelativePosition(Resize(309, 8, 605, 130));
 	cbDBLFList->setRelativePosition(Resize(80, 5, 220, 30));
 	cbDBDecks->setRelativePosition(Resize(80, 35, 220, 60));
@@ -1505,6 +1668,7 @@ void Game::OnResize() {
 	btnSideSort->setRelativePosition(Resize(375, 100, 435, 130));
 	btnSideReload->setRelativePosition(Resize(440, 100, 500, 130));
 	btnDeleteDeck->setRelativePosition(Resize(225, 95, 290, 120));
+	btnRenameDeck->setRelativePosition(Resize(170, 99, 220, 120));
 
 	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
@@ -1526,6 +1690,10 @@ void Game::OnResize() {
 	wANRace->setRelativePosition(ResizeWin(480, 200, 850, 410));
 	wReplaySave->setRelativePosition(ResizeWin(510, 200, 820, 320));
 	stHintMsg->setRelativePosition(ResizeWin(500, 60, 820, 90));
+	
+	//sound / music volume bar
+	scrSoundVolume->setRelativePosition(recti(20 + 126, 200 + 4, 20 + (300 * xScale) - 40, 200 + 21));
+	scrMusicVolume->setRelativePosition(recti(20 + 126, 230 + 4, 20 + (300 * xScale) - 40, 230 + 21));
 
 	if(gameConf.resize_popup_menu) {
 		int width = 100 * mainGame->xScale;
