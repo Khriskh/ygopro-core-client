@@ -545,18 +545,18 @@ void Game::DrawMisc() {
 	}
 
 	if(!dInfo.isReplay && dInfo.player_type < 7 && dInfo.time_limit) {
-		DrawShadowText(numFont, L"/", Resize(455, 70, 525, 89), Resize(0, 1, 2, 0), dInfo.time_color[0], 0xff000000, true, false, 0);
-		DrawShadowText(numFont, dInfo.str_time_left[0], Resize(455, 70, 490, 89), Resize(0, 1, 2, 0), dInfo.time_color[0], 0xff000000, true, false, 0);
-		DrawShadowText(numFont, dInfo.str_time_limit, Resize(490, 70, 525, 89), Resize(0, 1, 2, 0), dInfo.time_color[0], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, L"/", Resize(455, 75, 525, 94), Resize(0, 1, 2, 0), dInfo.time_color[0], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, dInfo.str_time_left[0], Resize(455, 75, 490, 94), Resize(0, 1, 2, 0), dInfo.time_color[0], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, dInfo.str_time_limit, Resize(490, 75, 525, 94), Resize(0, 1, 2, 0), dInfo.time_color[0], 0xff000000, true, false, 0);
 
-		DrawShadowText(numFont, L"/", Resize(795, 70, 865, 89), Resize(0, 1, 2, 0), dInfo.time_color[1], 0xff000000, true, false, 0);
-		DrawShadowText(numFont, dInfo.str_time_left[1], Resize(795, 70, 830, 89), Resize(0, 1, 2, 0), dInfo.time_color[1], 0xff000000, true, false, 0);
-		DrawShadowText(numFont, dInfo.str_time_limit, Resize(830, 70, 865, 89), Resize(0, 1, 2, 0), dInfo.time_color[1], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, L"/", Resize(795, 75, 865, 94), Resize(0, 1, 2, 0), dInfo.time_color[1], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, dInfo.str_time_left[1], Resize(795, 75, 830, 94), Resize(0, 1, 2, 0), dInfo.time_color[1], 0xff000000, true, false, 0);
+		DrawShadowText(numFont, dInfo.str_time_limit, Resize(830, 75, 865, 94), Resize(0, 1, 2, 0), dInfo.time_color[1], 0xff000000, true, false, 0);
 
-		driver->draw2DRectangle(Resize(525, 73, 525 + dInfo.time_left[0] * 100 / dInfo.time_limit, 83), 0xa0e0e0e0, 0xa0e0e0e0, 0xa0c0c0c0, 0xa0c0c0c0);
-		driver->draw2DRectangleOutline(Resize(525, 73, 625, 83), 0xffffffff);
-		driver->draw2DRectangle(Resize(795 - dInfo.time_left[1] * 100 / dInfo.time_limit, 73, 795, 83), 0xa0e0e0e0, 0xa0e0e0e0, 0xa0c0c0c0, 0xa0c0c0c0);
-		driver->draw2DRectangleOutline(Resize(695, 73, 795, 83), 0xffffffff);
+		driver->draw2DRectangle(Resize(525, 78, 525 + dInfo.time_left[0] * 100 / dInfo.time_limit, 88), 0xa0e0e0e0, 0xa0e0e0e0, 0xa0c0c0c0, 0xa0c0c0c0);
+		driver->draw2DRectangleOutline(Resize(525, 78, 625, 88), 0xffffffff);
+		driver->draw2DRectangle(Resize(795 - dInfo.time_left[1] * 100 / dInfo.time_limit, 78, 795, 88), 0xa0e0e0e0, 0xa0e0e0e0, 0xa0c0c0c0, 0xa0c0c0c0);
+		driver->draw2DRectangleOutline(Resize(695, 78, 795, 88), 0xffffffff);
 	}
 	
 	//LP
