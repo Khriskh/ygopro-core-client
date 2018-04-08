@@ -1607,7 +1607,7 @@ int32 scriptlib::card_get_card_effect(lua_State *L) {
 	card* pcard = *(card**)lua_touserdata(L, 1);
 	uint32 code = 0;
 	if (lua_gettop(L) >= 2)
-		code = lua_tonumberint(L, 2);
+		code = lua_tointeger(L, 2);
 	int32 count = pcard->get_card_effect(code);
 	if (count == 0) {
 		lua_pushnil(L);
