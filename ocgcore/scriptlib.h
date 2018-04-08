@@ -183,6 +183,7 @@ public:
 	static int32 card_get_hand_synchro(lua_State * L);
 	static int32 card_register_effect(lua_State *L);
 	static int32 card_is_has_effect(lua_State *L);
+	static int32 card_get_card_effect(lua_State *L);
 	static int32 card_reset_effect(lua_State *L);
 	static int32 card_get_effect_count(lua_State *L);
 	static int32 card_register_flag_effect(lua_State *L);
