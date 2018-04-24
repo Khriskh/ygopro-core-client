@@ -78,6 +78,7 @@ public:
 	static int32 card_get_mutual_linked_group_count(lua_State *L);
 	static int32 card_get_mutual_linked_zone(lua_State *L);
 	static int32 card_is_link_state(lua_State *L);
+	static int32 card_is_extra_link_state(lua_State *L);
 	static int32 card_get_column_group(lua_State *L);
 	static int32 card_get_column_group_count(lua_State *L);
 	static int32 card_get_column_zone(lua_State *L);
@@ -339,6 +340,8 @@ public:
 	static int32 effect_is_activated(lua_State *L);
 	static int32 effect_get_activate_location(lua_State *L);
 	static int32 effect_get_activate_sequence(lua_State *L);
+	static int32 effect_check_count_limit(lua_State *L);
+	static int32 effect_use_count_limit(lua_State *L);
 
 	//Group functions
 	static int32 group_new(lua_State *L);

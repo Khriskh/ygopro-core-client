@@ -5,6 +5,7 @@
 #include "client_field.h"
 #include "deck_con.h"
 #include "menu_handler.h"
+#include "CGUISkinSystem/CGUISkinSystem.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -52,6 +53,7 @@ struct Config {
 	double music_volume;
 	int music_mode;
 	int chkEnablePScale;
+	int skin_index;
 };
 
 struct DuelInfo {
@@ -143,6 +145,7 @@ public:
 	void SaveConfig();
 	void ShowCardInfo(int code, bool resize = false);
 	void AddChatMsg(wchar_t* msg, int player);
+	void ClearChatMsg();
 	void AddDebugMsg(char* msgbuf);
 	void ClearTextures();
 	void CloseDuelWindow();
@@ -162,6 +165,7 @@ public:
 	position2di ResizeReverse(s32 x, s32 y);
 	recti ResizeElem(s32 x, s32 y, s32 x2, s32 y2);
 	recti ResizeWin(s32 x, s32 y, s32 x2, s32 y2, bool chat = false);
+	recti ResizeCard(s32 x, s32 y, s32 x2, s32 y2);
 
 	void SetWindowsIcon();
 	void FlashWindow();
@@ -218,6 +222,8 @@ public:
 	irr::core::dimension2d<irr::u32> window_size;
 	float xScale;
 	float yScale;
+	
+	CGUISkinSystem *skinSystem;
 
 	ClientField dField;
 	DeckBuilder deckBuilder;
@@ -656,6 +662,7 @@ extern Game* mainGame;
 #define CHECKBOX_ENABLE_SOUND		361
 #define CHECKBOX_ENABLE_MUSIC		362
 #define SCROLL_VOLUME				363
+#define CHECKBOX_DISABLE_CHAT		364
 
 #define COMBOBOX_SORTTYPE			370
 #define COMBOBOX_LIMIT				371

@@ -32,7 +32,6 @@ bool ImageManager::Initial() {
 	tNegated = driver->getTexture("textures/negated.png");
 	tNumber = driver->getTexture("textures/number.png");
 	tLPBar = driver->getTexture("textures/lp.png");
-	tLPFrame = driver->getTexture("textures/lpf.png");
 	tAvatar1 = driver->getTexture("textures/avatar1.png");
 	tAvatar2 = driver->getTexture("textures/avatar2.png");
 	tLPBar1 = driver->getTexture("textures/LPBar1.png");
@@ -40,6 +39,7 @@ bool ImageManager::Initial() {
 	tLPBar2 = driver->getTexture("textures/LPBar2.png");
 	tLPBar2s = driver->getTexture("textures/LPBar2s.png");
 	tTurn = driver->getTexture("textures/turn.png");
+	tLPFrame = driver->getTexture("textures/lpf.png");
 	tMask = driver->getTexture("textures/mask.png");
 	tEquip = driver->getTexture("textures/equip.png");
 	tTarget = driver->getTexture("textures/target.png");
@@ -67,7 +67,7 @@ bool ImageManager::Initial() {
 	if(!tBackGround_deck)
 		tBackGround_deck = GetRandomImage(TEXTURE_DUEL);
 	if(!tBackGround_deck)
-		tBackGround_deck = tBackGround;	
+		tBackGround_deck = tBackGround;
 	tField[0] = driver->getTexture("textures/field2.png");
 	tFieldTransparent[0] = driver->getTexture("textures/field-transparent2.png");
 	tField[1] = driver->getTexture("textures/field3.png");
@@ -281,8 +281,16 @@ irr::video::ITexture* ImageManager::GetTexture(int code, bool fit) {
 	auto tit = tMap[fit ? 1 : 0].find(code);
 	if(tit == tMap[fit ? 1 : 0].end()) {
 		char file[256];
-		sprintf(file, "expansions/pics/%d.jpg", code);
+		sprintf(file, "expansions/pics/%d.png", code);
 		irr::video::ITexture* img = GetTextureFromFile(file, width, height);
+		if(img == NULL) {
+			sprintf(file, "expansions/pics/%d.jpg", code);
+			img = GetTextureFromFile(file, width, height);
+		}
+		if(img == NULL) {
+			sprintf(file, "pics/%d.png", code);
+			img = GetTextureFromFile(file, width, height);
+		}
 		if(img == NULL) {
 			sprintf(file, "pics/%d.jpg", code);
 			img = GetTextureFromFile(file, width, height);
@@ -307,15 +315,31 @@ irr::video::ITexture* ImageManager::GetTextureThumb(int code) {
 	int height = CARD_THUMB_HEIGHT * mainGame->yScale;
 	if(tit == tThumb.end()) {
 		char file[256];
-		sprintf(file, "expansions/pics/thumbnail/%d.jpg", code);
+		sprintf(file, "expansions/pics/thumbnail/%d.png", code);
 		irr::video::ITexture* img = GetTextureFromFile(file, width, height);
+		if(img == NULL) {
+			sprintf(file, "expansions/pics/thumbnail/%d.jpg", code);
+			img = GetTextureFromFile(file, width, height);
+		}
+		if(img == NULL) {
+			sprintf(file, "pics/thumbnail/%d.png", code);
+			img = GetTextureFromFile(file, width, height);
+		}
 		if(img == NULL) {
 			sprintf(file, "pics/thumbnail/%d.jpg", code);
 			img = GetTextureFromFile(file, width, height);
 		}
 		if(img == NULL && mainGame->gameConf.use_image_scale) {
-			sprintf(file, "expansions/pics/%d.jpg", code);
+			sprintf(file, "expansions/pics/%d.png", code);
 			img = GetTextureFromFile(file, width, height);
+			if(img == NULL) {
+				sprintf(file, "expansions/pics/%d.jpg", code);
+				img = GetTextureFromFile(file, width, height);
+			}
+			if(img == NULL) {
+				sprintf(file, "pics/%d.png", code);
+				img = GetTextureFromFile(file, width, height);
+			}
 			if(img == NULL) {
 				sprintf(file, "pics/%d.jpg", code);
 				img = GetTextureFromFile(file, width, height);

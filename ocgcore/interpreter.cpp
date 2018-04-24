@@ -62,6 +62,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetMutualLinkedGroupCount", scriptlib::card_get_mutual_linked_group_count },
 	{ "GetMutualLinkedZone", scriptlib::card_get_mutual_linked_zone },
 	{ "IsLinkState", scriptlib::card_is_link_state },
+	{ "IsExtraLinkState", scriptlib::card_is_extra_link_state },
 	{ "GetColumnGroup", scriptlib::card_get_column_group },
 	{ "GetColumnGroupCount", scriptlib::card_get_column_group_count },
 	{ "GetColumnZone", scriptlib::card_get_column_zone },
@@ -329,6 +330,8 @@ static const struct luaL_Reg effectlib[] = {
 	{ "IsActivated", scriptlib::effect_is_activated },
 	{ "GetActivateLocation", scriptlib::effect_get_activate_location },
 	{ "GetActivateSequence", scriptlib::effect_get_activate_sequence },
+	{ "CheckCountLimit", scriptlib::effect_check_count_limit },
+	{ "UseCountLimit", scriptlib::effect_use_count_limit },
 	{ NULL, NULL }
 };
 
@@ -628,6 +631,9 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_pushnil(lua_state);
 	lua_setglobal(lua_state, "os");
 	*/
+	//add bit lib back
+	lua_getglobal(lua_state, "bit32");
+	lua_setglobal(lua_state, "bit");
 	//open all libs
 	luaL_newlib(lua_state, cardlib);
 	lua_pushstring(lua_state, "__index");
@@ -837,11 +843,14 @@ int32 interpreter::load_card_script(uint32 code) {
 		//load special and extra scripts first
 		sprintf(script_name, "./specials/c%d.lua", code);
 		if (!load_script(script_name)) {
-			sprintf(script_name, "./expansions/script/c%d.lua", code);
+			sprintf(script_name, "./beta/script/c%d.lua", code);
 			if (!load_script(script_name)) {
-				sprintf(script_name, "./script/c%d.lua", code);
+				sprintf(script_name, "./expansions/script/c%d.lua", code);
 				if (!load_script(script_name)) {
-					return OPERATION_FAIL;
+					sprintf(script_name, "./script/c%d.lua", code);
+					if (!load_script(script_name)) {
+						return OPERATION_FAIL;
+					}
 				}
 			}
 		}

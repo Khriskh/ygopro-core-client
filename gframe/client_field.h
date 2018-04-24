@@ -55,8 +55,8 @@ public:
 	int select_max;
 	int must_select_count;
 	int select_sumval;
-	int select_cancelable;
 	int select_mode;
+	bool select_cancelable;
 	bool select_panalmode;
 	bool select_ready;
 	int announce_count;
@@ -65,7 +65,6 @@ public:
 	int select_counter_type;
 	std::vector<ClientCard*> selectable_cards;
 	std::vector<ClientCard*> selected_cards;
-	std::vector<ClientCard*> unselected_cards;
 	std::set<ClientCard*> selectsum_cards;
 	std::vector<ClientCard*> selectsum_all;
 	std::vector<int> opcode;
