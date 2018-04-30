@@ -32,8 +32,8 @@ bool ImageManager::Initial() {
 	tNegated = driver->getTexture("textures/negated.png");
 	tNumber = driver->getTexture("textures/number.png");
 	tLPBar = driver->getTexture("textures/lp.png");
-	tAvatar1 = GetRandomImage(TEXTURE_AVATAR1);
-	tAvatar2 = GetRandomImage(TEXTURE_AVATAR2);
+	tAvatar1 = GetRandomImage(TEXTURE_AVATAR_S);
+	tAvatar2 = GetRandomImage(TEXTURE_AVATAR_O);
 	if(!tAvatar1){
 		tAvatar1 = driver->getTexture("textures/avatar1.png");
 	}
@@ -110,8 +110,8 @@ void ImageManager::RefreshRandomImageList() {
 	RefreshImageDir(L"cover2/", TEXTURE_COVER_O);
 	RefreshImageDir(L"attack/", TEXTURE_ATTACK);
 	RefreshImageDir(L"act/", TEXTURE_ACTIVATE);
-	RefreshImageDir(L"avatar1/", TEXTURE_AVATAR1);
-	RefreshImageDir(L"avatar2/", TEXTURE_AVATAR2);
+	RefreshImageDir(L"avatar1/", TEXTURE_AVATAR_S);
+	RefreshImageDir(L"avatar2/", TEXTURE_AVATAR_O);
 }
 void ImageManager::RefreshImageDir(std::wstring path, int image_type) {
 #ifdef _WIN32
