@@ -33,9 +33,9 @@ bool ImageManager::Initial() {
 	tNumber = driver->getTexture("textures/number.png");
 	tLPBar = driver->getTexture("textures/lp.png");
 	tAvatar1 = GetRandomImage(TEXTURE_AVATAR1);
+	tAvatar2 = GetRandomImage(TEXTURE_AVATAR2);
 	if(!tAvatar1)
 		tAvatar1 = driver->getTexture("textures/avatar1.png");
-	tAvatar2 = GetRandomImage(TEXTURE_AVATAR2);
 	if(!tAvatar2)
 		tAvatar2 = driver->getTexture("textures/avatar2.png");
 	tLPBar1 = driver->getTexture("textures/LPBar1.png");

@@ -687,8 +687,8 @@ extern Game* mainGame;
 #define TEXTURE_ATTACK				5
 #define TEXTURE_ACTIVATE			6
 
-#define TEXTURE_AVATAR1			7
-#define TEXTURE_AVATAR2			8
+#define TEXTURE_AVATAR1			10
+#define TEXTURE_AVATAR2			20
 
 #define DEFAULT_DUEL_RULE			4
 #endif // GAME_H
