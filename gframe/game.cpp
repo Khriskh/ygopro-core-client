@@ -252,8 +252,8 @@ bool Game::Initialize() {
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
-	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
-	stInfo->setOverrideColor(SColor(255, 0, 0, 255));
+	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 324), false, true, tabInfo, -1, false);
+	stInfo->setOverrideColor(SColor(255, 0, 0, 0));
 	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 324), false, true, tabInfo, -1, false);
 	stDataInfo->setOverrideColor(SColor(255, 0, 0, 255));
 	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 324), false, true, tabInfo, -1, false);
