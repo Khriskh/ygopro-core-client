@@ -1472,13 +1472,13 @@ void Game::ShowCardInfo(int code, bool resize) {
 		stDataInfo->setText(formatBuffer);
 		if ((cd.type & TYPE_LINK) && (cd.level > 5)) {
 			stDataInfo->setRelativePosition(rect<s32>(15, 70, 296, 88));
-			stSetName->setRelativePosition(rect<s32>(15, 88, 296 * xScale, 96));
-			stText->setRelativePosition(rect<s32>(15, 96 + offset, 287 * xScale, 324 * yScale));
+			stSetName->setRelativePosition(rect<s32>(15, 88, 296 * xScale, 106));
+			stText->setRelativePosition(rect<s32>(15, 92 + offset, 287 * xScale, 324 * yScale));
 			scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 98 + offset, 287 * xScale, 324 * yScale));
 		} else {
 			stDataInfo->setRelativePosition(rect<s32>(15, 70, 296, 88));		
-			stSetName->setRelativePosition(rect<s32>(15, 88, 296 * xScale, 96));
-			stText->setRelativePosition(rect<s32>(15, 96 + offset, 287 * xScale, 324 * yScale));
+			stSetName->setRelativePosition(rect<s32>(15, 88, 296 * xScale, 106));
+			stText->setRelativePosition(rect<s32>(15, 92 + offset, 287 * xScale, 324 * yScale));
 			scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 83 + offset, 287 * xScale, 324 * yScale));
 		}
 	} else {
