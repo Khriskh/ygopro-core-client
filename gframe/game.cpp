@@ -13,7 +13,12 @@
 
 #ifndef _WIN32
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
+#include <unistd.h>
+#else
+#include <direct.h>
+#include <io.h>
 #endif
 
 unsigned short PRO_VERSION = 0x1343;
@@ -24,6 +29,7 @@ Game* mainGame;
 
 bool Game::Initialize() {
 	srand(time(0));
+	initUtils();
 	LoadConfig();
 	irr::SIrrlichtCreationParameters params = irr::SIrrlichtCreationParameters();
 	params.AntiAlias = gameConf.antialias;
@@ -252,14 +258,14 @@ bool Game::Initialize() {
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
-	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 70), false, true, tabInfo, -1, false);
-	stInfo->setOverrideColor(SColor(255, 0, 0, 0));
-	stDataInfo = env->addStaticText(L"", rect<s32>(15, 70, 296, 103), false, true, tabInfo, -1, false);
-	stDataInfo->setOverrideColor(SColor(255, 0, 0, 0));
-	stSetName = env->addStaticText(L"", rect<s32>(15, 103, 296, 136), false, true, tabInfo, -1, false);
-	stSetName->setOverrideColor(SColor(255, 0, 0, 0));
-	stText = env->addStaticText(L"", rect<s32>(15, 136, 287, 324), false, true, tabInfo, -1, false);
-	scrCardText = env->addScrollBar(false, rect<s32>(267, 136, 287, 324), tabInfo, SCROLL_CARDTEXT);
+	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
+	stInfo->setOverrideColor(SColor(255, 0, 0, 255));
+	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
+	stDataInfo->setOverrideColor(SColor(255, 0, 0, 255));
+	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, tabInfo, -1, false);
+	stSetName->setOverrideColor(SColor(255, 0, 0, 255));
+	stText = env->addStaticText(L"", rect<s32>(15, 106, 287, 324), false, true, tabInfo, -1, false);
+	scrCardText = env->addScrollBar(false, rect<s32>(267, 106, 287, 324), tabInfo, SCROLL_CARDTEXT);
 	scrCardText->setLargeStep(1);
 	scrCardText->setSmallStep(1);
 	scrCardText->setVisible(false);
@@ -1429,7 +1435,7 @@ void Game::ShowCardInfo(int code, bool resize) {
 				sc = aptr->second.setcode;
 		}
 		if(sc) {
-			offset = 19;
+			offset = 23;
 			myswprintf(formatBuffer, L"%ls%ls", dataManager.GetSysString(1329), dataManager.FormatSetName(sc));
 			stSetName->setText(formatBuffer);
 		} else
@@ -1438,7 +1444,7 @@ void Game::ShowCardInfo(int code, bool resize) {
 		stSetName->setText(L"");
 	}
 	if(cd.type & TYPE_MONSTER) {
-		myswprintf(formatBuffer, L"[%ls]\n%ls/%ls", dataManager.FormatType(cd.type), dataManager.FormatRace(cd.race), dataManager.FormatAttribute(cd.attribute));
+		myswprintf(formatBuffer, L"[%ls] %ls/%ls", dataManager.FormatType(cd.type), dataManager.FormatRace(cd.race), dataManager.FormatAttribute(cd.attribute));
 		stInfo->setText(formatBuffer);
 		if(!(cd.type & TYPE_LINK)) {
 			wchar_t* form = L"\u2605";
@@ -1471,14 +1477,14 @@ void Game::ShowCardInfo(int code, bool resize) {
 		}
 		stDataInfo->setText(formatBuffer);
 		if ((cd.type & TYPE_LINK) && (cd.level > 5)) {
-			stDataInfo->setRelativePosition(rect<s32>(15, 70, 296, 88));
-			stSetName->setRelativePosition(rect<s32>(15, 88, 296 * xScale, 106));
-			stText->setRelativePosition(rect<s32>(15, 90 + offset, 287 * xScale, 324 * yScale));
+			stDataInfo->setRelativePosition(rect<s32>(15, 60, 296, 98));
+			stSetName->setRelativePosition(rect<s32>(15, 98, 296 * xScale, 121));
+			stText->setRelativePosition(rect<s32>(15, 98 + offset, 287 * xScale, 324 * yScale));
 			scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 98 + offset, 287 * xScale, 324 * yScale));
 		} else {
-			stDataInfo->setRelativePosition(rect<s32>(15, 70, 296, 88));		
-			stSetName->setRelativePosition(rect<s32>(15, 88, 296 * xScale, 106));
-			stText->setRelativePosition(rect<s32>(15, 90 + offset, 287 * xScale, 324 * yScale));
+			stDataInfo->setRelativePosition(rect<s32>(15, 60, 296, 83));		
+			stSetName->setRelativePosition(rect<s32>(15, 83, 296 * xScale, 106));
+			stText->setRelativePosition(rect<s32>(15, 83 + offset, 287 * xScale, 324 * yScale));
 			scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 83 + offset, 287 * xScale, 324 * yScale));
 		}
 	} else {
@@ -1539,6 +1545,9 @@ void Game::AddChatMsg(wchar_t* msg, int player) {
 			chatMsg[0].append(L"[---]: ");
 	}
 	chatMsg[0].append(msg);
+	wchar_t msg_front[256];
+	myswprintf(msg_front, L"[Chat]%ls", chatMsg[0].c_str());
+	lstLog->addItem(msg_front);
 }
 void Game::ClearChatMsg() {
 	for(int i = 7; i >= 0; --i) {
@@ -1563,6 +1572,66 @@ void Game::AddDebugMsg(char* msg)
 		fprintf(fp, "[%s][Script Error]: %s\n", timebuf, msg);
 		fclose(fp);
 	}
+}
+bool Game::MakeDirectory(const std::string folder) {
+    std::string folder_builder;
+    std::string sub;
+    sub.reserve(folder.size());
+    for(auto it = folder.begin(); it != folder.end(); ++it) {
+        const char c = *it;
+        sub.push_back(c);
+        if(c == '/' || it == folder.end() - 1) {
+            folder_builder.append(sub);
+            if(access(folder_builder.c_str(), 0) != 0)
+#ifdef _WIN32
+                if(mkdir(folder_builder.c_str()) != 0)
+#else
+                if(mkdir(folder_builder.c_str(), 0777) != 0)
+#endif
+                    return false;
+            sub.clear();
+        }
+    }
+    return true;
+}
+void Game::initUtils() {
+	//user files
+	MakeDirectory("replay");
+	MakeDirectory("screenshots");
+	//cards from extra pack
+	MakeDirectory("expansions");
+	//files in ygopro-starter-pack
+	MakeDirectory("deck");
+	MakeDirectory("single");
+	//original files
+	MakeDirectory("script");
+	MakeDirectory("skin");
+	MakeDirectory("textures");
+	//subdirs in textures
+	MakeDirectory("textures/act");
+	MakeDirectory("textures/attack");
+	MakeDirectory("textures/bg");
+	MakeDirectory("textures/bg_deck");
+	MakeDirectory("textures/bg_menu");
+	MakeDirectory("textures/cover");
+	MakeDirectory("textures/cover2");
+	MakeDirectory("textures/pscale");
+	//sound
+	MakeDirectory("sound");
+	MakeDirectory("sound/BGM");
+	MakeDirectory("sound/BGM/advantage");
+	MakeDirectory("sound/BGM/deck");
+	MakeDirectory("sound/BGM/disadvantage");
+	MakeDirectory("sound/BGM/duel");
+	MakeDirectory("sound/BGM/lose");
+	MakeDirectory("sound/BGM/menu");
+	MakeDirectory("sound/BGM/win");
+	//custom sound
+	MakeDirectory("sound/custom");
+	MakeDirectory("sound/BGM/custom");
+	//pics
+	MakeDirectory("pics");
+	MakeDirectory("pics/field");
 }
 void Game::ClearTextures() {
 	matManager.mCard.setTexture(0, 0);
@@ -1866,7 +1935,7 @@ position2di Game::ResizeCardMid(s32 x, s32 y, s32 midx, s32 midy) {
 	y = cy + (y - midy) * mul;
 	return position2di(x, y);
 }
-recti Game::ResizeForced(s32 x, s32 y, s32 x2, s32 y2) {
+recti Game::ResizeFit(s32 x, s32 y, s32 x2, s32 y2) {
 	float mul = xScale;
 	if(xScale > yScale)
 		mul = yScale;
@@ -1895,6 +1964,17 @@ void Game::FlashWindow() {
 	fi.dwTimeout = 0;
 	FlashWindowEx(&fi);
 #endif
+}
+void Game::takeScreenshot() {
+	irr::video::IImage* const image = driver->createScreenShot();
+	if(image) {
+		irr::c8 filename[64];
+		snprintf(filename, 64, "screenshots/ygopro_%u.png", device->getTimer()->getRealTime());
+		if (!driver->writeImageToFile(image, filename))
+			device->getLogger()->log(L"Failed to take screenshot.", irr::ELL_WARNING);
+		image->drop();
+	} else
+		device->getLogger()->log(L"Failed to take screenshot.", irr::ELL_WARNING);
 }
 void Game::SetCursor(ECURSOR_ICON icon) {
 	ICursorControl* cursor = mainGame->device->getCursorControl();
