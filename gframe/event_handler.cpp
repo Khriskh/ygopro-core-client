@@ -1565,7 +1565,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 							irr::core::dimension2d<unsigned int> dtip = mainGame->textFont->getDimension(str.c_str()) + irr::core::dimension2d<unsigned int>(10, 10);
 							mainGame->stTip->setRelativePosition(recti(mousepos.X - 10 - dtip.Width, mousepos.Y - 10 - dtip.Height, mousepos.X - 10, mousepos.Y - 10));
 							mainGame->stTip->setText(str.c_str());
-							mainGame->stTip->setOverrideColor(SColor(255, 0, 0, 255));
+							mainGame->stTip->setOverrideColor(SColor(255, 0, 0, 0));
 						}
 					} else {
 						should_show_tip = false;
