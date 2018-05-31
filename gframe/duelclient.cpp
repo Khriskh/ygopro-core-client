@@ -2297,7 +2297,13 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 	}
 	case MSG_SHUFFLE_SET_CARD: {
 		std::vector<ClientCard*>::iterator cit;
+		std::vector<ClientCard*>* lst = 0;
+		int loc = BufferIO::ReadInt8(pbuf);
 		int count = BufferIO::ReadInt8(pbuf);
+		if(loc == LOCATION_MZONE)
+			lst = mainGame->dField.mzone;
+		else
+			lst = mainGame->dField.szone;
 		ClientCard* mc[5];
 		ClientCard* swp;
 		int c, l, s, ps;
@@ -2306,16 +2312,16 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			l = BufferIO::ReadInt8(pbuf);
 			s = BufferIO::ReadInt8(pbuf);
 			BufferIO::ReadInt8(pbuf);
-			mc[i] = mainGame->dField.mzone[c][s];
+			mc[i] = lst[c][s];
 			mc[i]->SetCode(0);
-			if(!mainGame->dInfo.isReplaySkiping) {
+			if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping) {
 				mc[i]->dPos = irr::core::vector3df((3.95f - mc[i]->curPos.X) / 10, 0, 0.05f);
 				mc[i]->dRot = irr::core::vector3df(0, 0, 0);
 				mc[i]->is_moving = true;
 				mc[i]->aniFrame = 10;
 			}
 		}
-		if(!mainGame->dInfo.isReplaySkiping)
+		if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping)
 			mainGame->WaitFrameSignal(20);
 		for (int i = 0; i < count; ++i) {
 			c = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
@@ -2324,14 +2330,14 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			BufferIO::ReadInt8(pbuf);
 			ps = mc[i]->sequence;
 			if (l > 0) {
-				swp = mainGame->dField.mzone[c][s];
-				mainGame->dField.mzone[c][ps] = swp;
-				mainGame->dField.mzone[c][s] = mc[i];
+				swp = lst[c][s];
+				lst[c][ps] = swp;
+				lst[c][s] = mc[i];
 				mc[i]->sequence = s;
 				swp->sequence = ps;
 			}
 		}
-		if(!mainGame->dInfo.isReplaySkiping) {
+		if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping) {
 			soundManager.PlaySoundEffect(SOUND_SHUFFLE);
 			for (int i = 0; i < count; ++i) {
 				mainGame->dField.MoveCard(mc[i], 10);
