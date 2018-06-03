@@ -1444,7 +1444,7 @@ void Game::ShowCardInfo(int code, bool resize) {
 		stSetName->setText(L"");
 	}
 	if(cd.type & TYPE_MONSTER) {
-		myswprintf(formatBuffer, L"[%ls] %ls/%ls", dataManager.FormatType(cd.type), dataManager.FormatRace(cd.race), dataManager.FormatAttribute(cd.attribute));
+		myswprintf(formatBuffer, L"[%ls]\n%ls/%ls", dataManager.FormatType(cd.type), dataManager.FormatRace(cd.race), dataManager.FormatAttribute(cd.attribute));
 		stInfo->setText(formatBuffer);
 		if(!(cd.type & TYPE_LINK)) {
 			wchar_t* form = L"\u2605";
@@ -1491,10 +1491,10 @@ void Game::ShowCardInfo(int code, bool resize) {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
 		stDataInfo->setText(L"");
-		stInfo->setRelativePosition(rect<s32>(15, 37, 296 * xScale, 60));
-		stSetName->setRelativePosition(rect<s32>(15, 60, 296 * xScale, 83));
-		stText->setRelativePosition(rect<s32>(15, 60 + offset, 287 * xScale, 324 * yScale));
-		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 60 + offset, 287 * xScale, 324 * yScale));
+		stInfo->setRelativePosition(rect<s32>(15, 60, 296 * xScale, 83));
+		stSetName->setRelativePosition(rect<s32>(15, 83, 296 * xScale, 83));
+		stText->setRelativePosition(rect<s32>(15, 83 + offset, 287 * xScale, 324 * yScale));
+		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 83 + offset, 287 * xScale, 324 * yScale));
 	}
 	showingcode = code;
 	showingtext = dataManager.GetText(code);
