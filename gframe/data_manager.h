@@ -44,7 +44,7 @@ public:
 	wchar_t numBuffer[6];
 	wchar_t attBuffer[128];
 	wchar_t racBuffer[256];
-	wchar_t tpBuffer[128];
+	wchar_t tpBuffer[256];
 	wchar_t scBuffer[128];
 	wchar_t lmBuffer[32];
 
