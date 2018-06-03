@@ -239,7 +239,7 @@ const wchar_t* DataManager::FormatRace(int race) {
 	int i = 1020;
 	for(; filter != 0x2000000; filter <<= 1, ++i) {
 		if(race & filter) {
-			BufferIO::CopyWStrRef(GetSysString(i), p, 16);
+			BufferIO::CopyWStrRef(GetSysString(i), p, 22);
 			*p = L'|';
 			*++p = 0;
 		}
