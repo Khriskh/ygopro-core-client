@@ -44,6 +44,7 @@ ClientCard::ClientCard() {
 	defstring[0] = 0;
 	lvstring[0] = 0;
 	linkstring[0] = 0;
+	rkstring[0] = 0;
 	rscstring[0] = 0;
 	lscstring[0] = 0;
 	overlayTarget = 0;
@@ -52,7 +53,8 @@ ClientCard::ClientCard() {
 void ClientCard::SetCode(int code) {
 	if((location == LOCATION_HAND) && (this->code != (unsigned int)code)) {
 		this->code = code;
-		mainGame->dField.MoveCard(this, 5);
+		if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping)
+			mainGame->dField.MoveCard(this, 5);
 	} else
 		this->code = code;
 }
@@ -65,7 +67,8 @@ void ClientCard::UpdateInfo(char* buf) {
 		pdata = BufferIO::ReadInt32(buf);
 		if((location == LOCATION_HAND) && ((unsigned int)pdata != code)) {
 			code = pdata;
-			mainGame->dField.MoveCard(this, 5);
+			if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping)
+				mainGame->dField.MoveCard(this, 5);
 		} else
 			code = pdata;
 	}
@@ -86,9 +89,9 @@ void ClientCard::UpdateInfo(char* buf) {
 	}
 	if(flag & QUERY_RANK) {
 		pdata = BufferIO::ReadInt32(buf);
-		if(pdata && rank != (unsigned int)pdata) {
+		if(rank != (unsigned int)pdata) {
 			rank = pdata;
-			myswprintf(lvstring, L"R%d", rank);
+			myswprintf(rkstring, L"R%d", rank);
 		}
 	}
 	if(flag & QUERY_ATTRIBUTE)
@@ -173,8 +176,8 @@ void ClientCard::UpdateInfo(char* buf) {
 		pdata = BufferIO::ReadInt32(buf);
 		if (link != (unsigned int)pdata) {
 			link = pdata;
+			myswprintf(linkstring, L"L%d", link);
 		}
-		myswprintf(linkstring, L"L\x2012%d", link);
 		pdata = BufferIO::ReadInt32(buf);
 		if (link_marker != (unsigned int)pdata) {
 			link_marker = pdata;

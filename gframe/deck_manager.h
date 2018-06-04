@@ -37,19 +37,15 @@ public:
 
 	void LoadLFList();
 	wchar_t* GetLFListName(int lfhash);
-	int CheckDeck(Deck& deck, int lfhash, bool allow_ocg, bool allow_tcg);
-	int LoadDeck(Deck& deck, int* dbuf, int mainc, int sidec);
+	int CheckDeck(Deck& deck, int lfhash, bool allow_ocg, bool allow_tcg, bool doubled, int forbiddentypes = 0);
+	int TypeCount(std::vector<code_pointer> cards, int type);
+	int LoadDeck(Deck& deck, int* dbuf, int mainc, int sidec, int mainc2 = 0, int sidec2 = 0, bool doubled = false);
 	bool LoadSide(Deck& deck, int* dbuf, int mainc, int sidec);
 	FILE* OpenDeckFile(const wchar_t * file, const char * mode);
 	bool LoadDeck(const wchar_t* file);
+	bool LoadDeckDouble(const wchar_t* file, const wchar_t* file2);
 	bool SaveDeck(Deck& deck, const wchar_t* name);
 	bool DeleteDeck(Deck& deck, const wchar_t* name);
-	static bool RenameDeck(const wchar_t* oldname, const wchar_t* newname);
-	wchar_t DeckFormatBuffer[128];
-	const wchar_t* GetMainFormatString();
-	const wchar_t* GetSideFormatString();
-	const wchar_t* GetExtraFormatString();
-	int GetTypeCount(std::vector<code_pointer> list, unsigned int ctype);
 };
 
 extern DeckManager deckManager;

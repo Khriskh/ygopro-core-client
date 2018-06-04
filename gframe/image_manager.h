@@ -9,12 +9,7 @@ namespace ygo {
 
 class ImageManager {
 public:
-	std::vector<std::wstring> ImageList[9];
 	bool Initial();
-	//random image
-	irr::video::ITexture* GetRandomImage(int image_type);
-	void RefreshRandomImageList();
-	void RefreshImageDir(std::wstring path, int image_type);
 	void SetDevice(irr::IrrlichtDevice* dev);
 	void ClearTexture();
 	void RemoveTexture(int code);
@@ -36,28 +31,18 @@ public:
 	irr::video::ITexture* tChain;
 	irr::video::ITexture* tNumber;
 	irr::video::ITexture* tLPFrame;
-	irr::video::ITexture* tAvatar1;
-	irr::video::ITexture* tAvatar2;
-	irr::video::ITexture* tLPBar1;
-	irr::video::ITexture* tLPBar1s;
-	irr::video::ITexture* tLPBar2;
-	irr::video::ITexture* tLPBar2s;
-	irr::video::ITexture* tTurn;
 	irr::video::ITexture* tLPBar;
 	irr::video::ITexture* tMask;
 	irr::video::ITexture* tEquip;
 	irr::video::ITexture* tTarget;
 	irr::video::ITexture* tChainTarget;
 	irr::video::ITexture* tLim;
-	irr::video::ITexture* tOT;
 	irr::video::ITexture* tHand[3];
 	irr::video::ITexture* tBackGround;
 	irr::video::ITexture* tBackGround_menu;
 	irr::video::ITexture* tBackGround_deck;
-	irr::video::ITexture* tField[2];
-	irr::video::ITexture* tFieldTransparent[2];
-	irr::video::ITexture* tRScale[14];
-	irr::video::ITexture* tLScale[14];
+	irr::video::ITexture* tField[2][4];
+	irr::video::ITexture* tFieldTransparent[2][4];
 };
 
 extern ImageManager imageManager;

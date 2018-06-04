@@ -10,40 +10,6 @@
 #include "field.h"
 #include "card.h"
 #include "effect.h"
-int32 scriptlib::effect_set_owner(lua_State *L) {
-	check_param_count(L, 2);
-	check_param(L, PARAM_TYPE_EFFECT, 1);
-	check_param(L, PARAM_TYPE_CARD, 2);
-	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	card* pcard = *(card**) lua_touserdata(L, 2);
-	peffect->owner = pcard;
-	return 0;
-}
-int32 scriptlib::effect_get_range(lua_State *L) {
-	check_param_count(L, 1);
-	check_param(L, PARAM_TYPE_EFFECT, 1);
-	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	if (peffect) {
-		lua_pushinteger(L, peffect->range);
-		return 1;
-	}
-	return 0;
-}
-int32 scriptlib::effect_get_count_limit(lua_State *L) {
-	check_param_count(L, 1);
-	check_param(L, PARAM_TYPE_EFFECT, 1);
-	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 args = 0;
-	if (peffect && (peffect->flag[0] & EFFECT_FLAG_COUNT_LIMIT)) {
-		args = args + 1;
-		lua_pushinteger(L, peffect->count_limit_max);
-		if (peffect->count_code) {
-			args = args + 1;
-			lua_pushinteger(L, peffect->count_code);			
-		}
-	}
-	return args;
-}
 
 int32 scriptlib::effect_new(lua_State *L) {
 	check_param_count(L, 1);
@@ -290,7 +256,7 @@ int32 scriptlib::effect_set_value(lua_State *L) {
 		if(lua_isboolean(L, 2))
 			peffect->value = lua_toboolean(L, 2);
 		else
-			peffect->value = round(lua_tonumber(L, 2));
+			peffect->value = lua_tonumberint(L, 2);
 	}
 	return 0;
 }
@@ -322,7 +288,7 @@ int32 scriptlib::effect_get_description(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	if (peffect) {
-		lua_pushinteger(L, peffect->description);
+		lua_pushnumber(L, peffect->description);
 		return 1;
 	}
 	return 0;
@@ -334,6 +300,29 @@ int32 scriptlib::effect_get_code(lua_State *L) {
 	if (peffect) {
 		lua_pushinteger(L, peffect->code);
 		return 1;
+	}
+	return 0;
+}
+int32 scriptlib::effect_get_count_limit(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	if (peffect) {
+		lua_pushinteger(L, peffect->count_limit);
+		lua_pushinteger(L, peffect->count_limit_max);
+		lua_pushinteger(L, peffect->count_code);
+		return 3;
+	}
+	return 0;
+}
+int32 scriptlib::effect_get_reset(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	if (peffect) {
+		lua_pushinteger(L, peffect->reset_flag);
+		lua_pushinteger(L, peffect->reset_count);
+		return 2;
 	}
 	return 0;
 }
@@ -484,7 +473,7 @@ int32 scriptlib::effect_is_active_type(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 tpe = lua_tointeger(L, 2);
+	uint32 tpe = lua_tonumberint(L, 2);
 	uint32 atype;
 	if(peffect->type & 0x7f0) {
 		if(peffect->active_type)
@@ -514,7 +503,7 @@ int32 scriptlib::effect_is_has_category(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 tcate = lua_tointeger(L, 2);
+	uint32 tcate = lua_tonumberint(L, 2);
 	if (peffect && (peffect->category & tcate))
 		lua_pushboolean(L, 1);
 	else
@@ -525,7 +514,7 @@ int32 scriptlib::effect_is_has_type(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 ttype = lua_tointeger(L, 2);
+	uint32 ttype = lua_tonumberint(L, 2);
 	if (peffect && (peffect->type & ttype))
 		lua_pushboolean(L, 1);
 	else
@@ -535,16 +524,12 @@ int32 scriptlib::effect_is_has_type(lua_State *L) {
 int32 scriptlib::effect_is_activatable(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
-	uint32 playerid = lua_tointeger(L, 2);
+	uint32 playerid = lua_tonumberint(L, 2);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	uint32 neglect_loc = 0;
-	uint32 neglect_target = 0;
-	if(lua_gettop(L) > 2) {
+	if(lua_gettop(L) > 2)
 		neglect_loc = lua_toboolean(L, 3);
-		if (lua_gettop(L) > 3)
-			neglect_target = lua_toboolean(L, 4);
-	}
-	lua_pushboolean(L, peffect->is_activateable(playerid, peffect->pduel->game_field->nil_event, 0, 0, neglect_target, neglect_loc));
+	lua_pushboolean(L, peffect->is_activateable(playerid, peffect->pduel->game_field->nil_event, 0, 0, 0, neglect_loc));
 	return 1;
 }
 int32 scriptlib::effect_is_activated(lua_State * L) {
@@ -567,32 +552,4 @@ int32 scriptlib::effect_get_activate_sequence(lua_State *L) {
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	lua_pushinteger(L, peffect->active_sequence);
 	return 1;
-}
-int32 scriptlib::effect_check_count_limit(lua_State *L) {
-	check_param_count(L, 2);
-	check_param(L, PARAM_TYPE_EFFECT, 1);
-	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 p = lua_tointeger(L, 2);
-	lua_pushboolean(L, peffect->check_count_limit(p));
-	return 1;
-}
-int32 scriptlib::effect_use_count_limit(lua_State *L) {
-	check_param_count(L, 2);
-	check_param(L, PARAM_TYPE_EFFECT, 1);
-	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 p = lua_tointeger(L, 2);
-	uint32 count = 1;
-	uint32 oath_only = 0;
-	uint32 code = peffect->count_code;
-	if(lua_gettop(L) > 2) {
-		count = lua_tointeger(L, 3);
-		if (lua_gettop(L) > 3)
-			oath_only = lua_toboolean(L, 4);
-	}
-	if (!oath_only || code & EFFECT_COUNT_CODE_OATH)
-		while(count) {
-			peffect->dec_count(p);
-			count--;
-		}
-	return 0;
 }

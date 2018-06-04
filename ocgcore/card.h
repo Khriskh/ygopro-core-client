@@ -46,6 +46,7 @@ struct card_state {
 	uint32 level;
 	uint32 rank;
 	uint32 link;
+	uint32 link_marker;
 	uint32 lscale;
 	uint32 rscale;
 	uint32 attribute;
@@ -106,11 +107,6 @@ public:
 	public:
 		void addcard(card* pcard);
 	};
-
-	//millux
-	uint32 get_ritual_type();
-	uint32 set_entity_code(uint32 entity_code, bool remove_alias = false);
-
 	struct sendto_param_t {
 		void set(uint8 p, uint8 pos, uint8 loc, uint8 seq = 0) {
 			playerid = p;
@@ -198,16 +194,16 @@ public:
 	uint32 get_info_location();
 	uint32 get_code();
 	uint32 get_another_code();
+	uint32 get_summon_code(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 2);
 	int32 is_set_card(uint32 set_code);
 	int32 is_origin_set_card(uint32 set_code);
 	int32 is_pre_set_card(uint32 set_code);
-	int32 is_fusion_set_card(uint32 set_code);
-	int32 is_link_set_card(uint32 set_code);
-	uint32 get_type();
-	uint32 get_fusion_type();
-	uint32 get_synchro_type();
-	uint32 get_xyz_type();
-	uint32 get_link_type();
+	int32 is_sumon_set_card(uint32 set_code, card* scard = 0, uint32 sumtype = 0, uint8 playerid = 2);
+	uint32 get_set_card();
+	uint32 get_origin_set_card();
+	uint32 get_pre_set_card();
+	uint32 get_summon_set_card(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 2);
+	uint32 get_type(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 2);
 	int32 get_base_attack();
 	int32 get_attack();
 	int32 get_base_defense();
@@ -218,21 +214,18 @@ public:
 	uint32 get_synchro_level(card* pcard);
 	uint32 get_ritual_level(card* pcard);
 	uint32 check_xyz_level(card* pcard, uint32 lv);
-	uint32 get_attribute();
-	uint32 get_fusion_attribute(uint8 playerid);
-	uint32 get_link_attribute(uint8 playerid);
-	uint32 get_race();
-	uint32 get_link_race(uint8 playerid);
+	uint32 get_attribute(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 2);
+	uint32 get_race(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 2);
 	uint32 get_lscale();
 	uint32 get_rscale();
 	uint32 get_link_marker();
 	int32 is_link_marker(uint32 dir);
 	uint32 get_linked_zone();
+	uint32 get_free_linked_zone();
 	void get_linked_cards(card_set* cset);
 	uint32 get_mutual_linked_zone();
 	void get_mutual_linked_cards(card_set * cset);
 	int32 is_link_state();
-	int32 is_extra_link_state();
 	int32 is_position(int32 pos);
 	void set_status(uint32 status, int32 enabled);
 	int32 get_status(uint32 status);
@@ -297,8 +290,8 @@ public:
 	effect* is_affected_by_effect(int32 code, card* target);
 	int32 get_card_effect(uint32 code);
 	effect* check_control_effect();
-	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf);
-	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf);
+	int32 fusion_check(group* fusion_m, group* cg, uint32 chkf);
+	void fusion_filter_valid(group* fusion_m, group* cg, uint32 chkf, effect_set* eset);
 	int32 check_fusion_substitute(card* fcard);
 
 	int32 check_unique_code(card* pcard);
@@ -322,8 +315,8 @@ public:
 	int32 is_destructable_by_battle(card* pcard);
 	effect* check_indestructable_by_effect(effect* peffect, uint8 playerid);
 	int32 is_destructable_by_effect(effect* peffect, uint8 playerid);
-	int32 is_removeable(uint8 playerid);
-	int32 is_removeable_as_cost(uint8 playerid);
+	int32 is_removeable(uint8 playerid, int32 pos = 0x5);
+	int32 is_removeable_as_cost(uint8 playerid, int32 pos = 0x5);
 	int32 is_releasable_by_summon(uint8 playerid, card* pcard);
 	int32 is_releasable_by_nonsummon(uint8 playerid);
 	int32 is_releasable_by_effect(uint8 playerid, effect* peffect);
@@ -345,10 +338,11 @@ public:
 	int32 is_capable_be_battle_target(card* pcard);
 	int32 is_capable_be_effect_target(effect* peffect, uint8 playerid);
 	int32 is_can_be_fusion_material(card* fcard);
-	int32 is_can_be_synchro_material(card* scard, card* tuner = 0);
+	int32 is_can_be_synchro_material(card* scard, uint8 playerid, card* tuner = 0);
 	int32 is_can_be_ritual_material(card* scard);
-	int32 is_can_be_xyz_material(card* scard);
-	int32 is_can_be_link_material(card* scard);
+	int32 is_can_be_xyz_material(card* scard, uint8 playerid);
+	int32 is_can_be_link_material(card* scard, uint8 playerid);
+	bool recreate(uint32 code);
 };
 
 //Locations
@@ -508,7 +502,6 @@ public:
 #define STATUS_OPPO_BATTLE			0x10000000
 #define STATUS_FLIP_SUMMON_TURN		0x20000000
 #define STATUS_SPSUMMON_TURN		0x40000000
-#define STATUS_TO_LEAVE_FROMEX		0x80000000
 //Counter
 #define COUNTER_WITHOUT_PERMIT	0x1000
 #define COUNTER_NEED_ENABLE		0x2000
@@ -546,6 +539,8 @@ public:
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
+#define ASSUME_LINK         9
+#define ASSUME_LINKMARKER   10
 
 #define LINK_MARKER_BOTTOM_LEFT		0001
 #define LINK_MARKER_BOTTOM			0002

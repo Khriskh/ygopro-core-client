@@ -54,13 +54,9 @@ inline int _wtoi(const wchar_t * s) {
 #endif
 
 #include <irrlicht.h>
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
+#include <irrKlang.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#endif
 #include "CGUITTFont.h"
 #include "CGUIImageButton.h"
 #include <iostream>
@@ -87,6 +83,5 @@ extern int enable_log;
 extern bool exit_on_return;
 extern bool open_file;
 extern wchar_t open_file_name[256];
-extern bool bot_mode;
 
 #endif
