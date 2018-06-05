@@ -48,7 +48,7 @@ install:
   - patch -p0 < ikpmp3\ikpmp3.patch
 
   # premake
-  - premake4 vs2015
+  - premake5 vs2015
   
 configuration: Release
 
