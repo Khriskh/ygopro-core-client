@@ -22,11 +22,6 @@ solution "ygo"
         includedirs { "/opt/local/include" }
         libdirs { "/opt/local/lib" }
 
-    configuration "linux"
-        defines { "LUA_USE_LINUX" }
-		includedirs { "irrKlang/include" }
-		libdirs { "irrKlang/lib" }
-
     configuration "vs*"
         flags "EnableSSE2"
         buildoptions { "-wd4996" }
