@@ -80,9 +80,9 @@ bool Game::Initialize() {
 	LoadExpansionDB();
 	if(!dataManager.LoadDB("cards.cdb"))
 		return false;
-	if(!dataManager.LoadStrings("strings.conf"))
+	if(!dataManager.LoadStrings("strings2.conf"))
 		return false;
-	dataManager.LoadStrings("./expansions/strings.conf");
+	dataManager.LoadStrings("./expansions/strings2.conf");
 	env = device->getGUIEnvironment();
 	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 16);
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 12);
@@ -1061,7 +1061,7 @@ void Game::RefreshBGMList() {
 #endif
 }
 void Game::LoadConfig() {
-	FILE* fp = fopen("system.conf", "r");
+	FILE* fp = fopen("system2.conf", "r");
 	if(!fp)
 		return;
 	char linebuf[256];
@@ -1176,7 +1176,7 @@ void Game::LoadConfig() {
 	fclose(fp);
 }
 void Game::SaveConfig() {
-	FILE* fp = fopen("system.conf", "w");
+	FILE* fp = fopen("system2.conf", "w");
 	fprintf(fp, "#config file\n#nickname & gamename should be less than 20 characters\n");
 	char linebuf[256];
 	fprintf(fp, "use_d3d = %d\n", gameConf.use_d3d ? 1 : 0);
