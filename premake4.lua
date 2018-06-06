@@ -2,12 +2,8 @@ solution "ygo"
     location "build"
     language "C++"
     objdir "obj"
-	if os.is("windows") then
-		startproject "ygopro"
-	end
 
     configurations { "Debug", "Release" }
-	defines { "LUA_COMPAT_5_2" }
 
     configuration "windows"
         defines { "WIN32", "_WIN32" }
@@ -21,6 +17,9 @@ solution "ygo"
         defines { "LUA_USE_MACOSX" }
         includedirs { "/opt/local/include" }
         libdirs { "/opt/local/lib" }
+
+    configuration "linux"
+        defines { "LUA_USE_LINUX" }
 
     configuration "vs*"
         flags "EnableSSE2"
