@@ -18,6 +18,8 @@ duel::duel() {
 	lua = new interpreter(this);
 	game_field = new field(this);
 	game_field->temp_card = new_card(0);
+	game_field->rose_card = 0;
+	game_field->rose_level = 0;
 	clear_buffer();
 }
 duel::~duel() {
@@ -43,6 +45,8 @@ void duel::clear() {
 	effects.clear();
 	game_field = new field(this);
 	game_field->temp_card = new_card(0);
+	game_field->rose_card = 0;
+	game_field->rose_level = 0;
 }
 card* duel::new_card(uint32 code) {
 	card* pcard = new card(this);
@@ -114,11 +118,6 @@ void duel::restore_assumes() {
 	for(auto sit = assumes.begin(); sit != assumes.end(); ++sit)
 		(*sit)->assume_type = 0;
 	assumes.clear();
-}
-void duel::write_buffer64(uint64 value) {
-	*((uint64*)bufferp) = value;
-	bufferp += 8;
-	bufferlen += 8;
 }
 void duel::write_buffer32(uint32 value) {
 	*((uint32*)bufferp) = value;

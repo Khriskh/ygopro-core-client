@@ -36,12 +36,7 @@ bool DataManager::LoadDB(const char* file) {
 			} else
 				cd.link_marker = 0;
 			unsigned int level = sqlite3_column_int(pStmt, 7);
-			if((level & 0x80000000) != 0) {
-				level = -level;
-				cd.level = -(level & 0xff);
-			}
-			else
-				cd.level = level & 0xff;
+			cd.level = level & 0xff;
 			cd.lscale = (level >> 24) & 0xff;
 			cd.rscale = (level >> 16) & 0xff;
 			cd.race = sqlite3_column_int(pStmt, 8);
@@ -147,10 +142,10 @@ const wchar_t* DataManager::GetText(int code) {
 		return csit->second.text.c_str();
 	return unknown_string;
 }
-const wchar_t* DataManager::GetDesc(u64 strCode) {
+const wchar_t* DataManager::GetDesc(int strCode) {
 	if(strCode < 10000)
 		return GetSysString(strCode);
-	u64 code = strCode >> 4;
+	int code = strCode >> 4;
 	int offset = strCode & 0xf;
 	auto csit = _strings.find(code);
 	if(csit == _strings.end())
@@ -244,7 +239,7 @@ const wchar_t* DataManager::FormatRace(int race) {
 	int i = 1020;
 	for(; filter != 0x2000000; filter <<= 1, ++i) {
 		if(race & filter) {
-			BufferIO::CopyWStrRef(GetSysString(i), p, 16);
+			BufferIO::CopyWStrRef(GetSysString(i), p, 22);
 			*p = L'|';
 			*++p = 0;
 		}
@@ -261,7 +256,7 @@ const wchar_t* DataManager::FormatType(int type) {
 	int i = 1050;
 	for(; filter != 0x8000000; filter <<= 1, ++i) {
 		if(type & filter) {
-			BufferIO::CopyWStrRef(GetSysString(i), p, 16);
+			BufferIO::CopyWStrRef(GetSysString(i), p, 22);
 			*p = L'|';
 			*++p = 0;
 		}

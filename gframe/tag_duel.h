@@ -40,9 +40,6 @@ public:
 	
 	static int MessageHandler(long fduel, int type);
 	static void TagTimer(evutil_socket_t fd, short events, void* arg);
-
-	void PseudoRefreshDeck(int player, int flag = 0x181fff);
-	static std::vector<ReplayPacket> replay_stream;
 	
 protected:
 	DuelPlayer* players[4];
@@ -55,7 +52,6 @@ protected:
 	unsigned char hand_result[2];
 	unsigned char last_response;
 	Replay last_replay;
-	Replay new_replay;
 	bool game_started;
 	unsigned char turn_count;
 	unsigned short time_limit[2];

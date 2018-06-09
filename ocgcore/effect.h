@@ -33,7 +33,7 @@ public:
 	card* owner;
 	card* handler;
 	uint8 effect_owner;
-	uint64 description;
+	uint32 description;
 	uint32 code;
 	uint32 flag[2];
 	uint32 id;
@@ -92,7 +92,7 @@ public:
 	void get_value(effect* peffect, uint32 extraargs, std::vector<int32>* result);
 	int32 check_value_condition(uint32 extraargs = 0);
 	int32 get_speed();
-	effect* clone(int32 majestic = FALSE);
+	effect* clone();
 	card* get_owner() const;
 	uint8 get_owner_player();
 	card* get_handler() const;
@@ -107,6 +107,14 @@ public:
 		return !!(this->flag[1] & flag);
 	}
 };
+
+// KoishiPro effects
+#define EFFECT_CHANGE_LINK_MARKER_KOISHI	710253	
+#define EFFECT_ADD_LINK_MARKER_KOISHI		37564151
+#define EFFECT_REMOVE_LINK_MARKER_KOISHI	37564152
+#define EFFECT_CANNOT_LOSE_KOISHI			37564153
+#define EFFECT_EXTRA_TOMAIN_KOISHI			37564154
+#define EFFECT_OVERLAY_REMOVE_COST_CHANGE_KOISHI			37564155
 
 //status
 #define EFFECT_STATUS_AVAILABLE	0x0001
@@ -192,7 +200,6 @@ enum effect_flag : uint32 {
 enum effect_flag2 : uint32 {
 	EFFECT_FLAG2_NAGA				= 0x0001,
 	EFFECT_FLAG2_COF				= 0x0002,
-	EFFECT_FLAG2_MAJESTIC_MUST_COPY = 0x80000000,
 };
 inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 {
@@ -304,7 +311,6 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_ADD_TYPE					115	//
 #define EFFECT_REMOVE_TYPE				116	//
 #define EFFECT_CHANGE_TYPE				117	//
-#define EFFECT_REMOVE_CODE				118	//
 #define EFFECT_ADD_RACE					120	//
 #define EFFECT_REMOVE_RACE				121	//
 #define EFFECT_CHANGE_RACE				122	//
@@ -328,7 +334,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_EXTRA_RELEASE			153
 #define EFFECT_TRIBUTE_LIMIT			154
 #define EFFECT_EXTRA_RELEASE_SUM		155
-#define EFFECT_TRIPLE_TRIBUTE			156
+//#define EFFECT_TRIPLE_TRIBUTE			156
 #define EFFECT_ADD_EXTRA_TRIBUTE		157
 #define EFFECT_EXTRA_RELEASE_NONSUM		158
 #define EFFECT_PUBLIC					160
@@ -388,7 +394,6 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_MAX_MZONE				263
 #define EFFECT_MAX_SZONE				264
 #define EFFECT_MUST_USE_MZONE			265
-#define EFFECT_BECOME_LINKED_ZONE		266
 #define EFFECT_HAND_LIMIT				270
 #define EFFECT_DRAW_COUNT				271
 #define EFFECT_SPIRIT_DONOT_RETURN		280
@@ -422,6 +427,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 //#define EFFECT_DISABLE_CHAIN_FIELD		337
 #define EFFECT_DISCARD_COST_CHANGE		338
 #define EFFECT_HAND_SYNCHRO				339
+#define EFFECT_ADD_FUSION_CODE			340
+#define EFFECT_ADD_FUSION_SETCODE		341
 #define EFFECT_RISE_TO_FULL_HEIGHT		342
 #define EFFECT_ONLY_ATTACK_MONSTER		343
 #define EFFECT_MUST_ATTACK_MONSTER		344
@@ -429,29 +436,15 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_EXTRA_ATTACK_MONSTER		346
 #define EFFECT_UNION_STATUS				347
 #define EFFECT_OLDUNION_STATUS			348
-#define EFFECT_REMOVE_SETCODE			349
-#define EFFECT_CHANGE_SETCODE			350
+//#define EFFECT_ADD_FUSION_ATTRIBUTE		349
+//#define EFFECT_REMOVE_FUSION_ATTRIBUTE	350
+#define EFFECT_CHANGE_FUSION_ATTRIBUTE	351
 #define EFFECT_EXTRA_FUSION_MATERIAL	352
 #define EFFECT_TUNER_MATERIAL_LIMIT		353
-
-#define EFFECT_CANNOT_LOSE_DECK			400
-#define EFFECT_CANNOT_LOSE_LP			401
-#define EFFECT_CANNOT_LOSE_EFFECT		402
-#define EFFECT_BP_FIRST_TURN			403
-#define EFFECT_UNSTOPPABLE_ATTACK		404
-#define EFFECT_ALLOW_NEGATIVE			405
-#define EFFECT_SELF_ATTACK				406
-#define EFFECT_BECOME_QUICK				407
-#define EFFECT_LEVEL_RANK				408
-#define EFFECT_RANK_LEVEL				409
-#define EFFECT_LEVEL_RANK_S				410
-#define EFFECT_RANK_LEVEL_S				411
-#define EFFECT_UPDATE_LINK              420
-#define EFFECT_CHANGE_LINK              421 
-#define EFFECT_CHANGE_LINK_FINAL        422
-#define EFFECT_ADD_LINKMARKER           423
-#define EFFECT_REMOVE_LINKMARKER        424
-#define EFFECT_CHANGE_LINKMARKER        425
+#define EFFECT_ADD_LINK_CODE				354
+//#define EFFECT_ADD_LINK_SETCODE			355
+#define EFFECT_ADD_LINK_ATTRIBUTE		356
+#define EFFECT_ADD_LINK_RACE				357
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
