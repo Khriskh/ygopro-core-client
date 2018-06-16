@@ -213,8 +213,8 @@ void Game::DrawBackGround() {
 		}
 		//matManager.mSelField.AmbientColor = 0xffffffff;
 		//matManager.mSelField.DiffuseColor = selFieldAlpha << 24;
-		driver->setMaterial(matManager.mSelField);
-		driver->drawVertexPrimitiveList(vertex, 4, matManager.iRectangle, 2);
+		//driver->setMaterial(matManager.mSelField);
+		//driver->drawVertexPrimitiveList(vertex, 4, matManager.iRectangle, 2);
 	}
 }
 void Game::DrawLinkedZones(ClientCard* pcard) {
