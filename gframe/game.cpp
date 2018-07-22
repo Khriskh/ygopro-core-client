@@ -58,6 +58,8 @@ bool Game::Initialize() {
 				skinSystem->applySkin(skins[index].c_str());
 		}
 	}
+	xScale = 1;
+	yScale = 1;
 	linePatternD3D = 0;
 	linePatternGL = 0x0f0f;
 	waitFrame = 0;
@@ -92,7 +94,7 @@ bool Game::Initialize() {
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 12);
 	lpcFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 48);
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
-	textFont = guiFont;
+	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	smgr = device->getSceneManager();
 	device->setWindowCaption(L"YGOProES");
 	device->setResizable(true);
@@ -527,7 +529,7 @@ bool Game::Initialize() {
 	//filters
 	wFilter = env->addStaticText(L"", rect<s32>(610, 5, 1020, 130), true, false, 0, -1, true);
 	wFilter->setVisible(false);
-	stCategory = env->addStaticText(dataManager.GetSysString(1311), rect<s32>(10, 25 / 6 + 2, 70, 22 + 25 / 6), false, false, wFilter);
+	stCategory = env->addStaticText(dataManager.GetSysString(1311), rect<s32>(10, 2 + 25 / 6, 70, 22 + 25 / 6), false, false, wFilter);
 	cbCardType = env->addComboBox(rect<s32>(60, 25 / 6, 120, 20 + 25 / 6), wFilter, COMBOBOX_MAINTYPE);
 	cbCardType->addItem(dataManager.GetSysString(1310));
 	cbCardType->addItem(dataManager.GetSysString(1312));
@@ -855,7 +857,6 @@ void Game::RefreshTimeDisplay() {
 	}
 	myswprintf(dInfo.str_time_left[0], L"%d", dInfo.time_left[0]);
 	myswprintf(dInfo.str_time_left[1], L"%d", dInfo.time_left[1]);
-	myswprintf(dInfo.str_time_limit, L"%d", dInfo.time_limit);
 }
 void Game::BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 right, f32 bottom, f32 top, f32 znear, f32 zfar) {
 	for(int i = 0; i < 16; ++i)
@@ -1199,6 +1200,15 @@ void Game::LoadConfig() {
 				gameConf.defaultOT = atoi(valbuf);
 			} else if(!strcmp(strbuf, "enable_bot_mode")) {
 				gameConf.enable_bot_mode = atoi(valbuf);
+			} else if(!strcmp(strbuf, "window_maximized")) {
+				gameConf.window_maximized = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "window_width")) {
+				gameConf.window_width = atoi(valbuf);
+			} else if(!strcmp(strbuf, "window_height")) {
+				gameConf.window_height = atoi(valbuf);
+			} else if(!strcmp(strbuf, "resize_popup_menu")) {
+				gameConf.resize_popup_menu = atoi(valbuf) > 0;
+#ifdef YGOPRO_USE_IRRKLANG
 			} else if(!strcmp(strbuf, "enable_sound")) {
 				gameConf.enable_sound = atoi(valbuf) > 0;
 			} else if(!strcmp(strbuf, "sound_volume")) {
@@ -1209,14 +1219,7 @@ void Game::LoadConfig() {
 				gameConf.music_volume = atof(valbuf) / 100;
 			} else if(!strcmp(strbuf, "music_mode")) {
 				gameConf.music_mode = atoi(valbuf);
-			} else if(!strcmp(strbuf, "window_maximized")) {
-				gameConf.window_maximized = atoi(valbuf) > 0;
-			} else if(!strcmp(strbuf, "window_width")) {
-				gameConf.window_width = atoi(valbuf);
-			} else if(!strcmp(strbuf, "window_height")) {
-				gameConf.window_height = atoi(valbuf);
-			} else if(!strcmp(strbuf, "resize_popup_menu")) {
-				gameConf.resize_popup_menu = atoi(valbuf) > 0;
+#endif
 			} else if(!strcmp(strbuf, "enable_pendulum_scale")) {
 				gameConf.chkEnablePScale = atoi(valbuf);
 			} else if (!strcmp(strbuf, "skin_index")) {
@@ -1304,6 +1307,15 @@ void Game::LoadConfig() {
 				gameConf.defaultOT = atoi(valbuf);
 			} else if(!strcmp(strbuf, "enable_bot_mode")) {
 				gameConf.enable_bot_mode = atoi(valbuf);
+			} else if(!strcmp(strbuf, "window_maximized")) {
+				gameConf.window_maximized = atoi(valbuf) > 0;
+			} else if(!strcmp(strbuf, "window_width")) {
+				gameConf.window_width = atoi(valbuf);
+			} else if(!strcmp(strbuf, "window_height")) {
+				gameConf.window_height = atoi(valbuf);
+			} else if(!strcmp(strbuf, "resize_popup_menu")) {
+				gameConf.resize_popup_menu = atoi(valbuf) > 0;
+#ifdef YGOPRO_USE_IRRKLANG
 			} else if(!strcmp(strbuf, "enable_sound")) {
 				gameConf.enable_sound = atoi(valbuf) > 0;
 			} else if(!strcmp(strbuf, "sound_volume")) {
@@ -1314,14 +1326,7 @@ void Game::LoadConfig() {
 				gameConf.music_volume = atof(valbuf) / 100;
 			} else if(!strcmp(strbuf, "music_mode")) {
 				gameConf.music_mode = atoi(valbuf);
-			} else if(!strcmp(strbuf, "window_maximized")) {
-				gameConf.window_maximized = atoi(valbuf) > 0;
-			} else if(!strcmp(strbuf, "window_width")) {
-				gameConf.window_width = atoi(valbuf);
-			} else if(!strcmp(strbuf, "window_height")) {
-				gameConf.window_height = atoi(valbuf);
-			} else if(!strcmp(strbuf, "resize_popup_menu")) {
-				gameConf.resize_popup_menu = atoi(valbuf) > 0;
+#endif
 			} else if(!strcmp(strbuf, "enable_pendulum_scale")) {
 				gameConf.chkEnablePScale = atoi(valbuf);
 			} else if (!strcmp(strbuf, "skin_index")) {
@@ -1395,6 +1400,11 @@ void Game::SaveConfig() {
 	fprintf(fp, "ignore_deck_changes = %d\n", (chkIgnoreDeckChanges->isChecked() ? 1 : 0));
 	fprintf(fp, "default_ot = %d\n", gameConf.defaultOT);
 	fprintf(fp, "enable_bot_mode = %d\n", gameConf.enable_bot_mode);
+	fprintf(fp, "window_maximized = %d\n", (gameConf.window_maximized ? 1 : 0));
+	fprintf(fp, "window_width = %d\n", gameConf.window_width);
+	fprintf(fp, "window_height = %d\n", gameConf.window_height);
+	fprintf(fp, "resize_popup_menu = %d\n", gameConf.resize_popup_menu ? 1 : 0);
+#ifdef YGOPRO_USE_IRRKLANG
 	fprintf(fp, "enable_sound = %d\n", (chkEnableSound->isChecked() ? 1 : 0));
 	fprintf(fp, "enable_music = %d\n", (chkEnableMusic->isChecked() ? 1 : 0));
 	fprintf(fp, "#Volume of sound and music, between 0 and 100\n");
@@ -1405,10 +1415,7 @@ void Game::SaveConfig() {
 	if(vol < 0) vol = 0; else if(vol > 100) vol = 100;
 	fprintf(fp, "music_volume = %d\n", vol);
 	fprintf(fp, "music_mode = %d\n", (chkMusicMode->isChecked() ? 1 : 0));
-	fprintf(fp, "window_maximized = %d\n", (gameConf.window_maximized ? 1 : 0));
-	fprintf(fp, "window_width = %d\n", gameConf.window_width);
-	fprintf(fp, "window_height = %d\n", gameConf.window_height);
-	fprintf(fp, "resize_popup_menu = %d\n", gameConf.resize_popup_menu ? 1 : 0);
+#endif
 	fprintf(fp, "enable_pendulum_scale = %d\n", ((mainGame->chkEnablePScale->isChecked()) ? 1 : 0));
 	fprintf(fp, "skin_index = %d\n", gameConf.skin_index);
 	fclose(fp);
@@ -1435,7 +1442,7 @@ void Game::ShowCardInfo(int code, bool resize) {
 				sc = aptr->second.setcode;
 		}
 		if(sc) {
-			offset = 23;
+			offset = 23;// *yScale;
 			myswprintf(formatBuffer, L"%ls%ls", dataManager.GetSysString(1329), dataManager.FormatSetName(sc));
 			stSetName->setText(formatBuffer);
 		} else
@@ -1476,30 +1483,30 @@ void Game::ShowCardInfo(int code, bool resize) {
 			wcscat(formatBuffer, scaleBuffer);
 		}
 		stDataInfo->setText(formatBuffer);
-		if ((cd.type & TYPE_LINK) && (cd.level > 5)) {
-			stDataInfo->setRelativePosition(rect<s32>(15, 98, 296, 121));
-			stSetName->setRelativePosition(rect<s32>(15, 121, 296 * xScale, 324));
-			stText->setRelativePosition(rect<s32>(15, 121 + offset, 287 * xScale, 324 * yScale));
-			scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 121 + offset, 287 * xScale, 324 * yScale));
-		} else {
-			stDataInfo->setRelativePosition(rect<s32>(15, 83, 296, 106));		
-			stSetName->setRelativePosition(rect<s32>(15, 106, 296 * xScale, 324));
-			stText->setRelativePosition(rect<s32>(15, 106 + offset, 287 * xScale, 324 * yScale));
-			scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 106 + offset, 287 * xScale, 324 * yScale));
-		}
+		int offset_arrows = 0;
+		if(cd.type & TYPE_LINK && cd.level > 5 && window_size.Width < 1290.0)
+			offset_arrows = 15;
+		stDataInfo->setRelativePosition(rect<s32>(15, 60, 300 * xScale - 13, (83 + offset_arrows)));
+		//stSetName->setRelativePosition(rect<s32>(15, (83 + offset_arrows) * yScale, 296 * xScale, (83 + offset_arrows) * yScale + offset));
+		//stText->setRelativePosition(rect<s32>(15, (83 + offset_arrows) * yScale + offset, 287 * xScale, 324 * yScale));
+		stSetName->setRelativePosition(rect<s32>(15, (83 + offset_arrows), 296 * xScale, (83 + offset_arrows) + offset));
+		stText->setRelativePosition(rect<s32>(15, (83 + offset_arrows) + offset, 287 * xScale, 324 * yScale));
+		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, (83 + offset_arrows) + offset, 287 * xScale, 324 * yScale));
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
+		stDataInfo->setRelativePosition(recti(15, 60, 300 * xScale - 13, 83));
 		stDataInfo->setText(L"");
-		stInfo->setRelativePosition(rect<s32>(15, 37, 296 * xScale, 83));
-		stSetName->setRelativePosition(rect<s32>(15, 60, 296 * xScale, 83));
+		//stSetName->setRelativePosition(rect<s32>(15, 60 * yScale, 296 * xScale, 60 * yScale + offset));
+		//stText->setRelativePosition(rect<s32>(15, 60 * yScale + offset, 287 * xScale, 324 * yScale));
+		stSetName->setRelativePosition(rect<s32>(15, 60, 296 * xScale, 60 + offset));
 		stText->setRelativePosition(rect<s32>(15, 60 + offset, 287 * xScale, 324 * yScale));
 		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 60 + offset, 287 * xScale, 324 * yScale));
 	}
 	showingcode = code;
 	showingtext = dataManager.GetText(code);
 	const auto& tsize = stText->getRelativePosition();
-	InitStaticText(stText, tsize.getWidth(), tsize.getHeight(), textFont, showingtext);
+	InitStaticText(stText, tsize.getWidth(), tsize.getHeight(), guiFont, showingtext);
 }
 void Game::AddChatMsg(wchar_t* msg, int player) {
 	for(int i = 7; i > 0; --i) {
@@ -1618,6 +1625,7 @@ void Game::initUtils() {
 	MakeDirectory("textures/cover2");
 	MakeDirectory("textures/pscale");
 	//sound
+#ifdef YGOPRO_USE_IRRKLANG
 	MakeDirectory("sound");
 	MakeDirectory("sound/BGM");
 	MakeDirectory("sound/BGM/advantage");
@@ -1630,6 +1638,7 @@ void Game::initUtils() {
 	//custom sound
 	MakeDirectory("sound/custom");
 	MakeDirectory("sound/BGM/custom");
+#endif
 	//pics
 	MakeDirectory("pics");
 	MakeDirectory("pics/field");
@@ -1673,6 +1682,9 @@ void Game::CloseDuelWindow() {
 	wReplaySave->setVisible(false);
 	stHintMsg->setVisible(false);
 	btnSideOK->setVisible(false);
+	btnSideShuffle->setVisible(false);
+	btnSideSort->setVisible(false);
+	btnSideReload->setVisible(false);
 	btnLeaveGame->setVisible(false);
 	btnSpectatorSwap->setVisible(false);
 	btnChainIgnore->setVisible(false);
@@ -1709,17 +1721,25 @@ void Game::OnResize() {
 	irr::gui::CGUITTFont* old_numFont = numFont;
 	irr::gui::CGUITTFont* old_adFont = adFont;
 	irr::gui::CGUITTFont* old_lpcFont = lpcFont;
+	//irr::gui::CGUITTFont* old_guiFont = guiFont;
+	irr::gui::CGUITTFont* old_textFont = textFont;
 	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, (yScale > 0.5 ? 16 * yScale : 8));
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, (yScale > 0.75 ? 12 * yScale : 9));
 	lpcFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 48 * yScale);
+	//guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize * yScale);
+	//env->getSkin()->setFont(guiFont);
+	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, (yScale > 0.642 ? gameConf.textfontsize * yScale : 9));
 	old_numFont->drop();
 	old_adFont->drop();
 	old_lpcFont->drop();
-	//guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize * yScale);
-	//env->getSkin()->setFont(guiFont);
+	//old_guiFont->drop();
+	old_textFont->drop();
+
+	imageManager.ClearTexture();
+	imageManager.ResizeTexture();
 
 	wMainMenu->setRelativePosition(ResizeWin(370, 200, 650, 415));
-	wDeckEdit->setRelativePosition(Resize(309, 8, 605, 130));
+	wDeckEdit->setRelativePosition(Resize(309, 5, 605, 130));
 	cbDBLFList->setRelativePosition(Resize(80, 5, 220, 30));
 	cbDBDecks->setRelativePosition(Resize(80, 35, 220, 60));
 	btnClearDeck->setRelativePosition(Resize(115, 99, 165, 120));
@@ -1731,19 +1751,19 @@ void Game::OnResize() {
 
 	wSort->setRelativePosition(Resize(930, 132, 1020, 156));
 	cbSortType->setRelativePosition(Resize(10, 2, 85, 22));
-	wFilter->setRelativePosition(Resize(610, 8, 1020, 130));
+	wFilter->setRelativePosition(Resize(610, 5, 1020, 130));
 	scrFilter->setRelativePosition(Resize(999, 161, 1019, 629));
-	cbCardType->setRelativePosition(Resize(60, 3, 120, 23));
-	cbCardType2->setRelativePosition(Resize(130, 3, 190, 23));
-	cbRace->setRelativePosition(Resize(60, 49, 190, 69));
-	cbAttribute->setRelativePosition(Resize(60, 26, 190, 46));
-	cbLimit->setRelativePosition(Resize(260, 3, 390, 23));
-	ebStar->setRelativePosition(Resize(60, 72, 100, 92));
-	ebScale->setRelativePosition(Resize(150, 72, 190, 92));
-	ebAttack->setRelativePosition(Resize(260, 26, 340, 46));
-	ebDefense->setRelativePosition(Resize(260, 49, 340, 69));
-	ebCardName->setRelativePosition(Resize(260, 72, 390, 92));
-	btnEffectFilter->setRelativePosition(Resize(345, 28, 390, 69));
+	cbCardType->setRelativePosition(Resize(60, 25 / 6, 120, 20 + 25 / 6));
+	cbCardType2->setRelativePosition(Resize(130, 25 / 6, 190, 20 + 25 / 6));
+	cbRace->setRelativePosition(Resize(60, 40 + 75 / 6, 190, 60 + 75 / 6));
+	cbAttribute->setRelativePosition(Resize(60, 20 + 50 / 6, 190, 40 + 50 / 6));
+	cbLimit->setRelativePosition(Resize(260, 25 / 6, 390, 20 + 25 / 6));
+	ebStar->setRelativePosition(Resize(60, 60 + 100 / 6, 95, 80 + 100 / 6));
+	ebScale->setRelativePosition(Resize(155, 60 + 100 / 6, 190, 80 + 100 / 6));
+	ebAttack->setRelativePosition(Resize(260, 20 + 50 / 6, 340, 40 + 50 / 6));
+	ebDefense->setRelativePosition(Resize(260, 40 + 75 / 6, 340, 60 + 75 / 6));
+	ebCardName->setRelativePosition(Resize(260, 60 + 100 / 6, 390, 80 + 100 / 6));
+	btnEffectFilter->setRelativePosition(Resize(345, 20 + 50 / 6, 390, 60 + 75 / 6));
 	btnStartFilter->setRelativePosition(Resize(260, 80 + 125 / 6, 390, 100 + 125 / 6));
 	if(btnClearFilter)
 		btnClearFilter->setRelativePosition(Resize(205, 80 + 125 / 6, 255, 100 + 125 / 6));
@@ -1751,17 +1771,17 @@ void Game::OnResize() {
 
 	wCategories->setRelativePosition(ResizeWin(450, 60, 1000, 270));
 	wLinkMarks->setRelativePosition(ResizeWin(700, 30, 820, 150));
-	stBanlist->setRelativePosition(ResizeWin(10, 9, 100, 29));
-	stDeck->setRelativePosition(ResizeWin(10, 39, 100, 59));
-	stCategory->setRelativePosition(ResizeWin(10, 5, 70, 25));
-	stLimit->setRelativePosition(ResizeWin(205, 5, 280, 25));
-	stAttribute->setRelativePosition(ResizeWin(10, 28, 70, 48));
-	stRace->setRelativePosition(ResizeWin(10, 51, 70, 71));
-	stAttack->setRelativePosition(ResizeWin(205, 28, 280, 48));
-	stDefense->setRelativePosition(ResizeWin(205, 51, 280, 71));
-	stStar->setRelativePosition(ResizeWin(10, 74, 80, 94));
-	stSearch->setRelativePosition(ResizeWin(205, 74, 280, 94));
-	stScale->setRelativePosition(ResizeWin(110, 74, 150, 94));
+	stBanlist->setRelativePosition(Resize(10, 9, 100, 29));
+	stDeck->setRelativePosition(Resize(10, 39, 100, 59));
+	stCategory->setRelativePosition(Resize(10, 2 + 25 / 6, 70, 22 + 25 / 6));
+	stLimit->setRelativePosition(Resize(205, 2 + 25 / 6, 280, 22 + 25 / 6));
+	stAttribute->setRelativePosition(Resize(10, 22 + 50 / 6, 70, 42 + 50 / 6));
+	stRace->setRelativePosition(Resize(10, 42 + 75 / 6, 70, 62 + 75 / 6));
+	stAttack->setRelativePosition(Resize(205, 22 + 50 / 6, 280, 42 + 50 / 6));
+	stDefense->setRelativePosition(Resize(205, 42 + 75 / 6, 280, 62 + 75 / 6));
+	stStar->setRelativePosition(Resize(10, 62 + 100 / 6, 70, 82 + 100 / 6));
+	stSearch->setRelativePosition(Resize(205, 62 + 100 / 6, 280, 82 + 100 / 6));
+	stScale->setRelativePosition(Resize(105, 62 + 100 / 6, 165, 82 + 100 / 6));
 	btnSideOK->setRelativePosition(Resize(510, 40, 820, 80));
 	btnSideShuffle->setRelativePosition(Resize(310, 100, 370, 130));
 	btnSideSort->setRelativePosition(Resize(375, 100, 435, 130));
@@ -1814,7 +1834,10 @@ void Game::OnResize() {
 	wCardImg->setRelativePosition(ResizeCard(1, 1, 20, 18));
 	imgCard->setRelativePosition(ResizeCard(10, 9, 0, 0));
 	wInfos->setRelativePosition(Resize(1, 275, 301, 639));
-	stName->setRelativePosition(recti(10, 10, 287 * xScale, 32));
+	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
+	//stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22 * yScale));
+	//stInfo->setRelativePosition(recti(15, 37 * yScale, 300 * xScale - 13, 60 * yScale));
+	//stDataInfo->setRelativePosition(recti(15, 60 * yScale, 300 * xScale - 13, 83 * yScale));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	//const auto& tsize = stText->getRelativePosition();
 	if(showingcode)
@@ -1845,8 +1868,6 @@ void Game::OnResize() {
 	btnChainWhenAvail->setRelativePosition(Resize(205, 180, 295, 215));
 	btnShuffle->setRelativePosition(Resize(205, 230, 295, 265));
 	btnCancelOrFinish->setRelativePosition(Resize(205, 230, 295, 265));
-
-	imageManager.ClearTexture();
 }
 recti Game::Resize(s32 x, s32 y, s32 x2, s32 y2) {
 	x = x * xScale;

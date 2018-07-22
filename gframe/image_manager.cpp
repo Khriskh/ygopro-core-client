@@ -85,19 +85,37 @@ bool ImageManager::Initial() {
 		snprintf(buff, 100, "textures/pscale/lscale_%d.png", i);
 		tLScale[i] = driver->getTexture(buff);
 	}
+	tClock = driver->getTexture("textures/clock.png");
+	ResizeTexture();
 	return true;
 }
 irr::video::ITexture* ImageManager::GetRandomImage(int image_type) {
 	int count = ImageList[image_type].size();
 	if(count <= 0)
-		return 0;
+		return NULL;
 	char ImageName[1024];
 	wchar_t fname[1024];
-	int image_id = rand() % count;
+	if(saved_image_id[image_type] == -1)
+		saved_image_id[image_type] = rand() % count;
+	int image_id = saved_image_id[image_type];
 	auto name = ImageList[image_type][image_id].c_str();
 	myswprintf(fname, L"./textures/%ls", name);
 	BufferIO::EncodeUTF8(fname, ImageName);
 	return driver->getTexture(ImageName);
+}
+irr::video::ITexture* ImageManager::GetRandomImage(int image_type, s32 width, s32 height) {
+	int count = ImageList[image_type].size();
+	if(count <= 0)
+		return NULL;
+	char ImageName[1024];
+	wchar_t fname[1024];
+	if(saved_image_id[image_type] == -1)
+		saved_image_id[image_type] = rand() % count;
+	int image_id = saved_image_id[image_type];
+	auto name = ImageList[image_type][image_id].c_str();
+	myswprintf(fname, L"./textures/%ls", name);
+	BufferIO::EncodeUTF8(fname, ImageName);
+	return GetTextureFromFile(ImageName, width, height);
 }
 void ImageManager::RefreshRandomImageList() {
 	RefreshImageDir(L"bg/", TEXTURE_DUEL);
@@ -110,6 +128,10 @@ void ImageManager::RefreshRandomImageList() {
 	RefreshImageDir(L"act/", TEXTURE_ACTIVATE);
 	RefreshImageDir(L"avatar1/", TEXTURE_AVATAR_S);
 	RefreshImageDir(L"avatar2/", TEXTURE_AVATAR_O);
+	
+	for(int i = 0; i < 7; ++ i) {
+		saved_image_id[i] = -1;
+	}
 }
 void ImageManager::RefreshImageDir(std::wstring path, int image_type) {
 #ifdef _WIN32
@@ -167,6 +189,12 @@ void ImageManager::ClearTexture() {
 	tMap[0].clear();
 	tMap[1].clear();
 	tThumb.clear();
+	tFields.clear();
+	for(int i = 0; i < 3; ++i)
+		if(tUnknown[i] != NULL) {
+			driver->removeTexture(tUnknown[i]);
+			tUnknown[i] = NULL;
+		}
 }
 void ImageManager::RemoveTexture(int code) {
 	auto tit = tMap[0].find(code);
@@ -181,6 +209,48 @@ void ImageManager::RemoveTexture(int code) {
 			driver->removeTexture(tit->second);
 		tMap[1].erase(tit);
 	}
+}
+void ImageManager::ResizeTexture() {
+	irr::s32 imgWidth = CARD_IMG_WIDTH * mainGame->xScale;
+	irr::s32 imgHeight = CARD_IMG_HEIGHT * mainGame->yScale;
+	irr::s32 bgWidth = 1024 * mainGame->xScale;
+	irr::s32 bgHeight = 640 * mainGame->yScale;
+	driver->removeTexture(tCover[0]);
+	driver->removeTexture(tCover[1]);
+	tCover[0] = GetRandomImage(TEXTURE_COVER_S, imgWidth, imgHeight);
+	if(!tCover[0])
+		tCover[0] = GetTextureFromFile("textures/cover.jpg", imgWidth, imgHeight);
+	tCover[1] = GetRandomImage(TEXTURE_COVER_O, imgWidth, imgHeight);
+	if(!tCover[1])
+		tCover[1] = GetTextureFromFile("textures/cover2.jpg", imgWidth, imgHeight);
+	if(!tCover[1])
+		tCover[1] = GetRandomImage(TEXTURE_COVER_S, imgWidth, imgHeight);
+	if(!tCover[1])
+		tCover[1] = tCover[0];
+	//driver->removeTexture(tUnknown);
+	//tUnknown = GetTextureFromFile("textures/unknown.jpg", imgWidth, imgHeight);
+	driver->removeTexture(tBackGround);
+	tBackGround = GetRandomImage(TEXTURE_DUEL, bgWidth, bgHeight);
+	if(!tBackGround)
+		tBackGround = GetTextureFromFile("textures/bg.jpg", bgWidth, bgHeight);
+	if(!tBackGround)
+		tBackGround = GetTextureFromFile("textures/bg_duel.jpg", bgWidth, bgHeight);
+	driver->removeTexture(tBackGround_menu);
+	tBackGround_menu = GetRandomImage(TEXTURE_MENU, bgWidth, bgHeight);
+	if(!tBackGround_menu)
+		tBackGround_menu = GetTextureFromFile("textures/bg_menu.jpg", bgWidth, bgHeight);
+	if(!tBackGround_menu)
+		tBackGround_menu = GetRandomImage(TEXTURE_DUEL, bgWidth, bgHeight);
+	if(!tBackGround_menu)
+		tBackGround_menu = tBackGround;
+	driver->removeTexture(tBackGround_deck);
+	tBackGround_deck = GetRandomImage(TEXTURE_DECK, bgWidth, bgHeight);
+	if(!tBackGround_deck)
+		tBackGround_deck = GetTextureFromFile("textures/bg_deck.jpg", bgWidth, bgHeight);
+	if(!tBackGround_deck)
+		tBackGround_deck = GetRandomImage(TEXTURE_DUEL, bgWidth, bgHeight);
+	if(!tBackGround_deck)
+		tBackGround_deck = tBackGround;
 }
 // function by Warr1024, from https://github.com/minetest/minetest/issues/2419 , modified
 void imageScaleNNAA(irr::video::IImage *src, irr::video::IImage *dest) {
@@ -275,9 +345,12 @@ irr::video::ITexture* ImageManager::GetTextureFromFile(char* file, s32 width, s3
 		return driver->getTexture(file);
 	}
 }
+irr::video::ITexture* ImageManager::GetTextureUnknown(s32 width, s32 height, int index) {
+	if(tUnknown[index] == NULL)
+		tUnknown[index] = GetTextureFromFile("textures/unknown.jpg", width, height);
+	return tUnknown[index];
+}
 irr::video::ITexture* ImageManager::GetTexture(int code, bool fit) {
-	if(code == 0)
-		return tUnknown;
 	int width = CARD_IMG_WIDTH;
 	int height = CARD_IMG_HEIGHT;
 	if(fit) {
@@ -287,6 +360,8 @@ irr::video::ITexture* ImageManager::GetTexture(int code, bool fit) {
 		width = width * mul;
 		height = height * mul;
 	}
+	if(code == 0)
+		return GetTextureUnknown(width, height, fit ? 1 : 0);
 	auto tit = tMap[fit ? 1 : 0].find(code);
 	if(tit == tMap[fit ? 1 : 0].end()) {
 		char file[256];
@@ -309,19 +384,19 @@ irr::video::ITexture* ImageManager::GetTexture(int code, bool fit) {
 			return GetTextureThumb(code);
 		}
 		tMap[fit ? 1 : 0][code] = img;
-		return (img == NULL) ? tUnknown : img;
+		return (img == NULL) ? GetTextureUnknown(width, height, fit ? 1 : 0) : img;
 	}
 	if(tit->second)
 		return tit->second;
 	else
-		return mainGame->gameConf.use_image_scale ? tUnknown : GetTextureThumb(code);
+		return mainGame->gameConf.use_image_scale ? GetTextureUnknown(width, height, fit ? 1 : 0) : GetTextureThumb(code);
 }
 irr::video::ITexture* ImageManager::GetTextureThumb(int code) {
-	if(code == 0)
-		return tUnknown;
 	auto tit = tThumb.find(code);
 	int width = CARD_THUMB_WIDTH * mainGame->xScale;
 	int height = CARD_THUMB_HEIGHT * mainGame->yScale;
+	if(code == 0)
+		return GetTextureUnknown(width, height, 2);
 	if(tit == tThumb.end()) {
 		char file[256];
 		sprintf(file, "expansions/pics/thumbnail/%d.png", code);
@@ -355,12 +430,12 @@ irr::video::ITexture* ImageManager::GetTextureThumb(int code) {
 			}
 		}
 		tThumb[code] = img;
-		return (img == NULL) ? tUnknown : img;
+		return (img == NULL) ? GetTextureUnknown(width, height, 2) : img;
 	}
 	if(tit->second)
 		return tit->second;
 	else
-		return tUnknown;
+		return GetTextureUnknown(width, height, 2);
 }
 irr::video::ITexture* ImageManager::GetTextureField(int code) {
 	if(code == 0)
