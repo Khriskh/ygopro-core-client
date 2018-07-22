@@ -170,7 +170,6 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetHandSynchro", scriptlib::card_get_hand_synchro },
 	{ "RegisterEffect", scriptlib::card_register_effect },
 	{ "IsHasEffect", scriptlib::card_is_has_effect },
-	{ "GetCardEffect", scriptlib::card_get_card_effect },
 	{ "ResetEffect", scriptlib::card_reset_effect },
 	{ "GetEffectCount", scriptlib::card_get_effect_count },
 	{ "RegisterFlagEffect", scriptlib::card_register_flag_effect },
@@ -214,6 +213,8 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsAbleToDeckOrExtraAsCost", scriptlib::card_is_able_to_deck_or_extra_as_cost },
 	{ "IsAbleToGraveAsCost", scriptlib::card_is_able_to_grave_as_cost },
 	{ "IsAbleToRemoveAsCost", scriptlib::card_is_able_to_remove_as_cost },
+	{ "IsAbleToDecreaseAttackAsCost", scriptlib::card_is_able_to_decrease_attack_as_cost },
+	{ "IsAbleToDecreaseDefenseAsCost", scriptlib::card_is_able_to_decrease_defense_as_cost },
 	{ "IsReleasable", scriptlib::card_is_releasable },
 	{ "IsReleasableByEffect", scriptlib::card_is_releasable_by_effect },
 	{ "IsDiscardable", scriptlib::card_is_discardable },
@@ -585,6 +586,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsPlayerCanSendtoHand", scriptlib::duel_is_player_can_send_to_hand },
 	{ "IsPlayerCanSendtoGrave", scriptlib::duel_is_player_can_send_to_grave },
 	{ "IsPlayerCanSendtoDeck", scriptlib::duel_is_player_can_send_to_deck },
+	{ "IsPlayerCanAdditionalSummon", scriptlib::duel_is_player_can_additional_summon },
 	{ "IsChainNegatable", scriptlib::duel_is_chain_negatable },
 	{ "IsChainDisablable", scriptlib::duel_is_chain_disablable },
 	{ "CheckChainTarget", scriptlib::duel_check_chain_target },
@@ -703,6 +705,10 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_setglobal(lua_state, "EFFECT_EXTRA_TOMAIN_KOISHI");
 	lua_pushinteger(lua_state, EFFECT_OVERLAY_REMOVE_COST_CHANGE_KOISHI);
 	lua_setglobal(lua_state, "EFFECT_OVERLAY_REMOVE_COST_CHANGE_KOISHI");
+	lua_pushinteger(lua_state, EFFECT_ALLOW_SYNCHRO_KOISHI);
+	lua_setglobal(lua_state, "EFFECT_ALLOW_SYNCHRO_KOISHI");
+	lua_pushinteger(lua_state, EFFECT_MINIATURE_GARDEN_GIRL);
+	lua_setglobal(lua_state, "EFFECT_MINIATURE_GARDEN_GIRL");
 	//music hints
 	lua_pushinteger(lua_state, HINT_MUSIC);
 	lua_setglobal(lua_state, "HINT_MUSIC");

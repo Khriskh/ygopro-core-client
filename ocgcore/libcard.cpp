@@ -1678,20 +1678,6 @@ int32 scriptlib::card_is_has_effect(lua_State *L) {
 		interpreter::effect2value(L, eset[i]);
 	return size;
 }
-int32 scriptlib::card_get_card_effect(lua_State *L) {
-	check_param_count(L, 1);
-	check_param(L, PARAM_TYPE_CARD, 1);
-	card* pcard = *(card**)lua_touserdata(L, 1);
-	uint32 code = 0;
-	if (lua_gettop(L) >= 2)
-		code = lua_tointeger(L, 2);
-	int32 count = pcard->get_card_effect(code);
-	if (count == 0) {
-		lua_pushnil(L);
-		return 1;
-	}
-	return count;
-}
 int32 scriptlib::card_reset_effect(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -2236,7 +2222,7 @@ int32 scriptlib::card_is_able_to_deck_or_extra_as_cost(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
-	int32 val = (pcard->data.type & 0x4802040) ? pcard->is_capable_cost_to_extra(p) : pcard->is_capable_cost_to_deck(p);
+	int32 val = pcard->is_extra_deck_monster() ? pcard->is_capable_cost_to_extra(p) : pcard->is_capable_cost_to_deck(p);
 	if(val)
 		lua_pushboolean(L, 1);
 	else
@@ -2249,6 +2235,34 @@ int32 scriptlib::card_is_able_to_remove_as_cost(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
 	if(pcard->is_removeable_as_cost(p))
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::card_is_able_to_decrease_attack_as_cost(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 p = pcard->pduel->game_field->core.reason_player;
+	int32 val = 0;
+	if(lua_gettop(L) > 1)
+		val = lua_tointeger(L, 2);
+	if(pcard->is_attack_decreasable_as_cost(p, val))
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::card_is_able_to_decrease_defense_as_cost(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 p = pcard->pduel->game_field->core.reason_player;
+	int32 val = 0;
+	if(lua_gettop(L) > 1)
+		val = lua_tointeger(L, 2);
+	if(pcard->is_defense_decreasable_as_cost(p, val))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

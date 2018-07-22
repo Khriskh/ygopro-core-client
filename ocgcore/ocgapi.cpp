@@ -64,7 +64,7 @@ extern "C" DECL_DLLEXPORT ptr create_duel(uint32 seed) {
 	pduel->lua->call_code_function(0, (char*) "PreloadUds", 0, 0);
 	return (ptr)pduel;
 }
-extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int options) {
+extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int32 options) {
 	duel* pd = (duel*)pduel;
 	pd->game_field->core.duel_options |= options & 0xffff;
 	int32 duel_rule = options >> 16;
@@ -270,7 +270,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 			}
 		}
 	} else {
-		field::card_vector* lst;
+		field::card_vector* lst = 0;
 		if(location == LOCATION_HAND)
 			lst = &player.list_hand;
 		else if(location == LOCATION_GRAVE)
@@ -292,18 +292,22 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 	duel* ptduel = (duel*)pduel;
 	*buf++ = MSG_RELOAD_FIELD;
 	*buf++ = ptduel->game_field->core.duel_rule;
+	int32 ct = 2;
 	for(int playerid = 0; playerid < 2; ++playerid) {
 		auto& player = ptduel->game_field->player[playerid];
 		*((int*)(buf)) = player.lp;
 		buf += 4;
+		ct += 4;
 		for(auto cit = player.list_mzone.begin(); cit != player.list_mzone.end(); ++cit) {
 			card* pcard = *cit;
 			if(pcard) {
 				*buf++ = 1;
 				*buf++ = pcard->current.position;
 				*buf++ = pcard->xyz_materials.size();
+				ct += 3;
 			} else {
 				*buf++ = 0;
+				ct++;
 			}
 		}
 		for(auto cit = player.list_szone.begin(); cit != player.list_szone.end(); ++cit) {
@@ -311,8 +315,10 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 			if(pcard) {
 				*buf++ = 1;
 				*buf++ = pcard->current.position;
+				ct += 2;
 			} else {
 				*buf++ = 0;
+				ct++;
 			}
 		}
 		*buf++ = player.list_main.size();
@@ -321,8 +327,10 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 		*buf++ = player.list_remove.size();
 		*buf++ = player.list_extra.size();
 		*buf++ = player.extra_p_count;
+		ct += 6;
 	}
 	*buf++ = ptduel->game_field->core.current_chain.size();
+	ct++;
 	for(auto chit = ptduel->game_field->core.current_chain.begin(); chit != ptduel->game_field->core.current_chain.end(); ++chit) {
 		effect* peffect = chit->triggering_effect;
 		*((int*)(buf)) = peffect->get_handler()->data.code;
@@ -334,8 +342,9 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 		*buf++ = chit->triggering_sequence;
 		*((int*)(buf)) = peffect->description;
 		buf += 4;
+		ct += 15;
 	}
-	return 0;
+	return ct;
 }
 extern "C" DECL_DLLEXPORT void set_responsei(ptr pduel, int32 value) {
 	((duel*)pduel)->set_responsei(value);
