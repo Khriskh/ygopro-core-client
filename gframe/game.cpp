@@ -1486,7 +1486,8 @@ void Game::ShowCardInfo(int code, bool resize) {
 		int offset_arrows = 0;
 		if(cd.type & TYPE_LINK && cd.level > 5 && window_size.Width < 1290.0)
 			offset_arrows = 15;
-		stDataInfo->setRelativePosition(rect<s32>(15, 60, 300 * xScale - 13, (121 + offset_arrows)));
+		stInfo->setRelativePosition(rect<s32>(15, 37, 296 * xScale, 98));
+		stDataInfo->setRelativePosition(rect<s32>(15, 98, 300 * xScale - 13, (121 + offset_arrows)));
 		stSetName->setRelativePosition(rect<s32>(15, (121 + offset_arrows), 296 * xScale, (121 + offset_arrows) + offset));
 		stText->setRelativePosition(rect<s32>(15, (121 + offset_arrows) + offset, 287 * xScale, 324 * yScale));
 		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, (121 + offset_arrows) + offset, 287 * xScale, 324 * yScale));
