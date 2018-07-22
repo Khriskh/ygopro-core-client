@@ -143,6 +143,8 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 						mainGame->ShowElement(mainGame->wSinglePlay);
 					else
 						mainGame->ShowElement(mainGame->wLanWindow);
+					if(exit_on_return)
+						mainGame->device->closeDevice();
 				} else {
 					DuelClient::SendPacketToServer(CTOS_SURRENDER);
 				}
@@ -843,7 +845,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					else if(conti_selecting)
 						mainGame->btnCardSelect[i]->setImage(imageManager.GetTexture(selectable_cards[i + pos]->chain_code));
 					else
-						mainGame->btnCardSelect[i]->setImage(imageManager.tCover[0]);
+						mainGame->btnCardSelect[i]->setImage(imageManager.tCover[0], rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT));
 					mainGame->btnCardSelect[i]->setRelativePosition(rect<s32>(30 + i * 125, 55, 30 + 120 + i * 125, 225));
 					// text
 					wchar_t formatBuffer[2048];
@@ -906,7 +908,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					if(display_cards[i + pos]->code)
 						mainGame->btnCardDisplay[i]->setImage(imageManager.GetTexture(display_cards[i + pos]->code));
 					else
-						mainGame->btnCardDisplay[i]->setImage(imageManager.tCover[0]);
+						mainGame->btnCardDisplay[i]->setImage(imageManager.tCover[0], rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT));
 					mainGame->btnCardDisplay[i]->setRelativePosition(rect<s32>(30 + i * 125, 55, 30 + 120 + i * 125, 225));
 					wchar_t formatBuffer[2048];
 					if(display_cards[i + pos]->location == LOCATION_OVERLAY) {
@@ -1438,7 +1440,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					should_show_tip = true;
 					myswprintf(formatBuffer, dataManager.GetSysString(1700), mainGame->btnCancelOrFinish->getText());
 					mainGame->stTip->setText(formatBuffer);
-					irr::core::dimension2d<unsigned int> dtip = mainGame->textFont->getDimension(formatBuffer) + irr::core::dimension2d<unsigned int>(10, 10);
+					irr::core::dimension2d<unsigned int> dtip = mainGame->guiFont->getDimension(formatBuffer) + irr::core::dimension2d<unsigned int>(10, 10);
 					mainGame->stTip->setRelativePosition(mainGame->Resize(x - 10 - dtip.Width, y - 10 - dtip.Height, x - 10, y - 10));
 				}
 				mainGame->stTip->setVisible(should_show_tip);
@@ -1540,7 +1542,7 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 									str.append(formatBuffer);
 								}
 							}
-							for(std::map<int, int>::iterator ctit = mcard->counters.begin(); ctit != mcard->counters.end(); ++ctit) {
+							for(auto ctit = mcard->counters.begin(); ctit != mcard->counters.end(); ++ctit) {
 								myswprintf(formatBuffer, L"\n[%ls]: %d", dataManager.GetCounterName(ctit->first), ctit->second);
 								str.append(formatBuffer);
 							}
@@ -1562,10 +1564,9 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 								str.append(formatBuffer);
 							}
 							should_show_tip = true;
-							irr::core::dimension2d<unsigned int> dtip = mainGame->textFont->getDimension(str.c_str()) + irr::core::dimension2d<unsigned int>(10, 10);
+							irr::core::dimension2d<unsigned int> dtip = mainGame->guiFont->getDimension(str.c_str()) + irr::core::dimension2d<unsigned int>(10, 10);
 							mainGame->stTip->setRelativePosition(recti(mousepos.X - 10 - dtip.Width, mousepos.Y - 10 - dtip.Height, mousepos.X - 10, mousepos.Y - 10));
 							mainGame->stTip->setText(str.c_str());
-							mainGame->stTip->setOverrideColor(SColor(255, 0, 0, 0));
 						}
 					} else {
 						should_show_tip = false;
@@ -1859,7 +1860,7 @@ bool ClientField::OnCommonEvent(const irr::SEvent& event) {
 					break;
 				}
 				u32 pos = mainGame->scrCardText->getPos();
-				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth() - 25, mainGame->textFont, mainGame->showingtext, pos);
+				mainGame->SetStaticText(mainGame->stText, mainGame->stText->getRelativePosition().getWidth() - 25, mainGame->guiFont, mainGame->showingtext, pos);
 				return true;
 				break;
 			}

@@ -1026,7 +1026,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			break;
 		}
 		//playing custom bgm
-		case HINT_MUSIC: {
+		case 11: { //HINT_MUSIC
 			char BGMName[1024];
 			if (data) {
 				myswprintf(textBuffer, L"./sound/BGM/custom/%ls.mp3", dataManager.GetDesc(data));			
@@ -1038,7 +1038,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			break;
 		}
 		//playing custom sound effect
-		case HINT_SOUND: {
+		case 12: { //HINT_SOUND
 			char SoundName[1024];
 			if (data) {
 				myswprintf(textBuffer, L"./sound/custom/%ls.wav", dataManager.GetDesc(data));
@@ -1050,7 +1050,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			break;
 		}
 		//playing custom bgm in ogg format
-		case HINT_MUSIC_OGG: {
+		case 13: { //HINT_MUSIC_OGG
 			char BGMName[1024];
 			if (data) {
 				myswprintf(textBuffer, L"./sound/BGM/custom/%ls.ogg", dataManager.GetDesc(data));			
@@ -2296,7 +2296,6 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 		return true;
 	}
 	case MSG_SHUFFLE_SET_CARD: {
-		std::vector<ClientCard*>::iterator cit;
 		std::vector<ClientCard*>* lst = 0;
 		int loc = BufferIO::ReadInt8(pbuf);
 		int count = BufferIO::ReadInt8(pbuf);
@@ -2314,14 +2313,14 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			BufferIO::ReadInt8(pbuf);
 			mc[i] = lst[c][s];
 			mc[i]->SetCode(0);
-			if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping) {
+			if(!mainGame->dInfo.isReplaySkiping) {
 				mc[i]->dPos = irr::core::vector3df((3.95f - mc[i]->curPos.X) / 10, 0, 0.05f);
 				mc[i]->dRot = irr::core::vector3df(0, 0, 0);
 				mc[i]->is_moving = true;
 				mc[i]->aniFrame = 10;
 			}
 		}
-		if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping)
+		if(!mainGame->dInfo.isReplaySkiping)
 			mainGame->WaitFrameSignal(20);
 		for (int i = 0; i < count; ++i) {
 			c = mainGame->LocalPlayer(BufferIO::ReadInt8(pbuf));
@@ -2337,11 +2336,11 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 				swp->sequence = ps;
 			}
 		}
-		if(!mainGame->dInfo.isReplay || !mainGame->dInfo.isReplaySkiping) {
+		if(!mainGame->dInfo.isReplaySkiping) {
 			soundManager.PlaySoundEffect(SOUND_SHUFFLE);
 			for (int i = 0; i < count; ++i) {
 				mainGame->dField.MoveCard(mc[i], 10);
-				for (cit = mc[i]->overlayed.begin(); cit != mc[i]->overlayed.end(); ++cit)
+				for (auto cit = mc[i]->overlayed.begin(); cit != mc[i]->overlayed.end(); ++cit)
 					mainGame->dField.MoveCard(*cit, 10);
 			}
 			mainGame->WaitFrameSignal(11);
@@ -3698,6 +3697,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			}
 			mainGame->WaitFrameSignal(5);
 		}
+		mainGame->dField.RefreshCardCountDisplay();
 		break;
 	}
 	case MSG_RELOAD_FIELD: {

@@ -94,6 +94,7 @@ void ClientField::Clear() {
 	pzone_act[1] = false;
 	conti_act = false;
 	deck_reversed = false;
+	RefreshCardCountDisplay();
 }
 void ClientField::Initial(int player, int deckc, int extrac) {
 	ClientCard* pcard;
@@ -117,6 +118,7 @@ void ClientField::Initial(int player, int deckc, int extrac) {
 		pcard->position = POS_FACEDOWN_DEFENSE;
 		GetCardLocation(pcard, &pcard->curPos, &pcard->curRot, true);
 	}
+	RefreshCardCountDisplay();
 }
 ClientCard* ClientField::GetCard(int controler, int location, int sequence, int sub_seq) {
 	std::vector<ClientCard*>* lst = 0;
@@ -226,6 +228,7 @@ void ClientField::AddCard(ClientCard* pcard, int controler, int location, int se
 		break;
 	}
 	}
+	RefreshCardCountDisplay();
 }
 ClientCard* ClientField::RemoveCard(int controler, int location, int sequence) {
 	ClientCard* pcard = 0;
@@ -297,16 +300,17 @@ ClientCard* ClientField::RemoveCard(int controler, int location, int sequence) {
 	}
 	}
 	pcard->location = 0;
+	RefreshCardCountDisplay();
 	return pcard;
 }
 void ClientField::UpdateCard(int controler, int location, int sequence, char* data) {
 	ClientCard* pcard = GetCard(controler, location, sequence);
 	if(pcard)
 		pcard->UpdateInfo(data + 4);
+	RefreshCardCountDisplay();
 }
 void ClientField::UpdateFieldCard(int controler, int location, char* data) {
 	std::vector<ClientCard*>* lst = 0;
-	std::vector<ClientCard*>::iterator cit;
 	switch(location) {
 	case LOCATION_DECK:
 		lst = &deck[controler];
@@ -333,28 +337,28 @@ void ClientField::UpdateFieldCard(int controler, int location, char* data) {
 	if(!lst)
 		return;
 	int len;
-	for(cit = lst->begin(); cit != lst->end(); ++cit) {
+	for(auto cit = lst->begin(); cit != lst->end(); ++cit) {
 		len = BufferIO::ReadInt32(data);
 		if(len > 8)
 			(*cit)->UpdateInfo(data);
 		data += len - 4;
 	}
+	RefreshCardCountDisplay();
 }
 void ClientField::ClearCommandFlag() {
-	std::vector<ClientCard*>::iterator cit;
-	for(cit = activatable_cards.begin(); cit != activatable_cards.end(); ++cit)
+	for(auto cit = activatable_cards.begin(); cit != activatable_cards.end(); ++cit)
 		(*cit)->cmdFlag = 0;
-	for(cit = summonable_cards.begin(); cit != summonable_cards.end(); ++cit)
+	for(auto cit = summonable_cards.begin(); cit != summonable_cards.end(); ++cit)
 		(*cit)->cmdFlag = 0;
-	for(cit = spsummonable_cards.begin(); cit != spsummonable_cards.end(); ++cit)
+	for(auto cit = spsummonable_cards.begin(); cit != spsummonable_cards.end(); ++cit)
 		(*cit)->cmdFlag = 0;
-	for(cit = msetable_cards.begin(); cit != msetable_cards.end(); ++cit)
+	for(auto cit = msetable_cards.begin(); cit != msetable_cards.end(); ++cit)
 		(*cit)->cmdFlag = 0;
-	for(cit = ssetable_cards.begin(); cit != ssetable_cards.end(); ++cit)
+	for(auto cit = ssetable_cards.begin(); cit != ssetable_cards.end(); ++cit)
 		(*cit)->cmdFlag = 0;
-	for(cit = reposable_cards.begin(); cit != reposable_cards.end(); ++cit)
+	for(auto cit = reposable_cards.begin(); cit != reposable_cards.end(); ++cit)
 		(*cit)->cmdFlag = 0;
-	for(cit = attackable_cards.begin(); cit != attackable_cards.end(); ++cit)
+	for(auto cit = attackable_cards.begin(); cit != attackable_cards.end(); ++cit)
 		(*cit)->cmdFlag = 0;
 	conti_cards.clear();
 	deck_act = false;
@@ -366,15 +370,13 @@ void ClientField::ClearCommandFlag() {
 	conti_act = false;
 }
 void ClientField::ClearSelect() {
-	std::vector<ClientCard*>::iterator cit;
-	for(cit = selectable_cards.begin(); cit != selectable_cards.end(); ++cit) {
+	for(auto cit = selectable_cards.begin(); cit != selectable_cards.end(); ++cit) {
 		(*cit)->is_selectable = false;
 		(*cit)->is_selected = false;
 	}
 }
 void ClientField::ClearChainSelect() {
-	std::vector<ClientCard*>::iterator cit;
-	for(cit = activatable_cards.begin(); cit != activatable_cards.end(); ++cit) {
+	for(auto cit = activatable_cards.begin(); cit != activatable_cards.end(); ++cit) {
 		(*cit)->cmdFlag = 0;
 		(*cit)->chain_code = 0;
 		(*cit)->is_selectable = false;
@@ -405,7 +407,7 @@ void ClientField::ShowSelectCard(bool buttonok, bool chain) {
 		else if(conti_selecting)
 			mainGame->imageLoading.insert(std::make_pair(mainGame->btnCardSelect[i], selectable_cards[i]->chain_code));
 		else
-			mainGame->btnCardSelect[i]->setImage(imageManager.tCover[0]);
+			mainGame->btnCardSelect[i]->setImage(imageManager.tCover[0], rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT));
 		mainGame->btnCardSelect[i]->setRelativePosition(rect<s32>(startpos + i * 125, 55, startpos + 120 + i * 125, 225));
 		mainGame->btnCardSelect[i]->setPressed(false);
 		mainGame->btnCardSelect[i]->setVisible(true);
@@ -491,7 +493,7 @@ void ClientField::ShowChainCard() {
 		if(selectable_cards[i]->code)
 			mainGame->imageLoading.insert(std::make_pair(mainGame->btnCardSelect[i], selectable_cards[i]->code));
 		else
-			mainGame->btnCardSelect[i]->setImage(imageManager.tCover[0]);
+			mainGame->btnCardSelect[i]->setImage(imageManager.tCover[0], rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT));
 		mainGame->btnCardSelect[i]->setRelativePosition(rect<s32>(startpos + i * 125, 55, startpos + 120 + i * 125, 225));
 		mainGame->btnCardSelect[i]->setPressed(false);
 		mainGame->btnCardSelect[i]->setVisible(true);
@@ -546,7 +548,7 @@ void ClientField::ShowLocationCard() {
 		if(display_cards[i]->code)
 			mainGame->imageLoading.insert(std::make_pair(mainGame->btnCardDisplay[i], display_cards[i]->code));
 		else
-			mainGame->btnCardDisplay[i]->setImage(imageManager.tCover[0]);
+			mainGame->btnCardDisplay[i]->setImage(imageManager.tCover[0], rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT));
 		mainGame->btnCardDisplay[i]->setRelativePosition(rect<s32>(startpos + i * 125, 55, startpos + 120 + i * 125, 225));
 		mainGame->btnCardDisplay[i]->setPressed(false);
 		mainGame->btnCardDisplay[i]->setVisible(true);
@@ -660,6 +662,7 @@ void ClientField::ReplaySwap() {
 	std::swap(mainGame->dInfo.start_lp[0], mainGame->dInfo.start_lp[1]);
 	std::swap(mainGame->dInfo.hostname, mainGame->dInfo.clientname);
 	std::swap(mainGame->dInfo.hostname_tag, mainGame->dInfo.clientname_tag);
+	RefreshCardCountDisplay();
 	for(auto chit = chains.begin(); chit != chains.end(); ++chit) {
 		chit->controler = 1 - chit->controler;
 		GetChainLocation(chit->controler, chit->location, chit->sequence, &chit->chain_pos);
@@ -1461,5 +1464,36 @@ void ClientField::UpdateDeclarableCode(bool enter) {
 		UpdateDeclarableCodeType(enter);
 	else
 		UpdateDeclarableCodeOpcode(enter);
+}
+void ClientField::RefreshCardCountDisplay() {
+	ClientCard* pcard;
+	for(int p = 0; p < 2; ++p) {
+		mainGame->dInfo.card_count[p] = hand[p].size();
+		for(auto it = mzone[p].begin(); it != mzone[p].end(); ++it) {
+			pcard = *it;
+			if(pcard) {
+				if(pcard->type & TYPE_LINK && pcard->link)
+					mainGame->dInfo.card_count[p] += pcard->link;
+				else
+					mainGame->dInfo.card_count[p]++;
+			}
+		}
+		for(auto it = szone[p].begin(); it != szone[p].end(); ++it) {
+			pcard = *it;
+			if(pcard)
+				mainGame->dInfo.card_count[p]++;
+		}
+		myswprintf(mainGame->dInfo.str_card_count[p], L"%d", mainGame->dInfo.card_count[p]);
+	}
+	if(mainGame->dInfo.card_count[0] > mainGame->dInfo.card_count[1]) {
+		mainGame->dInfo.card_count_color[0] = 0xffffff00;
+		mainGame->dInfo.card_count_color[1] = 0xffff0000;
+	} else if(mainGame->dInfo.card_count[1] > mainGame->dInfo.card_count[0]) {
+		mainGame->dInfo.card_count_color[1] = 0xffffff00;
+		mainGame->dInfo.card_count_color[0] = 0xffff0000;
+	} else {
+		mainGame->dInfo.card_count_color[0] = 0xffffffff;
+		mainGame->dInfo.card_count_color[1] = 0xffffffff;
+	}
 }
 }
