@@ -11,17 +11,12 @@ ImageManager imageManager;
 bool ImageManager::Initial() {
 	RefreshRandomImageList();
 
-	tCover[0] = GetRandomImage(TEXTURE_COVER_S);
-	if(!tCover[0])
-		tCover[0] = driver->getTexture("textures/cover.jpg");
-	tCover[1] = GetRandomImage(TEXTURE_COVER_O);
-	if(!tCover[1])
-		tCover[1] = driver->getTexture("textures/cover2.jpg");
-	if(!tCover[1])
-		tCover[1] = GetRandomImage(TEXTURE_COVER_S);
-	if(!tCover[1])
-		tCover[1] = tCover[0];
-	tUnknown = driver->getTexture("textures/unknown.jpg");
+	tCover[0] = NULL;
+	tCover[1] = NULL;
+	//tUnknown = NULL;
+	tUnknown[0] = NULL;
+	tUnknown[1] = NULL;
+	tUnknown[2] = NULL;
 	tAct = GetRandomImage(TEXTURE_ACTIVATE);
 	tAttack = GetRandomImage(TEXTURE_ATTACK);
 	if(!tAct)
@@ -32,17 +27,6 @@ bool ImageManager::Initial() {
 	tNegated = driver->getTexture("textures/negated.png");
 	tNumber = driver->getTexture("textures/number.png");
 	tLPBar = driver->getTexture("textures/lp.png");
-	tAvatar1 = GetRandomImage(TEXTURE_AVATAR_S);
-	if(!tAvatar1)
-		tAvatar1 = driver->getTexture("textures/avatar1.png");
-	tAvatar2 = GetRandomImage(TEXTURE_AVATAR_O);
-	if(!tAvatar2)
-		tAvatar2 = driver->getTexture("textures/avatar2.png");
-	tLPBar1 = driver->getTexture("textures/LPBar1.png");
-	tLPBar1s = driver->getTexture("textures/LPBar1s.png");
-	tLPBar2 = driver->getTexture("textures/LPBar2.png");
-	tLPBar2s = driver->getTexture("textures/LPBar2s.png");
-	tTurn = driver->getTexture("textures/turn.png");
 	tLPFrame = driver->getTexture("textures/lpf.png");
 	tMask = driver->getTexture("textures/mask.png");
 	tEquip = driver->getTexture("textures/equip.png");
@@ -53,25 +37,9 @@ bool ImageManager::Initial() {
 	tHand[0] = driver->getTexture("textures/f1.jpg");
 	tHand[1] = driver->getTexture("textures/f2.jpg");
 	tHand[2] = driver->getTexture("textures/f3.jpg");
-	tBackGround = GetRandomImage(TEXTURE_DUEL);
-	if(!tBackGround)
-		tBackGround = driver->getTexture("textures/bg.jpg");
-	if(!tBackGround)
-		tBackGround = driver->getTexture("textures/bg_duel.jpg");
-	tBackGround_menu = GetRandomImage(TEXTURE_MENU);
-	if(!tBackGround_menu)
-		tBackGround_menu = driver->getTexture("textures/bg_menu.jpg");
-	if(!tBackGround_menu)
-		tBackGround_menu = GetRandomImage(TEXTURE_DUEL);
-	if(!tBackGround_menu)
-		tBackGround_menu = tBackGround;
-	tBackGround_deck = GetRandomImage(TEXTURE_DECK);
-	if(!tBackGround_deck)
-		tBackGround_deck = driver->getTexture("textures/bg_deck.jpg");
-	if(!tBackGround_deck)
-		tBackGround_deck = GetRandomImage(TEXTURE_DUEL);
-	if(!tBackGround_deck)
-		tBackGround_deck = tBackGround;
+	tBackGround = NULL;
+	tBackGround_menu = NULL;
+	tBackGround_deck = NULL;
 	tField[0] = driver->getTexture("textures/field2.png");
 	tFieldTransparent[0] = driver->getTexture("textures/field-transparent2.png");
 	tField[1] = driver->getTexture("textures/field3.png");
@@ -126,9 +94,7 @@ void ImageManager::RefreshRandomImageList() {
 	RefreshImageDir(L"cover2/", TEXTURE_COVER_O);
 	RefreshImageDir(L"attack/", TEXTURE_ATTACK);
 	RefreshImageDir(L"act/", TEXTURE_ACTIVATE);
-	RefreshImageDir(L"avatar1/", TEXTURE_AVATAR_S);
-	RefreshImageDir(L"avatar2/", TEXTURE_AVATAR_O);
-	
+
 	for(int i = 0; i < 7; ++ i) {
 		saved_image_id[i] = -1;
 	}
