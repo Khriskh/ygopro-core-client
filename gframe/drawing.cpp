@@ -561,8 +561,8 @@ void Game::DrawMisc() {
 		//driver->draw2DRectangleOutline(Resize(695, 34, 795, 44), 0xffffffff);
 	}
 	else {
-		driver->draw2DImage(imageManager.tCover[0], Resize(588, 48, 601, 68), rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT), 0, 0, true);
-		driver->draw2DImage(imageManager.tCover[1], Resize(697, 48, 710, 68), rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT), 0, 0, true);
+		driver->draw2DImage(imageManager.tCover[0], Resize(588, 51, 601, 68), rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT), 0, 0, true);
+		driver->draw2DImage(imageManager.tCover[1], Resize(697, 51, 710, 68), rect<s32>(0, 0, CARD_IMG_WIDTH, CARD_IMG_HEIGHT), 0, 0, true);
 
 		DrawShadowText(numFont, dInfo.str_card_count[0], Resize(600, 51, 625, 70), Resize(0, 1, 2, 0), dInfo.card_count_color[0], 0xff000000, true, false, 0);
 		DrawShadowText(numFont, dInfo.str_card_count[1], Resize(710, 51, 735, 70), Resize(0, 1, 2, 0), dInfo.card_count_color[1], 0xff000000, true, false, 0);
