@@ -530,6 +530,17 @@ void Game::DrawMisc() {
 			DrawShadowText(lpcFont, lpcstring, Resize(400, 162, 922, 210), Resize(0, 2, 2, 0), lpccolor, lpccolor | 0x00ffffff, true, false, 0);
 		}
 	}
+	//avatar image
+	driver->draw2DImage(imageManager.tAvatar[0], Resize(335, 15, 390, 70), recti(0, 0, 128, 128), 0, 0, true);
+	driver->draw2DImage(imageManager.tAvatar[1], Resize(930, 15, 985, 70), recti(0, 0, 128, 128), 0, 0, true);
+	if((dInfo.turn % 2 && dInfo.isFirst) || (!(dInfo.turn % 2) && !dInfo.isFirst)) {
+		driver->draw2DImage(imageManager.tLPBarFrame, Resize(327, 8, 630, 78), recti(0, 0, 305, 70), 0, 0, true);
+		driver->draw2DImage(imageManager.tLPBarFrame, Resize(689, 8, 991, 78), recti(0, 210, 305, 280), 0, 0, true);		
+	} else {
+		driver->draw2DImage(imageManager.tLPBarFrame, Resize(327, 8, 630, 78), recti(0, 70, 305, 140), 0, 0, true);
+		driver->draw2DImage(imageManager.tLPBarFrame, Resize(689, 8, 991, 78), recti(0, 140, 305, 210), 0, 0, true);
+	}
+	//Time Display
 	if(!dInfo.isReplay && dInfo.player_type < 7 && dInfo.time_limit) {
 		if(imageManager.tClock) {
 			driver->draw2DImage(imageManager.tClock, ResizeCardMid(472, 32, 490, 50, 490, 41), recti(0, 0, 128, 128), 0, 0, true);
@@ -556,11 +567,11 @@ void Game::DrawMisc() {
 		DrawShadowText(numFont, dInfo.str_card_count[0], Resize(600, 31, 625, 50), Resize(0, 1, 2, 0), dInfo.card_count_color[0], 0xff000000, true, false, 0);
 		DrawShadowText(numFont, dInfo.str_card_count[1], Resize(707, 31, 732, 50), Resize(0, 1, 2, 0), dInfo.card_count_color[1], 0xff000000, true, false, 0);
 	}
-	DrawShadowText(numFont, dInfo.strLP[0], Resize(330, 12, 631, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
-	DrawShadowText(numFont, dInfo.strLP[1], Resize(691, 12, 992, 30), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
+	DrawShadowText(numFont, dInfo.strLP[0], Resize(305, 49, 614, 68), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
+	DrawShadowText(numFont, dInfo.strLP[1], Resize(711, 49, 1010, 68), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
 
-	recti p1size = Resize(335, 31, 629, 50);
-	recti p2size = Resize(986, 31, 986, 50);
+	recti p1size = Resize(400, 18, 629, 37);
+	recti p2size = Resize(920, 18, 986, 37);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
 		textFont->draw(dInfo.hostname, p1size, 0xffffffff, false, false, 0);
 	else

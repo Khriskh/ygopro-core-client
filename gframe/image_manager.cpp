@@ -40,6 +40,10 @@ bool ImageManager::Initial() {
 	tBackGround = NULL;
 	tBackGround_menu = NULL;
 	tBackGround_deck = NULL;
+	tCardType = driver->getTexture("textures/cardtype.png");
+	tAvatar[0] = driver->getTexture("textures/me.jpg");
+	tAvatar[1] = driver->getTexture("textures/opponent.jpg");
+	tLPBarFrame = driver->getTexture("textures/lpbarf.png");
 	tField[0] = driver->getTexture("textures/field2.png");
 	tFieldTransparent[0] = driver->getTexture("textures/field-transparent2.png");
 	tField[1] = driver->getTexture("textures/field3.png");
