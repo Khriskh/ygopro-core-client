@@ -92,7 +92,7 @@ bool Game::Initialize() {
 		return false;
 	dataManager.LoadStrings("./expansions/strings.conf");
 	env = device->getGUIEnvironment();
-	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 14);
+	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 13);
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 12);
 	lpcFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 48);
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
@@ -1202,9 +1202,6 @@ void Game::LoadConfig() {
 				BufferIO::CopyWStr(wstr, gameConf.textfont, 256);
 			} else if(!strcmp(strbuf, "numfont")) {
 				BufferIO::DecodeUTF8(valbuf, wstr);
-				int numfontsize;
-				sscanf(linebuf, "%s = %s %d", strbuf, valbuf, &numfontsize);
-				gameConf.numfontsize = numfontsize;
 				BufferIO::CopyWStr(wstr, gameConf.numfont, 256);
 			} else if(!strcmp(strbuf, "serverport")) {
 				gameConf.serverport = atoi(valbuf);
@@ -1430,7 +1427,7 @@ void Game::SaveConfig() {
 	BufferIO::EncodeUTF8(gameConf.textfont, linebuf);
 	fprintf(fp, "textfont = %s %d\n", linebuf, gameConf.textfontsize);
 	BufferIO::EncodeUTF8(gameConf.numfont, linebuf);
-	fprintf(fp, "numfont = %s\n", linebuf, gameConf.numfontsize);
+	fprintf(fp, "numfont = %s\n", linebuf);
 	fprintf(fp, "serverport = %d\n", gameConf.serverport);
 	BufferIO::EncodeUTF8(gameConf.lasthost, linebuf);
 	fprintf(fp, "lasthost = %s\n", linebuf);
