@@ -27,7 +27,6 @@ enum effect_flag2 : uint32;
 
 class effect {
 public:
-	int32 scrtype;
 	int32 ref_handle;
 	duel* pduel;
 	card* owner;
@@ -56,7 +55,7 @@ public:
 	card* active_handler;
 	uint16 status;
 	uint32 label;
-	void* label_object;
+	int32 label_object;
 	int32 condition;
 	int32 cost;
 	int32 target;
@@ -91,6 +90,7 @@ public:
 	void get_value(card* pcard, uint32 extraargs, std::vector<int32>* result);
 	void get_value(effect* peffect, uint32 extraargs, std::vector<int32>* result);
 	int32 check_value_condition(uint32 extraargs = 0);
+	void* get_label_object();
 	int32 get_speed();
 	effect* clone();
 	card* get_owner() const;
@@ -196,7 +196,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_NO_TURN_RESET		= 0x400000,
 	EFFECT_FLAG_EVENT_PLAYER		= 0x800000,
 	EFFECT_FLAG_OWNER_RELATE		= 0x1000000,
-	EFFECT_FLAG_AVAILABLE_BD		= 0x2000000,
+//	EFFECT_FLAG_AVAILABLE_BD		= 0x2000000,
 	EFFECT_FLAG_CLIENT_HINT			= 0x4000000,
 //	EFFECT_FLAG_CHAIN_UNIQUE		= 0x8000000,
 //	EFFECT_FLAG_NAGA				= 0x10000000,
@@ -366,7 +366,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_FIRST_ATTACK				192
 #define EFFECT_ATTACK_ALL				193
 #define EFFECT_EXTRA_ATTACK				194
-#define EFFECT_MUST_BE_ATTACKED			195
+//#define EFFECT_MUST_BE_ATTACKED			195
 #define EFFECT_ONLY_BE_ATTACKED			196
 #define EFFECT_ATTACK_DISABLED			197
 #define EFFECT_NO_BATTLE_DAMAGE			200
@@ -433,12 +433,10 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_ADD_SETCODE				334
 #define EFFECT_NO_EFFECT_DAMAGE			335
 #define EFFECT_UNSUMMONABLE_CARD		336
-//#define EFFECT_DISABLE_CHAIN_FIELD		337
 #define EFFECT_DISCARD_COST_CHANGE		338
 #define EFFECT_HAND_SYNCHRO				339
 #define EFFECT_ADD_FUSION_CODE			340
 #define EFFECT_ADD_FUSION_SETCODE		341
-#define EFFECT_RISE_TO_FULL_HEIGHT		342
 #define EFFECT_ONLY_ATTACK_MONSTER		343
 #define EFFECT_MUST_ATTACK_MONSTER		344
 #define EFFECT_PATRICIAN_OF_DARKNESS	345

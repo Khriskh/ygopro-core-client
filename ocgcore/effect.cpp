@@ -15,7 +15,6 @@ bool effect_sort_id(const effect* e1, const effect* e2) {
 	return e1->id < e2->id;
 };
 effect::effect(duel* pd) {
-	scrtype = 3;
 	ref_handle = 0;
 	pduel = pd;
 	owner = 0;
@@ -133,7 +132,7 @@ int32 effect::is_available() {
 				return FALSE;
 			if(powner == phandler && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && phandler->get_status(STATUS_DISABLED))
 				return FALSE;
-			if(phandler->is_status(STATUS_BATTLE_DESTROYED) && !is_flag(EFFECT_FLAG_AVAILABLE_BD))
+			if(phandler->is_status(STATUS_BATTLE_DESTROYED))
 				return FALSE;
 		}
 	}
@@ -279,7 +278,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				return FALSE;
 		} else {
 			card* phandler = get_handler();
-			if(!is_flag(EFFECT_FLAG_AVAILABLE_BD) && (type & EFFECT_TYPE_FIELD) && phandler->is_status(STATUS_BATTLE_DESTROYED))
+			if((type & EFFECT_TYPE_FIELD) && phandler->is_status(STATUS_BATTLE_DESTROYED))
 				return FALSE;
 			if(((type & EFFECT_TYPE_FIELD) || ((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE))) && (phandler->current.location & LOCATION_ONFIELD)
 			        && (!phandler->is_position(POS_FACEUP) || !phandler->is_status(STATUS_EFFECT_ENABLED)))
@@ -675,6 +674,9 @@ int32 effect::check_value_condition(uint32 extraargs) {
 		pduel->lua->params.clear();
 		return (int32)value;
 	}
+}
+void* effect::get_label_object() {
+	return pduel->lua->get_ref_object(label_object);
 }
 int32 effect::get_speed() {
 	if(!(type & EFFECT_TYPE_ACTIONS))

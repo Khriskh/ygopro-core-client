@@ -131,7 +131,6 @@ public:
 		uint8 location;
 		uint8 sequence;
 	};
-	int32 scrtype;
 	int32 ref_handle;
 	duel* pduel;
 	card_data data;
@@ -393,7 +392,7 @@ public:
 #define STATUS_FUTURE_FUSION		0x100000
 #define STATUS_ATTACK_CANCELED		0x200000
 #define STATUS_INITIALIZING			0x400000
-#define STATUS_ACTIVATED			0x800000
+//#define STATUS_ACTIVATED			0x800000
 #define STATUS_JUST_POS				0x1000000
 #define STATUS_CONTINUOUS_POS		0x2000000
 #define STATUS_FORBIDDEN			0x4000000

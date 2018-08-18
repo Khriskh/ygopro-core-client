@@ -1409,18 +1409,18 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			effect* peffect = *eit++;
 			if(peffect->code != EFFECT_SET_CONTROL)
 				continue;
-			if(peffect->get_owner_player() != check_player)
-				continue;
 			if(!(peffect->reset_flag & phase))
 				continue;
 			uint8 pid = peffect->get_handler_player();
+			if(pid != check_player)
+				continue;
 			uint8 tp = infos.turn_player;
 			if(!(((peffect->reset_flag & RESET_SELF_TURN) && pid == tp) || ((peffect->reset_flag & RESET_OPPO_TURN) && pid != tp)))
 				continue;
 			if(peffect->reset_count != 1)
 				continue;
 			card* phandler = peffect->get_handler();
-			if(peffect->get_owner_player() != phandler->current.controler) {
+			if(pid != phandler->current.controler) {
 				if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 					remove_effect(peffect);
 				else
@@ -2807,6 +2807,8 @@ int32 field::process_battle_command(uint16 step) {
 				core.units.begin()->arg2 = 1;
 			else core.units.begin()->arg2 = 0;
 			if(!peffect->value) {
+				reset_phase(PHASE_BATTLE_STEP);
+				adjust_all();
 				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
 			} else {
@@ -3157,6 +3159,8 @@ int32 field::process_battle_command(uint16 step) {
 				core.attacker->attacked_cards.addcard(core.attack_target);
 			}
 			if(!peffect->value) {
+				reset_phase(PHASE_BATTLE_STEP);
+				adjust_all();
 				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
 			} else {
@@ -3342,6 +3346,7 @@ int32 field::process_battle_command(uint16 step) {
 		                                || core.attack_target->current.controler != core.attack_target->attack_controler
 		                                || core.attack_target->fieldid_r != core.pre_field[1]))) {
 			reset_phase(PHASE_DAMAGE_CAL);
+			adjust_all();
 			infos.phase = PHASE_DAMAGE;
 			core.units.begin()->step = 32;
 			return FALSE;
@@ -4681,7 +4686,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		effect* peffect = cait->triggering_effect;
 		card* pcard = peffect->get_handler();
 		if((peffect->type & EFFECT_TYPE_ACTIVATE) && pcard->is_has_relation(*cait)) {
-			pcard->set_status(STATUS_ACTIVATED, TRUE);
 			pcard->enable_field_effect(true);
 			if(core.duel_rule <= 2) {
 				if(pcard->data.type & TYPE_FIELD) {
