@@ -88,7 +88,7 @@ bool Game::Initialize() {
 	if(!dataManager.LoadDB("cards.cdb"))
 		return false;
 	if(dataManager.LoadDB(GetLocaleDir("prerelease.cdb")))
-	if(dataManager.LoadDB(GetLocaleDir("pre-update.cdb")))
+	if(dataManager.LoadDB(GetLocaleDir("preupdate.cdb")))
 	if(dataManager.LoadStrings(GetLocaleDir("strings.conf"))) {} else
 	if(!dataManager.LoadStrings("strings.conf"))
 		return false;
