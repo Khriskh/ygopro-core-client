@@ -87,8 +87,12 @@ bool Game::Initialize() {
 	if(dataManager.LoadDB(GetLocaleDir("cards.cdb"))) {} else
 	if(!dataManager.LoadDB("cards.cdb"))
 		return false;
-	if(dataManager.LoadDB(GetLocaleDir("prerelease.cdb")))
-	if(dataManager.LoadDB(GetLocaleDir("preupdate.cdb")))
+	if(dataManager.LoadDB(GetLocaleDir("prerelease.cdb"))) {} else
+	if(!dataManager.LoadDB("prerelease.cdb"))
+		return false;
+	if(dataManager.LoadDB(GetLocaleDir("preupdate.cdb"))) {} else
+	if(!dataManager.LoadDB("preupdate.cdb"))
+		return false;
 	if(dataManager.LoadStrings(GetLocaleDir("strings.conf"))) {} else
 	if(!dataManager.LoadStrings("strings.conf"))
 		return false;
