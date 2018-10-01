@@ -31,7 +31,6 @@ public:
 	std::vector<ClientCard*> grave[2];
 	std::vector<ClientCard*> remove[2];
 	std::vector<ClientCard*> extra[2];
-	std::vector<ClientCard*> limbo_temp;
 	std::set<ClientCard*> overlay_cards;
 	std::vector<ClientCard*> summonable_cards;
 	std::vector<ClientCard*> spsummonable_cards;
@@ -117,8 +116,6 @@ public:
 	void UpdateDeclarableCodeOpcode(bool enter);
 	void UpdateDeclarableCode(bool enter);
 
-	void RefreshCardCountDisplay();
-
 	irr::gui::IGUIElement* panel;
 	std::vector<int> ancard;
 	int hovered_controler;
@@ -141,6 +138,7 @@ public:
 	void UpdateChainButtons();
 	void ShowCancelOrFinishButton(int buttonOp);
 	void SetShowMark(ClientCard* pcard, bool enable);
+	void ShowCardInfoInList(ClientCard* pcard, irr::gui::IGUIElement* element, irr::gui::IGUIElement* parent);
 	void SetResponseSelectedCards() const;
 	void SetResponseSelectedOption() const;
 	void CancelOrFinish();

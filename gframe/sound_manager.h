@@ -10,10 +10,8 @@ namespace ygo {
 
 class SoundManager {
 private:
-	std::vector<std::wstring> BGMList[9];
+	std::vector<std::wstring> BGMList[8];
 	int bgm_scene;
-	int previous_bgm_scene;
-	bool bgm_process;
 #ifdef YGOPRO_USE_IRRKLANG
 	irrklang::ISoundEngine* engineSound;
 	irrklang::ISoundEngine* engineMusic;
@@ -28,10 +26,7 @@ public:
 	void PlayDialogSound(irr::gui::IGUIElement * element);
 	void PlayMusic(char* song, bool loop);
 	void PlayBGM(int scene);
-	void PlayCustomBGM(char* BGMName);
-	void PlayCustomSound(char* SoundName);	
 	void StopBGM();
-	void StopSound();
 	void SetSoundVolume(double volume);
 	void SetMusicVolume(double volume);
 };
@@ -48,7 +43,6 @@ extern SoundManager soundManager;
 #define SOUND_DESTROYED				108
 #define SOUND_BANISHED				109
 #define SOUND_TOKEN					110
-#define SOUND_NEGATE				111
 
 #define SOUND_ATTACK				201
 #define SOUND_DIRECT_ATTACK			202
@@ -80,7 +74,6 @@ extern SoundManager soundManager;
 #define BGM_DISADVANTAGE			5
 #define BGM_WIN						6
 #define BGM_LOSE					7
-#define BGM_CUSTOM					8
 
 }
 

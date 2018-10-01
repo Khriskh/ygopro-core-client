@@ -342,8 +342,6 @@ public:
 	processor core;
 	return_value returns;
 	tevent nil_event;
-	card* rose_card;
-	uint32 rose_level;
 
 	static int32 field_used_count[32];
 	explicit field(duel* pduel);

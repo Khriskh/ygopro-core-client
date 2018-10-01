@@ -107,13 +107,6 @@ public:
 		void addcard(card* pcard);
 		uint32 findcard(card* pcard);
 	};
-
-	//millux
-
-	uint32 get_ritual_type();
-	uint32 set_entity_code(uint32 entity_code, bool remove_alias = false);
-	uint32 get_summon_info();
-
 	struct sendto_param_t {
 		void set(uint8 p, uint8 pos, uint8 loc, uint8 seq = 0) {
 			playerid = p;
@@ -153,7 +146,6 @@ public:
 	uint8 direct_attackable;
 	uint8 announce_count;
 	uint8 attacked_count;
-	uint8 removed_overlay_count;
 	uint8 attack_all_target;
 	uint8 attack_controler;
 	uint16 cardid;
@@ -329,8 +321,6 @@ public:
 	int32 is_destructable_by_effect(effect* peffect, uint8 playerid);
 	int32 is_removeable(uint8 playerid);
 	int32 is_removeable_as_cost(uint8 playerid);
-	int32 is_attack_decreasable_as_cost(uint8 playerid, int32 val);
-	int32 is_defense_decreasable_as_cost(uint8 playerid, int32 val);
 	int32 is_releasable_by_summon(uint8 playerid, card* pcard);
 	int32 is_releasable_by_nonsummon(uint8 playerid);
 	int32 is_releasable_by_effect(uint8 playerid, effect* peffect);
@@ -402,7 +392,6 @@ public:
 #define STATUS_OPPO_BATTLE			0x10000000
 #define STATUS_FLIP_SUMMON_TURN		0x20000000
 #define STATUS_SPSUMMON_TURN		0x40000000
-#define STATUS_TO_LEAVE_FROMEX		0x80000000
 //Counter
 #define COUNTER_WITHOUT_PERMIT	0x1000
 #define COUNTER_NEED_ENABLE		0x2000

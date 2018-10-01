@@ -166,8 +166,6 @@ bool ReplayMode::StartDuel() {
 	set_player_info(pduel, 1, start_lp, start_hand, draw_count);
 	mainGame->dInfo.lp[0] = start_lp;
 	mainGame->dInfo.lp[1] = start_lp;
-	mainGame->dInfo.start_lp[0] = start_lp;
-	mainGame->dInfo.start_lp[1] = start_lp;
 	myswprintf(mainGame->dInfo.strLP[0], L"%d", mainGame->dInfo.lp[0]);
 	myswprintf(mainGame->dInfo.strLP[1], L"%d", mainGame->dInfo.lp[1]);
 	mainGame->dInfo.turn = 0;
@@ -220,7 +218,7 @@ bool ReplayMode::StartDuel() {
 		size_t slen = cur_replay.ReadInt16();
 		cur_replay.ReadData(filename, slen);
 		filename[slen] = 0;
-		if(!preload_script(pduel, filename, slen)) {
+		if(!preload_script(pduel, filename, 0)) {
 			return false;
 		}
 	}
@@ -938,19 +936,9 @@ void ReplayMode::ReplayReload() {
 	mainGame->dField.UpdateFieldCard(mainGame->LocalPlayer(1), LOCATION_REMOVED, (char*)queryBuffer);
 }
 byte* ReplayMode::ScriptReaderEx(const char* script_name, int* slen) {
-	char sname[256] = "./specials";
-	strcat(sname, script_name + 8);//default script name: ./script/c%d.lua
+	char sname[256] = "./expansions";
+	strcat(sname, script_name + 1);//default script name: ./script/c%d.lua
 	byte* buffer = default_script_reader(sname, slen);
-	if(!buffer) {
-		char sname[256] = "./expansions";
-		strcat(sname, script_name + 1);
-		buffer = default_script_reader(sname, slen);
-	}
-	if(!buffer) {
-		char sname[256] = "./beta";
-		strcat(sname, script_name + 1);
-		buffer = default_script_reader(sname, slen);
-	}
 	if(buffer)
 		return buffer;
 	else

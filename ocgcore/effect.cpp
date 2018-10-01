@@ -237,9 +237,6 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 					else
 						return FALSE;
 				}
-				else if((handler->data.type & TYPE_PENDULUM) && pduel->game_field->infos.turn_player != playerid && is_flag(EFFECT_FLAG2_SPOSITCH)) {
-					ecode = EFFECT_QP_ACT_IN_NTPHAND;
-				}
 			} else if(handler->current.location == LOCATION_SZONE) {
 				if((handler->data.type & TYPE_TRAP) && handler->get_status(STATUS_SET_TURN))
 					ecode = EFFECT_TRAP_ACT_IN_SET_TURN;
@@ -774,20 +771,13 @@ void effect::set_active_type() {
 	active_type = phandler->get_type();
 	if(active_type & TYPE_TRAPMONSTER)
 		active_type &= ~TYPE_TRAP;
-	if((type & EFFECT_TYPE_ACTIVATE) && is_flag(EFFECT_FLAG2_SPOSITCH))
-		active_type |= TYPE_QUICKPLAY;
 }
 uint32 effect::get_active_type() {
 	if(type & 0x7f0) {
 		if(active_type)
 			return active_type;
 		else if((type & EFFECT_TYPE_ACTIVATE) && (get_handler()->data.type & TYPE_PENDULUM))
-		{
-			if(is_flag(EFFECT_FLAG2_SPOSITCH))
-				return TYPE_PENDULUM + TYPE_SPELL + TYPE_QUICKPLAY;
-			else
-				return TYPE_PENDULUM + TYPE_SPELL;
-		}
+			return TYPE_PENDULUM + TYPE_SPELL;
 		else
 			return get_handler()->get_type();
 	} else

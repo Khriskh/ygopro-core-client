@@ -46,24 +46,22 @@ int SingleMode::SinglePlayThread(void* param) {
 	set_player_info(pduel, 1, start_lp, start_hand, draw_count);
 	mainGame->dInfo.lp[0] = start_lp;
 	mainGame->dInfo.lp[1] = start_lp;
-	mainGame->dInfo.start_lp[0] = start_lp;
-	mainGame->dInfo.start_lp[1] = start_lp;
 	myswprintf(mainGame->dInfo.strLP[0], L"%d", mainGame->dInfo.lp[0]);
 	myswprintf(mainGame->dInfo.strLP[1], L"%d", mainGame->dInfo.lp[1]);
 	BufferIO::CopyWStr(mainGame->ebNickName->getText(), mainGame->dInfo.hostname, 20);
 	mainGame->dInfo.clientname[0] = 0;
+	mainGame->dInfo.player_type = 0;
 	mainGame->dInfo.turn = 0;
-	mainGame->dInfo.announce_cache.clear();
 	char filename[256];
 	size_t slen = 0;
 	if(open_file) {
 		open_file = false;
 		slen = BufferIO::EncodeUTF8(open_file_name, filename);
-		if(!preload_script(pduel, filename, slen)) {
+		if(!preload_script(pduel, filename, 0)) {
 			wchar_t fname[256];
 			myswprintf(fname, L"./single/%ls", open_file_name);
 			slen = BufferIO::EncodeUTF8(fname, filename);
-			if(!preload_script(pduel, filename, slen))
+			if(!preload_script(pduel, filename, 0))
 				slen = 0;
 		}
 	} else {
@@ -71,7 +69,7 @@ int SingleMode::SinglePlayThread(void* param) {
 		wchar_t fname[256];
 		myswprintf(fname, L"./single/%ls", name);
 		slen = BufferIO::EncodeUTF8(fname, filename);
-		if(!preload_script(pduel, filename, slen))
+		if(!preload_script(pduel, filename, 0))
 			slen = 0;
 	}
 	if(slen == 0) {
@@ -85,16 +83,11 @@ int SingleMode::SinglePlayThread(void* param) {
 	rh.seed = seed;
 	mainGame->gMutex.Lock();
 	mainGame->HideElement(mainGame->wSinglePlay);
+	mainGame->ClearCardInfo();
 	mainGame->wCardImg->setVisible(true);
 	mainGame->wInfos->setVisible(true);
 	mainGame->btnLeaveGame->setVisible(true);
 	mainGame->btnLeaveGame->setText(dataManager.GetSysString(1210));
-	mainGame->stName->setText(L"");
-	mainGame->stInfo->setText(L"");
-	mainGame->stDataInfo->setText(L"");
-	mainGame->stSetName->setText(L"");
-	mainGame->stText->setText(L"");
-	mainGame->scrCardText->setVisible(false);
 	mainGame->wPhase->setVisible(true);
 	mainGame->dField.Clear();
 	mainGame->dInfo.isFirst = true;
@@ -853,20 +846,9 @@ void SingleMode::SinglePlayReload() {
 	mainGame->dField.UpdateFieldCard(mainGame->LocalPlayer(1), LOCATION_REMOVED, (char*)queryBuffer);
 }
 byte* SingleMode::ScriptReaderEx(const char* script_name, int* slen) {
-	char sname[256] = "./specials";
-	strcat(sname, script_name + 8);//default script name: ./script/c%d.lua
-	byte* buffer = ScriptReader(sname, slen);
-	if(!buffer) {
-		char sname[256] = "./expansions";
-		strcat(sname, script_name + 1);
-		buffer = ScriptReader(sname, slen);
-	}
-	if(!buffer) {
-		char sname[256] = "./beta";
- 		strcat(sname, script_name + 1);
- 		buffer = ScriptReader(sname, slen);
- 	}
-	if(buffer)
+	char sname[256] = "./expansions";
+	strcat(sname, script_name + 1);//default script name: ./script/c%d.lua
+	if(ScriptReader(sname, slen))
 		return buffer;
 	else
 		return ScriptReader(script_name, slen);
