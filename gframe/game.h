@@ -5,6 +5,7 @@
 #include "client_field.h"
 #include "deck_con.h"
 #include "menu_handler.h"
+#include "CGUISkinSystem/CGUISkinSystem.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
@@ -25,6 +26,7 @@ struct Config {
 	wchar_t textfont[256];
 	wchar_t numfont[256];
 	wchar_t roompass[20];
+	wchar_t locale[64];
 	//settings
 	int chkMAutoPos;
 	int chkSTAutoPos;
@@ -42,16 +44,17 @@ struct Config {
 	int chkIgnoreDeckChanges;
 	int defaultOT;
 	int enable_bot_mode;
-	int quick_animation;
+	bool window_maximized;
+	int window_width;
+	int window_height;
+	bool resize_popup_menu;
 	bool enable_sound;
 	bool enable_music;
 	double sound_volume;
 	double music_volume;
 	int music_mode;
-	bool window_maximized;
-	int window_width;
-	int window_height;
-	bool resize_popup_menu;
+	int chkEnablePScale;
+	int skin_index;
 };
 
 struct DuelInfo {
@@ -63,8 +66,11 @@ struct DuelInfo {
 	bool isTag;
 	bool isSingleMode;
 	bool is_shuffling;
+	bool is_swapped;
 	bool tag_player[2];
 	int lp[2];
+	int start_lp[2];
+	int card_count[2];
 	int duel_rule;
 	int turn;
 	short curMsg;
@@ -78,7 +84,12 @@ struct DuelInfo {
 	unsigned char time_player;
 	unsigned short time_limit;
 	unsigned short time_left[2];
+	wchar_t str_time_left[2][16];
+	video::SColor time_color[2];
+	wchar_t str_card_count[2][16];
+	video::SColor card_count_color[2];
 	bool isReplaySwapped;
+	std::vector<unsigned int> announce_cache;
 };
 
 struct BotInfo {
@@ -106,6 +117,7 @@ class Game {
 public:
 	bool Initialize();
 	void MainLoop();
+	void RefreshTimeDisplay();
 	void BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 right, f32 bottom, f32 top, f32 znear, f32 zfar);
 	void InitStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, u32 cHeight, irr::gui::CGUITTFont* font, const wchar_t* text);
 	void SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gui::CGUITTFont* font, const wchar_t* text, u32 pos = 0);
@@ -114,6 +126,7 @@ public:
 	void RefreshReplay();
 	void RefreshSingleplay();
 	void RefreshBot();
+	void RefreshLocales();
 	void DrawSelectionLine(irr::video::S3DVertex* vec, bool strip, int width, float* cv);
 	void DrawSelectionLine(irr::gui::IGUIElement* element, int width, irr::video::SColor color);
 	void DrawBackGround();
@@ -136,7 +149,6 @@ public:
 	void LoadConfig();
 	void SaveConfig();
 	void ShowCardInfo(int code, bool resize = false);
-	void ClearCardInfo(int player = 0);
 	void AddChatMsg(wchar_t* msg, int player);
 	void ClearChatMsg();
 	void AddDebugMsg(char* msgbuf);
@@ -147,6 +159,7 @@ public:
 
 	int LocalPlayer(int player);
 	const wchar_t* LocalName(int local_player);
+	const char* GetLocaleDir(const char* dir);
 
 	bool HasFocus(EGUI_ELEMENT_TYPE type) const {
 		irr::gui::IGUIElement* focus = env->getFocus();
@@ -170,6 +183,7 @@ public:
 	void SetWindowsIcon();
 	void SetWindowsScale(float scale);
 	void FlashWindow();
+	void takeScreenshot();
 	void SetCursor(ECURSOR_ICON icon);
 
 	Mutex gMutex;
@@ -224,6 +238,9 @@ public:
 	float xScale;
 	float yScale;
 
+	CGUISkinSystem *skinSystem;
+	char locale_buf_utf8[256];
+
 	ClientField dField;
 	DeckBuilder deckBuilder;
 	MenuHandler menuHandler;
@@ -250,7 +267,6 @@ public:
 	//hint text
 	irr::gui::IGUIStaticText* stHintMsg;
 	irr::gui::IGUIStaticText* stTip;
-	irr::gui::IGUIStaticText* stCardListTip;
 	//infos
 	irr::gui::IGUITabControl* wInfos;
 	irr::gui::IGUIStaticText* stName;
@@ -267,7 +283,6 @@ public:
 	irr::gui::IGUICheckBox* chkRandomPos;
 	irr::gui::IGUICheckBox* chkAutoChain;
 	irr::gui::IGUICheckBox* chkWaitChain;
-	irr::gui::IGUICheckBox* chkQuickAnimation;
 	irr::gui::IGUICheckBox* chkHideSetname;
 	irr::gui::IGUICheckBox* chkHideHintButton;
 	irr::gui::IGUICheckBox* chkIgnoreDeckChanges;
@@ -281,6 +296,8 @@ public:
 	irr::gui::IGUIButton* btnWinResizeM;
 	irr::gui::IGUIButton* btnWinResizeL;
 	irr::gui::IGUIButton* btnWinResizeXL;
+	irr::gui::IGUICheckBox* chkEnablePScale;
+	irr::gui::IGUIComboBox* cbLocale;
 	//main menu
 	irr::gui::IGUIWindow* wMainMenu;
 	irr::gui::IGUIButton* btnLanMode;
@@ -338,6 +355,7 @@ public:
 	irr::gui::IGUIButton* btnDeleteReplay;
 	irr::gui::IGUIButton* btnRenameReplay;
 	irr::gui::IGUIButton* btnReplayCancel;
+	irr::gui::IGUIButton* btnExportDeck;
 	irr::gui::IGUIEditBox* ebRepStartTurn;
 	//single play
 	irr::gui::IGUIWindow* wSinglePlay;
@@ -372,11 +390,6 @@ public:
 	irr::gui::IGUIStaticText* stQMessage;
 	irr::gui::IGUIButton* btnYes;
 	irr::gui::IGUIButton* btnNo;
-	//surrender yes/no
-	irr::gui::IGUIWindow* wSurrender;
-	irr::gui::IGUIStaticText* stSurrenderMessage;
-	irr::gui::IGUIButton* btnSurrenderYes;
-	irr::gui::IGUIButton* btnSurrenderNo;
 	//options
 	irr::gui::IGUIWindow* wOptions;
 	irr::gui::IGUIStaticText* stOptions;
@@ -468,6 +481,12 @@ public:
 	irr::gui::IGUIStaticText* stStar;
 	irr::gui::IGUIStaticText* stSearch;
 	irr::gui::IGUIStaticText* stScale;
+	irr::gui::IGUIButton* btnRenameDeck;
+	//deck rename
+	irr::gui::IGUIWindow* wRenameDeck;
+	irr::gui::IGUIEditBox* ebREName;
+	irr::gui::IGUIButton* btnREYes;
+	irr::gui::IGUIButton* btnRENo;
 	//filter
 	irr::gui::IGUIStaticText* wFilter;
 	irr::gui::IGUIScrollBar* scrFilter;
@@ -570,6 +589,7 @@ extern Game* mainGame;
 #define BUTTON_CANCEL_REPLAY		132
 #define BUTTON_DELETE_REPLAY		133
 #define BUTTON_RENAME_REPLAY		134
+#define BUTTON_EXPORT_DECK			135
 #define EDITBOX_CHAT				140
 #define BUTTON_MSG_OK				200
 #define BUTTON_YES					201
@@ -633,8 +653,6 @@ extern Game* mainGame;
 #define BUTTON_DISPLAY_4			294
 #define SCROLL_CARD_DISPLAY			295
 #define BUTTON_CARD_DISP_OK			296
-#define BUTTON_SURRENDER_YES		297
-#define BUTTON_SURRENDER_NO			298
 #define BUTTON_CATEGORY_OK			300
 #define COMBOBOX_DBLFLIST			301
 #define COMBOBOX_DBDECKS			302
@@ -678,13 +696,25 @@ extern Game* mainGame;
 #define BUTTON_WINDOW_RESIZE_M		366
 #define BUTTON_WINDOW_RESIZE_L		367
 #define BUTTON_WINDOW_RESIZE_XL		368
-#define CHECKBOX_QUICK_ANIMATION	369
+#define COMBOBOX_LOCALE				369
 
 #define COMBOBOX_SORTTYPE			370
 #define COMBOBOX_LIMIT				371
 
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381
+
+#define BUTTON_RENAME_DECK			386
+#define BUTTON_RENAME_DECK_SAVE			387
+#define BUTTON_RENAME_DECK_CANCEL		388
+
+#define TEXTURE_DUEL				0
+#define TEXTURE_DECK				1
+#define TEXTURE_MENU				2
+#define TEXTURE_COVER_S				3
+#define TEXTURE_COVER_O				4
+#define TEXTURE_ATTACK				5
+#define TEXTURE_ACTIVATE			6
 
 #define DEFAULT_DUEL_RULE			4
 
