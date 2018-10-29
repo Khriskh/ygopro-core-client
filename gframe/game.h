@@ -41,13 +41,16 @@ struct Config {
 	int draw_field_spell;
 	int separate_clear_button;
 	int auto_search_limit;
+	int search_multiple_keywords;
 	int chkIgnoreDeckChanges;
 	int defaultOT;
 	int enable_bot_mode;
+	int quick_animation;
 	bool window_maximized;
 	int window_width;
 	int window_height;
 	bool resize_popup_menu;
+	int auto_save_replay;
 	bool enable_sound;
 	bool enable_music;
 	double sound_volume;
@@ -131,6 +134,7 @@ public:
 	void DrawSelectionLine(irr::gui::IGUIElement* element, int width, irr::video::SColor color);
 	void DrawBackGround();
 	void DrawLinkedZones(ClientCard* pcard);
+	void DrawSpellLinkedZones(ClientCard* pcard);
 	void CheckMutual(ClientCard* pcard, int mark);
 	void DrawCards();
 	void DrawCard(ClientCard* pcard);
@@ -149,6 +153,7 @@ public:
 	void LoadConfig();
 	void SaveConfig();
 	void ShowCardInfo(int code, bool resize = false);
+	void ClearCardInfo(int player = 0);
 	void AddChatMsg(wchar_t* msg, int player);
 	void ClearChatMsg();
 	void AddDebugMsg(char* msgbuf);
@@ -171,7 +176,7 @@ public:
 	recti Resize(s32 x, s32 y, s32 x2, s32 y2, s32 dx, s32 dy, s32 dx2, s32 dy2);
 	position2di Resize(s32 x, s32 y);
 	position2di ResizeReverse(s32 x, s32 y);
-	recti ResizeElem(s32 x, s32 y, s32 x2, s32 y2);
+	recti ResizePhaseHint(s32 x, s32 y, s32 x2, s32 y2, s32 width);
 	recti ResizeWin(s32 x, s32 y, s32 x2, s32 y2, bool chat = false);
 	recti ResizeCard(s32 x, s32 y, s32 x2, s32 y2);
 	recti ResizeCardHint(s32 x, s32 y, s32 x2, s32 y2);
@@ -267,6 +272,7 @@ public:
 	//hint text
 	irr::gui::IGUIStaticText* stHintMsg;
 	irr::gui::IGUIStaticText* stTip;
+	irr::gui::IGUIStaticText* stCardListTip;
 	//infos
 	irr::gui::IGUITabControl* wInfos;
 	irr::gui::IGUIStaticText* stName;
@@ -278,15 +284,24 @@ public:
 	irr::gui::IGUIListBox* lstLog;
 	irr::gui::IGUIButton* btnClearLog;
 	irr::gui::IGUIButton* btnSaveLog;
+	irr::gui::IGUIWindow* tabHelper;
+	irr::gui::IGUIElement* elmTabHelperLast;
+	irr::gui::IGUIScrollBar* scrTabHelper;
 	irr::gui::IGUICheckBox* chkMAutoPos;
 	irr::gui::IGUICheckBox* chkSTAutoPos;
 	irr::gui::IGUICheckBox* chkRandomPos;
 	irr::gui::IGUICheckBox* chkAutoChain;
 	irr::gui::IGUICheckBox* chkWaitChain;
+	irr::gui::IGUICheckBox* chkQuickAnimation;
+	irr::gui::IGUICheckBox* chkAutoSaveReplay;
+	irr::gui::IGUIWindow* tabSystem;
+	irr::gui::IGUIElement* elmTabSystemLast;
+	irr::gui::IGUIScrollBar* scrTabSystem;
 	irr::gui::IGUICheckBox* chkHideSetname;
 	irr::gui::IGUICheckBox* chkHideHintButton;
 	irr::gui::IGUICheckBox* chkIgnoreDeckChanges;
 	irr::gui::IGUICheckBox* chkAutoSearch;
+	irr::gui::IGUICheckBox* chkMultiKeywords;
 	irr::gui::IGUICheckBox* chkEnableSound;
 	irr::gui::IGUICheckBox* chkEnableMusic;
 	irr::gui::IGUIScrollBar* scrSoundVolume;
@@ -390,6 +405,11 @@ public:
 	irr::gui::IGUIStaticText* stQMessage;
 	irr::gui::IGUIButton* btnYes;
 	irr::gui::IGUIButton* btnNo;
+	//surrender yes/no
+	irr::gui::IGUIWindow* wSurrender;
+	irr::gui::IGUIStaticText* stSurrenderMessage;
+	irr::gui::IGUIButton* btnSurrenderYes;
+	irr::gui::IGUIButton* btnSurrenderNo;
 	//options
 	irr::gui::IGUIWindow* wOptions;
 	irr::gui::IGUIStaticText* stOptions;
@@ -618,6 +638,7 @@ extern Game* mainGame;
 #define BUTTON_CARD_4				234
 #define SCROLL_CARD_SELECT			235
 #define BUTTON_CARD_SEL_OK			236
+#define TEXT_CARD_LIST_TIP			237
 #define BUTTON_CMD_ACTIVATE			240
 #define BUTTON_CMD_SUMMON			241
 #define BUTTON_CMD_SPSUMMON			242
@@ -653,6 +674,8 @@ extern Game* mainGame;
 #define BUTTON_DISPLAY_4			294
 #define SCROLL_CARD_DISPLAY			295
 #define BUTTON_CARD_DISP_OK			296
+#define BUTTON_SURRENDER_YES		297
+#define BUTTON_SURRENDER_NO			298
 #define BUTTON_CATEGORY_OK			300
 #define COMBOBOX_DBLFLIST			301
 #define COMBOBOX_DBDECKS			302
@@ -684,10 +707,13 @@ extern Game* mainGame;
 #define BUTTON_BOT_START			340
 #define LISTBOX_BOT_LIST			341
 #define CHECKBOX_BOT_OLD_RULE		342
-#define LISTBOX_SINGLEPLAY_LIST		350
-#define BUTTON_LOAD_SINGLEPLAY		351
-#define BUTTON_CANCEL_SINGLEPLAY	352
+#define LISTBOX_SINGLEPLAY_LIST		343
+#define BUTTON_LOAD_SINGLEPLAY		344
+#define BUTTON_CANCEL_SINGLEPLAY	345
+#define SCROLL_TAB_HELPER			350
+#define SCROLL_TAB_SYSTEM			351
 #define CHECKBOX_AUTO_SEARCH		360
+#define CHECKBOX_MULTI_KEYWORDS		372
 #define CHECKBOX_ENABLE_SOUND		361
 #define CHECKBOX_ENABLE_MUSIC		362
 #define SCROLL_VOLUME				363
@@ -696,10 +722,11 @@ extern Game* mainGame;
 #define BUTTON_WINDOW_RESIZE_M		366
 #define BUTTON_WINDOW_RESIZE_L		367
 #define BUTTON_WINDOW_RESIZE_XL		368
-#define COMBOBOX_LOCALE				369
+#define CHECKBOX_QUICK_ANIMATION	369
 
 #define COMBOBOX_SORTTYPE			370
 #define COMBOBOX_LIMIT				371
+#define COMBOBOX_LOCALE				372
 
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381

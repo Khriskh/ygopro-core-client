@@ -62,6 +62,7 @@ static bool check_set_code(const CardDataC& data, int set_code) {
 void DeckBuilder::Initialize() {
 	mainGame->is_building = true;
 	mainGame->is_siding = false;
+	mainGame->ClearCardInfo();
 	mainGame->wInfos->setVisible(true);
 	mainGame->wCardImg->setVisible(true);
 	mainGame->wDeckEdit->setVisible(true);
@@ -91,6 +92,7 @@ void DeckBuilder::Initialize() {
 }
 void DeckBuilder::Terminate() {
 	mainGame->is_building = false;
+	mainGame->ClearCardInfo();
 	mainGame->wDeckEdit->setVisible(false);
 	mainGame->wCategories->setVisible(false);
 	mainGame->wFilter->setVisible(false);
@@ -128,7 +130,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			switch(id) {
 			case BUTTON_CLEAR_DECK: {
 				mainGame->gMutex.Lock();
-				mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(1339));
+				mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->guiFont, (wchar_t*)dataManager.GetSysString(1339));
 				mainGame->PopupElement(mainGame->wQuery);
 				mainGame->gMutex.Unlock();
 				prev_operation = id;
@@ -224,7 +226,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				mainGame->gMutex.Lock();
 				wchar_t textBuffer[256];
 				myswprintf(textBuffer, L"%ls\n%ls", mainGame->cbDBDecks->getItem(sel), dataManager.GetSysString(1337));
-				mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)textBuffer);
+				mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->guiFont, (wchar_t*)textBuffer);
 				mainGame->PopupElement(mainGame->wQuery);
 				mainGame->gMutex.Unlock();
 				prev_operation = id;
@@ -234,7 +236,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			case BUTTON_LEAVE_GAME: {
 				if(is_modified && !mainGame->chkIgnoreDeckChanges->isChecked()) {
 					mainGame->gMutex.Lock();
-					mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(1356));
+					mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->guiFont, (wchar_t*)dataManager.GetSysString(1356));
 					mainGame->PopupElement(mainGame->wQuery);
 					mainGame->gMutex.Unlock();
 					prev_operation = id;
@@ -275,8 +277,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 					mainGame->env->addMessageBox(L"", dataManager.GetSysString(1410));
 					break;
 				}
-				mainGame->imgCard->setImage(imageManager.tCover[0]);
-				mainGame->showingcode = 0;
+				mainGame->ClearCardInfo();
 				char deckbuf[1024];
 				char* pdeck = deckbuf;
 				BufferIO::WriteInt32(pdeck, deckManager.current_deck.main.size() + deckManager.current_deck.extra.size());
@@ -402,7 +403,7 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			case COMBOBOX_DBDECKS: {
 				if(is_modified && !mainGame->chkIgnoreDeckChanges->isChecked()) {
 					mainGame->gMutex.Lock();
-					mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->textFont, (wchar_t*)dataManager.GetSysString(1356));
+					mainGame->SetStaticText(mainGame->stQMessage, 310, mainGame->guiFont, (wchar_t*)dataManager.GetSysString(1356));
 					mainGame->PopupElement(mainGame->wQuery);
 					mainGame->gMutex.Unlock();
 					prev_operation = id;
@@ -821,8 +822,8 @@ void DeckBuilder::FilterCards() {
 	std::vector<std::wstring> query_elements;
 	std::vector<std::vector<std::wstring>::iterator> query_elements_track;
 	size_t element_start = 0;
-	while(1) {
-		size_t element_end = str.find_first_of(L' ', element_start);
+	while(mainGame->gameConf.search_multiple_keywords) {
+		size_t element_end = str.find_first_of(mainGame->gameConf.search_multiple_keywords == 1 ? L' ' : L'+', element_start);
 		if(element_end == std::wstring::npos)
 			break;
 		size_t length = element_end - element_start;

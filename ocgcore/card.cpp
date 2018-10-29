@@ -144,18 +144,6 @@ card::card(duel* pd) {
 	spsummon_code = 0;
 	current.controler = PLAYER_NONE;
 }
-card::~card() {
-	indexer.clear();
-	relations.clear();
-	counters.clear();
-	equiping_cards.clear();
-	material_cards.clear();
-	single_effect.clear();
-	field_effect.clear();
-	equip_effect.clear();
-	xmaterial_effect.clear();
-	relate_effect.clear();
-}
 uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	int32* p = (int32*)buf;
 	int32 tdata = 0;
@@ -3303,8 +3291,11 @@ int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
 }
-int32 card::is_setable_szone(uint8 playerid, uint8 ignore_fd) {
-	if(!(data.type & TYPE_FIELD) && !ignore_fd && pduel->game_field->get_useable_count(this, current.controler, LOCATION_SZONE, current.controler, LOCATION_REASON_TOFIELD) <= 0)
+int32 card::is_setable_szone(uint8 playerid, uint8 ignore_fd, uint8 toplayer, uint32 zone) {
+	uint32 tp = current.controler;
+	if(toplayer < 2)
+		tp = toplayer;
+	if(!(data.type & TYPE_FIELD) && !ignore_fd && pduel->game_field->get_useable_count(this, tp, LOCATION_SZONE, tp, LOCATION_REASON_TOFIELD, zone) <= 0)
 		return FALSE;
 	if(data.type & TYPE_MONSTER && !is_affected_by_effect(EFFECT_MONSTER_SSET))
 		return FALSE;
