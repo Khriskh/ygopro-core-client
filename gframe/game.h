@@ -42,6 +42,7 @@ struct Config {
 	int separate_clear_button;
 	int auto_search_limit;
 	int search_multiple_keywords;
+	int search_regex;
 	int chkIgnoreDeckChanges;
 	int defaultOT;
 	int enable_bot_mode;
@@ -74,6 +75,7 @@ struct DuelInfo {
 	int lp[2];
 	int start_lp[2];
 	int card_count[2];
+	int total_attack[2];
 	int duel_rule;
 	int turn;
 	short curMsg;
@@ -90,7 +92,9 @@ struct DuelInfo {
 	wchar_t str_time_left[2][16];
 	video::SColor time_color[2];
 	wchar_t str_card_count[2][16];
+	wchar_t str_total_attack[2][16];
 	video::SColor card_count_color[2];
+	video::SColor total_attack_color[2];
 	bool isReplaySwapped;
 	std::vector<unsigned int> announce_cache;
 };
@@ -125,6 +129,8 @@ public:
 	void InitStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, u32 cHeight, irr::gui::CGUITTFont* font, const wchar_t* text);
 	void SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gui::CGUITTFont* font, const wchar_t* text, u32 pos = 0);
 	void LoadExpansionDB();
+	void LoadExpansionDBDirectry(const char* path);
+	void LoadExpansionStrings();
 	void RefreshDeck(irr::gui::IGUIComboBox* cbDeck);
 	void RefreshReplay();
 	void RefreshSingleplay();
@@ -154,10 +160,10 @@ public:
 	void SaveConfig();
 	void ShowCardInfo(int code, bool resize = false);
 	void ClearCardInfo(int player = 0);
-	void AddChatMsg(wchar_t* msg, int player);
+	void AddChatMsg(const wchar_t* msg, int player);
 	void ClearChatMsg();
-	void AddDebugMsg(char* msgbuf);
-	bool MakeDirectory(const std::string folder);
+	void AddDebugMsg(const char* msgbuf);
+	void ErrorLog(const char* msgbuf);
 	void initUtils();
 	void ClearTextures();
 	void CloseDuelWindow();
@@ -165,6 +171,7 @@ public:
 	int LocalPlayer(int player);
 	const wchar_t* LocalName(int local_player);
 	const char* GetLocaleDir(const char* dir);
+	bool CheckRegEx(const std::wstring& text, const std::wstring& exp, bool exact = false);
 
 	bool HasFocus(EGUI_ELEMENT_TYPE type) const {
 		irr::gui::IGUIElement* focus = env->getFocus();
@@ -302,6 +309,7 @@ public:
 	irr::gui::IGUICheckBox* chkIgnoreDeckChanges;
 	irr::gui::IGUICheckBox* chkAutoSearch;
 	irr::gui::IGUICheckBox* chkMultiKeywords;
+	irr::gui::IGUICheckBox* chkRegex;
 	irr::gui::IGUICheckBox* chkEnableSound;
 	irr::gui::IGUICheckBox* chkEnableMusic;
 	irr::gui::IGUIScrollBar* scrSoundVolume;
@@ -714,6 +722,7 @@ extern Game* mainGame;
 #define SCROLL_TAB_SYSTEM			351
 #define CHECKBOX_AUTO_SEARCH		360
 #define CHECKBOX_MULTI_KEYWORDS		372
+#define CHECKBOX_REGEX				373
 #define CHECKBOX_ENABLE_SOUND		361
 #define CHECKBOX_ENABLE_MUSIC		362
 #define SCROLL_VOLUME				363
@@ -732,8 +741,8 @@ extern Game* mainGame;
 #define BUTTON_MARKERS_OK			381
 
 #define BUTTON_RENAME_DECK			386
-#define BUTTON_RENAME_DECK_SAVE			387
-#define BUTTON_RENAME_DECK_CANCEL		388
+#define BUTTON_RENAME_DECK_SAVE		387
+#define BUTTON_RENAME_DECK_CANCEL	388
 
 #define TEXTURE_DUEL				0
 #define TEXTURE_DECK				1
