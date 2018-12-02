@@ -156,7 +156,7 @@ bool Game::Initialize() {
 	btnJoinHost = env->addButton(rect<s32>(460, 355, 570, 380), wLanWindow, BUTTON_JOIN_HOST, dataManager.GetSysString(1223));
 	btnJoinCancel = env->addButton(rect<s32>(460, 385, 570, 410), wLanWindow, BUTTON_JOIN_CANCEL, dataManager.GetSysString(1212));
 	btnCreateHost = env->addButton(rect<s32>(460, 25, 570, 50), wLanWindow, BUTTON_CREATE_HOST, dataManager.GetSysString(1224));
-	btnCreateHelp = env->addButton(rect<s32>(225, 390, 240, 410), wLanWindow, BUTTON_HOST_HELP, dataManager.GetSysString(1224));
+	btnCreateHelp = env->addButton(rect<s32>(425, 385, 440, 410), wLanWindow, BUTTON_HOST_HELP, dataManager.GetSysString(1224));
 	
 	//create HELP
 	wCreateHelp = env->addWindow(rect<s32>(220, 525, 800, 600), false, dataManager.GetSysString(1224));
