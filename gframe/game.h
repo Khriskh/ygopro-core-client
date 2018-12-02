@@ -340,6 +340,7 @@ public:
 	irr::gui::IGUIButton* btnJoinHost;
 	irr::gui::IGUIButton* btnJoinCancel;
 	irr::gui::IGUIButton* btnCreateHost;
+	irr::gui::IGUIButton* btnCreateHelp;
 	//create host
 	irr::gui::IGUIWindow* wCreateHost;
 	irr::gui::IGUIComboBox* cbLFlist;
@@ -356,6 +357,8 @@ public:
 	irr::gui::IGUICheckBox* chkNoShuffleDeck;
 	irr::gui::IGUIButton* btnHostConfirm;
 	irr::gui::IGUIButton* btnHostCancel;
+	//create help
+	irr::gui::IGUIWindow* wCreateHelp;
 	//host panel
 	irr::gui::IGUIWindow* wHostPrepare;
 	irr::gui::IGUIButton* btnHostPrepDuelist;
@@ -736,6 +739,7 @@ extern Game* mainGame;
 #define COMBOBOX_SORTTYPE			370
 #define COMBOBOX_LIMIT				371
 #define COMBOBOX_LOCALE				372
+#define BUTTON_HOST_HELP			373
 
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381

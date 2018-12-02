@@ -119,6 +119,10 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->ShowElement(mainGame->wCreateHost);
 				break;
 			}
+			case BUTTON_HOST_HELP: {
+				mainGame->ShowElement(mainGame->wCreateHelp);
+				break;
+			}
 			case BUTTON_HOST_CONFIRM: {
 				bot_mode = false;
 				BufferIO::CopyWStr(mainGame->ebServerName->getText(), mainGame->gameConf.gamename, 20);
