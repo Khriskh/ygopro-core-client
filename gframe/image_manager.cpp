@@ -311,7 +311,7 @@ irr::video::ITexture* ImageManager::GetTextureExpansions(char* file, s32 width, 
 		return img;
 	bool find = false;
 	FileSystem::TraversalDir("./expansions", [this, file, width, height, &img, &find](const char* name, bool isdir) {
-		if(!find && isdir && strcmp(name, ".") && strcmp(name, "..")) {
+		if(!find && isdir && strcmp(name, ".") && strcmp(name, "..") && strcmp(name, "pics") && strcmp(name, "script")) {
 			char subdir[1024];
 			sprintf(subdir, "./expansions/%s", name);
 			img = GetTextureExpansionsDirectry(subdir, file, width, height);
@@ -450,6 +450,14 @@ irr::video::ITexture* ImageManager::GetTextureField(int code) {
 		if(img == NULL) {
 			sprintf(file, "pics/field/%d.jpg", code);
 			img = GetTextureExpansions(file, 512 * mainGame->xScale, 512 * mainGame->yScale);
+		}
+		if(img == NULL) {
+			sprintf(file, mainGame->GetLocaleDir("pics/field/%d.png"), code);
+			img = GetTextureFromFile(file, 512 * mainGame->xScale, 512 * mainGame->yScale);
+		}
+		if(img == NULL) {
+			sprintf(file, mainGame->GetLocaleDir("pics/field/%d.jpg"), code);
+			img = GetTextureFromFile(file, 512 * mainGame->xScale, 512 * mainGame->yScale);
 		}
 		if(img == NULL) {
 			sprintf(file, "pics/field/%d.png", code);

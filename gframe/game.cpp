@@ -12,7 +12,7 @@
 #include <sstream>
 #include <regex>
 
-unsigned short PRO_VERSION = 0x1347;
+unsigned short PRO_VERSION = 0x1348;
 
 namespace ygo {
 
@@ -156,13 +156,6 @@ bool Game::Initialize() {
 	btnJoinHost = env->addButton(rect<s32>(460, 355, 570, 380), wLanWindow, BUTTON_JOIN_HOST, dataManager.GetSysString(1223));
 	btnJoinCancel = env->addButton(rect<s32>(460, 385, 570, 410), wLanWindow, BUTTON_JOIN_CANCEL, dataManager.GetSysString(1212));
 	btnCreateHost = env->addButton(rect<s32>(460, 25, 570, 50), wLanWindow, BUTTON_CREATE_HOST, dataManager.GetSysString(1224));
-	btnCreateHelp = env->addButton(rect<s32>(425, 385, 440, 410), wLanWindow, BUTTON_HOST_HELP, dataManager.GetSysString(1224));
-	
-	//create HELP
-	wCreateHelp = env->addWindow(rect<s32>(220, 525, 800, 600), false, dataManager.GetSysString(1224));
-	wCreateHelp->getCloseButton()->setVisible(false);
-	wCreateHelp->setVisible(false);
-	
 	//create host
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
 	wCreateHost->getCloseButton()->setVisible(false);
@@ -995,7 +988,7 @@ void Game::SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gu
 void Game::LoadExpansionDB() {
 	LoadExpansionDBDirectry("./expansions");
 	FileSystem::TraversalDir("./expansions", [this](const char* name, bool isdir) {
-		if(isdir && strcmp(name, ".") && strcmp(name, "..")) {
+		if(isdir && strcmp(name, ".") && strcmp(name, "..") && strcmp(name, "pics") && strcmp(name, "script")) {
 			char subdir[1024];
 			sprintf(subdir, "./expansions/%s", name);
 			LoadExpansionDBDirectry(subdir);
@@ -1014,7 +1007,7 @@ void Game::LoadExpansionDBDirectry(const char* path) {
 void Game::LoadExpansionStrings() {
 	dataManager.LoadStrings("./expansions/strings.conf");
 	FileSystem::TraversalDir("./expansions", [](const char* name, bool isdir) {
-		if(isdir && strcmp(name, ".") && strcmp(name, "..")) {
+		if(isdir && strcmp(name, ".") && strcmp(name, "..") && strcmp(name, "pics") && strcmp(name, "script")) {
 			char fpath[1024];
 			sprintf(fpath, "./expansions/%s/strings.conf", name);
 			dataManager.LoadStrings(fpath);
@@ -1535,6 +1528,10 @@ void Game::ShowCardInfo(int code, bool resize) {
 	if(cd.type & TYPE_MONSTER) {
 		myswprintf(formatBuffer, L"[%ls] %ls/%ls", dataManager.FormatType(cd.type), dataManager.FormatRace(cd.race), dataManager.FormatAttribute(cd.attribute));
 		stInfo->setText(formatBuffer);
+		int offset_info = 0;
+		irr::core::dimension2d<unsigned int> dtxt = mainGame->guiFont->getDimension(formatBuffer);
+		if(dtxt.Width > (300 * xScale - 13) - 15)
+			offset_info = 15;
 		if(!(cd.type & TYPE_LINK)) {
 			const wchar_t* form = L"\u2605";
 			if(cd.type & TYPE_XYZ) form = L"\u2606";
@@ -1565,11 +1562,12 @@ void Game::ShowCardInfo(int code, bool resize) {
 			wcscat(formatBuffer, scaleBuffer);
 		}
 		stDataInfo->setText(formatBuffer);
-		int offset_arrows = 0;
-		irr::core::dimension2d<unsigned int> dtxt = mainGame->guiFont->getDimension(formatBuffer);
+		int offset_arrows = offset_info;
+		dtxt = mainGame->guiFont->getDimension(formatBuffer);
 		if(dtxt.Width > (300 * xScale - 13) - 15)
-			offset_arrows = 15;
-		stDataInfo->setRelativePosition(rect<s32>(15, 60, 300 * xScale - 13, (83 + offset_arrows)));
+			offset_arrows += 15;
+		stInfo->setRelativePosition(rect<s32>(15, 37, 300 * xScale - 13, (60 + offset_info)));
+		stDataInfo->setRelativePosition(rect<s32>(15, (60 + offset_info), 300 * xScale - 13, (83 + offset_arrows)));
 		stSetName->setRelativePosition(rect<s32>(15, (83 + offset_arrows), 296 * xScale, (83 + offset_arrows) + offset));
 		stText->setRelativePosition(rect<s32>(15, (83 + offset_arrows) + offset, 287 * xScale, 324 * yScale));
 		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, (83 + offset_arrows) + offset, 287 * xScale, 324 * yScale));
