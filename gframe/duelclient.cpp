@@ -154,6 +154,7 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 				cscg.info.duel_rule = mainGame->cbDuelRule->getSelected() + 1;
 				cscg.info.no_check_deck = mainGame->chkNoCheckDeck->isChecked();
 				cscg.info.no_shuffle_deck = mainGame->chkNoShuffleDeck->isChecked();
+				cscg.name = _wtoi(mainGame->ebStartLP->getText());
 			}
 			SendPacketToServer(CTOS_CREATE_GAME, cscg);
 		} else {
