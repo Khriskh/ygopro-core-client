@@ -133,11 +133,15 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HOST_ONLINE: {
+				
+				ebJoinPass = env->addEditBox(mainGame->ebStartLP->getText(), rect<s32>(110, 385, 420, 410), true, wLanWindow);
+				
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wCreateHost);
 				mainGame->ShowElement(mainGame->wLanWindow);
+				
 				break;
 			}
 			case BUTTON_HOST_CANCEL: {
