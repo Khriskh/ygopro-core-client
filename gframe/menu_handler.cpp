@@ -134,7 +134,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_HOST_ONLINE: {
 				//mainGame->ebJoinPass->setText(L"Error occurs.");
-				const wchar_t LPPP = L'LP';
+				wchar_t LPPP[1024] = L'LP';
 				
 				mainGame->ebJoinPass->setText(LPPP + mainGame->ebStartLP->getText());
 				
