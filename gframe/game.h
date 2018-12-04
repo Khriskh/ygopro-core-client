@@ -354,6 +354,7 @@ public:
 	irr::gui::IGUIComboBox* cbDuelRule;
 	irr::gui::IGUICheckBox* chkNoCheckDeck;
 	irr::gui::IGUICheckBox* chkNoShuffleDeck;
+	irr::gui::IGUIButton* btnHostOnline;
 	irr::gui::IGUIButton* btnHostConfirm;
 	irr::gui::IGUIButton* btnHostCancel;
 	//host panel
@@ -736,6 +737,7 @@ extern Game* mainGame;
 #define COMBOBOX_SORTTYPE			370
 #define COMBOBOX_LIMIT				371
 #define COMBOBOX_LOCALE				372
+#define BUTTON_HOST_ONLINE			373
 
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381

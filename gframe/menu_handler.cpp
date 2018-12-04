@@ -132,6 +132,14 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnHostCancel->setEnabled(false);
 				break;
 			}
+			case BUTTON_HOST_ONLINE: {
+				mainGame->btnCreateHost->setEnabled(true);
+				mainGame->btnJoinHost->setEnabled(true);
+				mainGame->btnJoinCancel->setEnabled(true);
+				mainGame->HideElement(mainGame->wCreateHost);
+				mainGame->ShowElement(mainGame->wLanWindow);
+				break;
+			}
 			case BUTTON_HOST_CANCEL: {
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
