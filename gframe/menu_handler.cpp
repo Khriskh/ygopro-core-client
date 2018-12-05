@@ -163,30 +163,24 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				myswprintf(ES_MATCH, L"Match");
 				myswprintf(ES_TAG, L"Tag");
 				
-				if ( ES_FORMATO == ES_OCG )
-				{
+				if ( ES_FORMATO == ES_OCG ){
 					myswprintf(Formato, L"OO");
-				}else
-				{
+				} else{
 					myswprintf(Formato, L"TO");
 				}
 				
-				if ( ES_CARTAS != ES_OCG || ES_CARTAS != ES_TCG )
-				{
-					myswprintf(Formato, L",OT");
-				}else
-				{
-					myswprintf(Formato, L"");
+				if ( ES_CARTAS != ES_OCG || ES_CARTAS != ES_TCG ){
+					myswprintf(Cartas, L",OT");
+				} else{
+					myswprintf(Cartas, L"");
 				}
 				
-				if ( ES_MODO == ES_MATCH )
-				{
-					myswprintf(Formato, L"M");
-				}else if ( ES_MODO == ES_TAG )
-				{
-					myswprintf(Formato, L",T");
-				}else{
-					myswprintf(Formato, L",S");
+				if ( ES_MODO == ES_MATCH ){
+					myswprintf(Modo, L"M");
+				} else if ( ES_MODO == ES_TAG ){
+					myswprintf(Modo, L",T");
+				} else{
+					myswprintf(Modo, L",S");
 				}
 				
 				myswprintf(texto, L"%ls%ls%ls#%ls", Formato, Cartas, Modo, mainGame->ebServerName->getText());
