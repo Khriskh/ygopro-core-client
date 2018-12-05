@@ -122,9 +122,9 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_HOST_CONFIRM: {
 				bot_mode = false;
 				BufferIO::CopyWStr(mainGame->ebServerName->getText(), mainGame->gameConf.gamename, 20);
-				if(!NetServer::StartServer(mainGame->mainGame->ebServerPass->getText()))
+				if(!NetServer::StartServer(mainGame->gameConf.serverport))
 					break;
-				if(!DuelClient::StartClient(0x7f000001, mainGame->mainGame->ebServerPass->getText())) {
+				if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.serverport)) {
 					NetServer::StopServer();
 					break;
 				}
@@ -134,12 +134,13 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_HOST_ONLINE: {
 				//mainGame->ebJoinPass->setText(L"Error occurs.");
-				//mainGame->ebJoinPass->setText(L"LP" + mainGame->ebStartLP->getText());
+				
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wCreateHost);
 				mainGame->ShowElement(mainGame->wLanWindow);
+				
 				break;
 			}
 			case BUTTON_HOST_CANCEL: {
