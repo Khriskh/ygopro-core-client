@@ -122,9 +122,9 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_HOST_CONFIRM: {
 				bot_mode = false;
 				BufferIO::CopyWStr(mainGame->ebServerName->getText(), mainGame->gameConf.gamename, 20);
-				if(!NetServer::StartServer(mainGame->gameConf.ebServerPass))
+				if(!NetServer::StartServer(mainGame->mainGame->ebServerPass->getText()))
 					break;
-				if(!DuelClient::StartClient(0x7f000001, mainGame->gameConf.ebServerPass)) {
+				if(!DuelClient::StartClient(0x7f000001, mainGame->mainGame->ebServerPass->getText())) {
 					NetServer::StopServer();
 					break;
 				}
