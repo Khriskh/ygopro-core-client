@@ -143,26 +143,53 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_HOST_CONFIRMO: {
 				wchar_t texto[1024];
 				wchar_t Formato[1024];
+				wchar_t Cartas[1024];
+				wchar_t Modo[1024];
 				
 				wchar_t ES_FORMATO[1024];
 				myswprintf(ES_FORMATO, L"%ls", mainGame->cbLFlist->getText());
+				wchar_t ES_CARTAS[1024];
+				myswprintf(ES_CARTAS, L"%ls", mainGame->cbRule->getText());
+				wchar_t ES_MODO[1024];
+				myswprintf(ES_MODO, L"%ls", mainGame->cbMatchMode->getText());
 				
 				wchar_t ES_OCG[1024];
 				wchar_t ES_TCG[1024];
-				wchar_t ES_OCGTCG[1024];
 				myswprintf(ES_OCG, L"OCG");
 				myswprintf(ES_TCG, L"TCG");
-				myswprintf(ES_OCGTCG, L"OCG/TCG");
+				
+				wchar_t ES_MATCH[1024];
+				wchar_t ES_TAG[1024];
+				myswprintf(ES_MATCH, L"Match");
+				myswprintf(ES_TAG, L"Tag");
 				
 				if ( ES_FORMATO == ES_OCG )
 				{
 					myswprintf(Formato, L"OO");
-				}
-				else
+				}else
 				{
 					myswprintf(Formato, L"TO");
 				}
-				myswprintf(texto, L"%ls,Cartas %ls,modo %ls #%ls", Formato, mainGame->cbRule->getText(), mainGame->cbMatchMode->getText(), mainGame->ebServerName->getText());
+				
+				if ( ES_CARTAS != ES_OCG || ES_CARTAS != ES_TCG )
+				{
+					myswprintf(Formato, L",OT");
+				}else
+				{
+					myswprintf(Formato, L"");
+				}
+				
+				if ( ES_MODO == ES_MATCH )
+				{
+					myswprintf(Formato, L"M");
+				}else if ( ES_MODO == ES_TAG )
+				{
+					myswprintf(Formato, L",T");
+				}else{
+					myswprintf(Formato, L",S");
+				}
+				
+				myswprintf(texto, L"%ls%ls%ls#%ls", Formato, Cartas, Modo, mainGame->ebServerName->getText());
 				mainGame->ebJoinPass->setText(texto);
 				
 				mainGame->btnCreateHost->setEnabled(true);
