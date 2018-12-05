@@ -134,7 +134,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_HOST_ONLINE: {
 				//mainGame->ebJoinPass->setText(L"Error occurs.");
-				mainGame->ebJoinPass->setText(L"LP" + std::to_string(mainGame->ebNickName->getText()));
+				mainGame->ebJoinPass->setText(L"LP" + mainGame->ebNickName->getText());
 				mainGame->btnCreateHost->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
