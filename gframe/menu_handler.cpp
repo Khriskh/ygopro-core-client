@@ -143,13 +143,13 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_HOST_CONFIRMO: {
 				wchar_t texto[1024];
 				wchar_t Formato[1024];
-				if ( mainGame->cbLFlist->getText() == "OCG")
+				if ( mainGame->cbLFlist->getText() == 'OCG')
 				{
-					Formato = "OO";
+					myswprintf(Formato, L"OO");
 				}
 				else
 				{
-					Formato = "TO";
+					myswprintf(Formato, L"TO");
 				}
 				myswprintf(texto, L"%ls,Cartas %ls,modo %ls #%ls", Formato, mainGame->cbRule->getText(), mainGame->cbMatchMode->getText(), mainGame->ebServerName->getText());
 				mainGame->ebJoinPass->setText(texto);
