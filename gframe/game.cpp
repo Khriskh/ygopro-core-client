@@ -1189,7 +1189,7 @@ void Game::LoadConfig() {
 				BufferIO::CopyWStr(wstr, gameConf.lastport, 20);
 			} else if(!strcmp(strbuf, "roompass")) {
 				BufferIO::DecodeUTF8(valbuf, wstr);
-				BufferIO::CopyWStr(wstr, gameConf.roompass, 256);
+				BufferIO::CopyWStr(wstr, gameConf.roompass, 20);
 			} else if(!strcmp(strbuf, "automonsterpos")) {
 				gameConf.chkMAutoPos = atoi(valbuf);
 			} else if(!strcmp(strbuf, "autospellpos")) {
@@ -1307,7 +1307,7 @@ void Game::LoadConfig() {
 				BufferIO::CopyWStr(wstr, gameConf.lastport, 20);
 			} else if(!strcmp(strbuf, "roompass")) {
 				BufferIO::DecodeUTF8(valbuf, wstr);
-				BufferIO::CopyWStr(wstr, gameConf.roompass, 256);
+				BufferIO::CopyWStr(wstr, gameConf.roompass, 20);
 			} else if(!strcmp(strbuf, "automonsterpos")) {
 				gameConf.chkMAutoPos = atoi(valbuf);
 			} else if(!strcmp(strbuf, "autospellpos")) {

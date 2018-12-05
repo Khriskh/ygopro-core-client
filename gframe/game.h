@@ -25,7 +25,7 @@ struct Config {
 	wchar_t lastdeck[64];
 	wchar_t textfont[256];
 	wchar_t numfont[256];
-	wchar_t roompass[256];
+	wchar_t roompass[20];
 	wchar_t locale[64];
 	//settings
 	int chkMAutoPos;

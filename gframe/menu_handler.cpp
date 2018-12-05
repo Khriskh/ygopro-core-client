@@ -133,10 +133,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HOST_ONLINE: {
-				//mainGame->ebJoinPass->setText(L"Error occurs.");
-				//mainGame->ebJoinPass->setText("LP" + mainGame->ebStartLP->getText());
 				wchar_t texto[1024];
-				myswprintf(texto, L"LP%ls", mainGame->ebStartLP->getText());
+				myswprintf(texto, L"Lista %ls,Cartas %ls,modo %ls #%ls", mainGame->cbLFlist->getText(), mainGame->cbRule->getText(), mainGame->cbMatchMode->getText(), mainGame->ebServerName->getText());
 				mainGame->ebJoinPass->setText(texto);
 				
 				mainGame->btnCreateHost->setEnabled(true);
