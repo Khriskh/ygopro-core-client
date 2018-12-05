@@ -113,8 +113,15 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				DuelClient::BeginRefreshHost();
 				break;
 			}
+			// case BUTTON_CREATE_HOST: {
+				// mainGame->btnHostConfirm->setEnabled(true);
+				// mainGame->btnHostCancel->setEnabled(true);
+				// mainGame->HideElement(mainGame->wLanWindow);
+				// mainGame->ShowElement(mainGame->wCreateHost);
+				// break;
+			// }
 			case BUTTON_CREATE_HOST: {
-				mainGame->btnHostConfirm->setEnabled(true);
+				mainGame->btnHostConfirmO->setEnabled(true);
 				mainGame->btnHostCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wLanWindow);
 				mainGame->ShowElement(mainGame->wCreateHost);
