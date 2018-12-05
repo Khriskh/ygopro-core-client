@@ -216,27 +216,34 @@ bool Game::Initialize() {
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
 	wCreateHost->getCloseButton()->setVisible(false);
 	wCreateHost->setVisible(false);
+	
 	env->addStaticText(dataManager.GetSysString(1226), rect<s32>(20, 30, 220, 50), false, false, wCreateHost);
 	cbLFlist = env->addComboBox(rect<s32>(140, 25, 300, 50), wCreateHost);
 	cbLFlist->addItem(dataManager.GetSysString(1240));
 	cbLFlist->addItem(dataManager.GetSysString(1241));
+	cbLFlist->setSelected(gameConf.defaultOT - 1);
+	
 	env->addStaticText(dataManager.GetSysString(1225), rect<s32>(20, 60, 220, 80), false, false, wCreateHost);
 	cbRule = env->addComboBox(rect<s32>(140, 55, 300, 80), wCreateHost);
 	cbRule->addItem(dataManager.GetSysString(1240));
 	cbRule->addItem(dataManager.GetSysString(1241));
 	cbRule->addItem(dataManager.GetSysString(1242));
 	cbRule->setSelected(gameConf.defaultOT - 1);
+	
 	env->addStaticText(dataManager.GetSysString(1227), rect<s32>(20, 90, 220, 110), false, false, wCreateHost);
 	cbMatchMode = env->addComboBox(rect<s32>(140, 85, 300, 110), wCreateHost);
 	cbMatchMode->addItem(dataManager.GetSysString(1244));
 	cbMatchMode->addItem(dataManager.GetSysString(1245));
 	cbMatchMode->addItem(dataManager.GetSysString(1246));
+	
 	env->addStaticText(dataManager.GetSysString(1234), rect<s32>(10, 360, 220, 380), false, false, wCreateHost);
 	ebServerName = env->addEditBox(gameConf.gamename, rect<s32>(110, 355, 250, 380), true, wCreateHost);
 	ebServerName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 
-	btnHostConfirmO = env->addButton(rect<s32>(260, 355, 370, 380), wCreateHost, BUTTON_HOST_CONFIRMO, dataManager.GetSysString(1211));
+	btnHostConfirmO = env->addButton(rect<s32>(260, 325, 370, 350), wCreateHost, BUTTON_HOST_CONFIRMO, dataManager.GetSysString(1211));
+	btnHostConfirm = env->addButton(rect<s32>(260, 355, 370, 380), wCreateHost, BUTTON_HOST_CONFIRM, dataManager.GetSysString(1211));
 	btnHostCancel = env->addButton(rect<s32>(260, 385, 370, 410), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
+	
 	//host(single)
 	wHostPrepare = env->addWindow(rect<s32>(270, 120, 750, 440), false, dataManager.GetSysString(1250));
 	wHostPrepare->getCloseButton()->setVisible(false);

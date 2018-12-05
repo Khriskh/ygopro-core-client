@@ -101,6 +101,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				}
 				break;
 			}
+			
 			case BUTTON_JOIN_CANCEL: {
 				mainGame->HideElement(mainGame->wLanWindow);
 				mainGame->ShowElement(mainGame->wMainMenu);
