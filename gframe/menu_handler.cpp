@@ -132,7 +132,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnHostCancel->setEnabled(false);
 				break;
 			}
-			case BUTTON_HOST_ONLINE: {
+			case BUTTON_HOST_CONFIRMO: {
 				wchar_t texto[1024];
 				myswprintf(texto, L"Lista %ls,Cartas %ls,modo %ls #%ls", mainGame->cbLFlist->getSelected()+1, mainGame->cbRule->getSelected()+1, mainGame->cbMatchMode->getSelected()+1, mainGame->ebServerName->getText());
 				mainGame->ebJoinPass->setText(texto);
