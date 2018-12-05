@@ -183,7 +183,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					myswprintf(Modo, L",S");
 				}
 				
-				myswprintf(texto, L"%ls%ls%ls#%ls", Formato, Cartas, Modo, mainGame->ebServerName->getText());
+				myswprintf(texto, L"%ls%ls%ls#%ls", ES_FORMATO, Cartas, Modo, mainGame->ebServerName->getText());
 				mainGame->ebJoinPass->setText(texto);
 				
 				mainGame->btnCreateHost->setEnabled(true);
