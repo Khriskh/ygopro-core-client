@@ -143,7 +143,15 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_HOST_CONFIRMO: {
 				wchar_t texto[1024];
 				wchar_t Formato[1024];
-				if ( mainGame->cbLFlist->getText() == 'OCG')
+				
+				wchar_t ES_OCG[1024];
+				wchar_t ES_TCG[1024];
+				wchar_t ES_OCGTCG[1024];
+				myswprintf(ES_OCG, L"OCG");
+				myswprintf(ES_TCG, L"TCG");
+				myswprintf(ES_OCGTCG, L"OCG/TCG");
+				
+				if ( mainGame->cbLFlist->getText() == ES_OCG)
 				{
 					myswprintf(Formato, L"OO");
 				}
