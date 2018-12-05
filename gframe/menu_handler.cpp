@@ -144,6 +144,9 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				wchar_t texto[1024];
 				wchar_t Formato[1024];
 				
+				wchar_t ES_FORMATO[1024];
+				myswprintf(ES_FORMATO, L"%ls", mainGame->cbLFlist->getText());
+				
 				wchar_t ES_OCG[1024];
 				wchar_t ES_TCG[1024];
 				wchar_t ES_OCGTCG[1024];
@@ -151,7 +154,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				myswprintf(ES_TCG, L"TCG");
 				myswprintf(ES_OCGTCG, L"OCG/TCG");
 				
-				if ( mainGame->cbLFlist->getText() == ES_OCG)
+				if ( ES_FORMATO == ES_OCG )
 				{
 					myswprintf(Formato, L"OO");
 				}
