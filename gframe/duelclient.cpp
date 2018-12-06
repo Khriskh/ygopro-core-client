@@ -169,16 +169,14 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 			
 			if ( wcscmp(Condicion,L"1") == 0 ){
 				BufferIO::CopyWStr(mainGame->ebJoinPassO->getText(), csjg.pass, 20);
-				mainGame->ebJoinCondO->setText(L"0");
-			} else if ( wcscmp(Condicion,L"0") == 0) {
+			} else if ( wcscmp(Condicion,L"2") == 0) {
 				BufferIO::CopyWStr(L"L", csjg.pass, 20);
-				mainGame->ebJoinCondO->setText(L"0");
+			} else if ( wcscmp(Condicion,L"3") == 0) {
+				BufferIO::CopyWStr(L"AI", csjg.pass, 20);
 			} else {
 				BufferIO::CopyWStr(mainGame->ebJoinPass->getText(), csjg.pass, 20);
 			}
-			
-			
-			
+			mainGame->ebJoinCondO->setText(L"0");
 			
 			SendPacketToServer(CTOS_JOIN_GAME, csjg);
 		}
