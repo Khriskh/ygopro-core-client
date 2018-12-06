@@ -237,12 +237,12 @@ bool Game::Initialize() {
 	cbMatchMode->addItem(dataManager.GetSysString(1246));
 	cbMatchMode->setSelected(1);
 	
-	env->addStaticText(dataManager.GetSysString(1234), rect<s32>(10, 360, 220, 380), false, false, wCreateHost);
-	ebServerName = env->addEditBox(gameConf.gamename, rect<s32>(110, 355, 250, 380), true, wCreateHost);
+	env->addStaticText(dataManager.GetSysString(1234), rect<s32>(10, 120, 220, 140), false, false, wCreateHost);
+	ebServerName = env->addEditBox(gameConf.gamename, rect<s32>(110, 115, 250, 140), true, wCreateHost);
 	ebServerName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 
-	btnHostConfirmO = env->addButton(rect<s32>(260, 355, 370, 380), wCreateHost, BUTTON_HOST_CONFIRMO, dataManager.GetSysString(1211));
-	btnHostCancel = env->addButton(rect<s32>(260, 385, 370, 410), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
+	btnHostConfirmO = env->addButton(rect<s32>(260, 90, 370, 115), wCreateHost, BUTTON_HOST_CONFIRMO, dataManager.GetSysString(1211));
+	btnHostCancel = env->addButton(rect<s32>(260, 120, 370, 145), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
 	
 	//host(single)
 	wHostPrepare = env->addWindow(rect<s32>(270, 120, 750, 440), false, dataManager.GetSysString(1250));
