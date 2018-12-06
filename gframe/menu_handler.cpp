@@ -141,25 +141,25 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HOST_CONFIRMO: {
-				wchar_t texto[1024];
-				wchar_t Formato[1024];
-				wchar_t Cartas[1024];
-				wchar_t Modo[1024];
+				wchar_t texto[20];
+				wchar_t Formato[5];
+				wchar_t Cartas[5];
+				wchar_t Modo[5];
 				
-				wchar_t ES_FORMATO[1024];
+				wchar_t ES_FORMATO[5];
 				myswprintf(ES_FORMATO, L"%ls", mainGame->cbLFlist->getText());
-				wchar_t ES_CARTAS[1024];
+				wchar_t ES_CARTAS[10];
 				myswprintf(ES_CARTAS, L"%ls", mainGame->cbRule->getText());
-				wchar_t ES_MODO[1024];
+				wchar_t ES_MODO[10];
 				myswprintf(ES_MODO, L"%ls", mainGame->cbMatchMode->getText());
 				
-				wchar_t ES_OCG[1024];
-				wchar_t ES_TCG[1024];
+				wchar_t ES_OCG[5];
+				wchar_t ES_TCG[5];
 				myswprintf(ES_OCG, L"OCG");
 				myswprintf(ES_TCG, L"TCG");
 				
-				wchar_t ES_MATCH[1024];
-				wchar_t ES_TAG[1024];
+				wchar_t ES_MATCH[10];
+				wchar_t ES_TAG[10];
 				myswprintf(ES_MATCH, L"Match");
 				myswprintf(ES_TAG, L"Tag");
 				
@@ -183,7 +183,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					myswprintf(Modo, L",S");
 				}
 				
-				myswprintf(texto, L"%ls%ls%ls#%ls", ES_FORMATO, Cartas, Modo, mainGame->ebServerName->getText());
+				myswprintf(texto, L"%ls%ls%ls#%ls", Formato, Cartas, Modo, mainGame->ebServerName->getText());
 				mainGame->ebJoinPass->setText(texto);
 				
 				mainGame->btnCreateHost->setEnabled(true);
