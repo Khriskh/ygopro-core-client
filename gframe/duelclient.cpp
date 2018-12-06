@@ -421,6 +421,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			
 			while (token) { 
 				myswprintf(token2, L"%ls",token);
+				token = wcstok(NULL, delim, &ptr); 
 			} 
 			
 			switch(room_status) {
