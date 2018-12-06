@@ -411,7 +411,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 
 			hosts_srvpro.push_back(std::wstring(roomname));
 			
-			wchar_t str[] = L"A computer science portal for geeks"; 
+			wchar_t str[] = L"A computer science#portal for geeks"; 
 			// input[];
 			//myswprintf(input, L"%ls",roomname);
 			wchar_t* ptr;
