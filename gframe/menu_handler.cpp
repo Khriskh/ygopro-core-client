@@ -169,15 +169,15 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					myswprintf(Formato, L"TO");
 				}
 				
-				if ( ES_CARTAS != ES_OCG || ES_CARTAS != ES_TCG ){
+				if ( wcscmp(ES_CARTAS,ES_OCG) != 0 || wcscmp(ES_CARTAS,ES_TCG) != 0 ){
 					myswprintf(Cartas, L",OT");
 				} else {
 					myswprintf(Cartas, L"");
 				}
 				
-				if ( ES_MODO == ES_MATCH ){
-					myswprintf(Modo, L"M");
-				} else if ( ES_MODO == ES_TAG ){
+				if ( wcscmp(ES_MODO,ES_MATCH) == 0 ){
+					myswprintf(Modo, L",M");
+				} else if ( wcscmp(ES_MODO,ES_TAG) == 0 {
 					myswprintf(Modo, L",T");
 				} else {
 					myswprintf(Modo, L",S");
