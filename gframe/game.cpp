@@ -234,10 +234,9 @@ bool Game::Initialize() {
 	
 	env->addStaticText(dataManager.GetSysString(1225), rect<s32>(20, 60, 220, 80), false, false, wCreateHostO);
 	cbRuleO = env->addComboBox(rect<s32>(140, 55, 300, 80), wCreateHostO);
-	cbRuleO->addItem(dataManager.GetSysString(1240));
-	cbRuleO->addItem(dataManager.GetSysString(1241));
+	cbRuleO->addItem(L"-");
 	cbRuleO->addItem(dataManager.GetSysString(1242));
-	cbRuleO->setSelected(2);
+	cbRuleO->setSelected(0);
 	
 	env->addStaticText(dataManager.GetSysString(1227), rect<s32>(20, 90, 220, 110), false, false, wCreateHostO);
 	cbMatchModeO = env->addComboBox(rect<s32>(140, 85, 300, 110), wCreateHostO);
