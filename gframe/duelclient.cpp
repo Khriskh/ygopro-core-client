@@ -411,9 +411,12 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 
 			hosts_srvpro.push_back(std::wstring(roomname));
 			
-			wchar_t input[32] = roomname;
-			wchar_t* buffer;
-			wchar_t* token = wcstok(input, L"#", &buffer);
+			
+			wchar_t string[] = L"" ;
+			myswprintf(string[], L"%ls",roomname);
+			wchar_t* internal_state; 
+			wchar_t delim[] = L"#" ; 
+			wchar_t* token  = wcstok(string, delim, &internal_state); 
 			
 			switch(room_status) {
 				case 0: {
