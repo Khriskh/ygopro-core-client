@@ -113,6 +113,14 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				DuelClient::BeginRefreshHost();
 				break;
 			}
+			case BUTTON_IA: {
+				DuelClient::BeginRefreshHost();
+				break;
+			}
+			case BUTTON_LIST_ROOMS: {
+				DuelClient::BeginRefreshHost();
+				break;
+			}
 			case BUTTON_CREATE_HOST: {
 				mainGame->btnHostConfirm->setEnabled(true);
 				mainGame->btnHostCancel->setEnabled(true);

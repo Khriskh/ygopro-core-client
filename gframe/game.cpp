@@ -145,6 +145,10 @@ bool Game::Initialize() {
 	lstHostList = env->addListBox(rect<s32>(10, 60, 570, 320), wLanWindow, LISTBOX_LAN_HOST, true);
 	lstHostList->setItemHeight(18);
 	btnLanRefresh = env->addButton(rect<s32>(240, 325, 340, 350), wLanWindow, BUTTON_LAN_REFRESH, dataManager.GetSysString(1217));
+	
+	btnIA = env->addButton(rect<s32>(345, 325, 445, 350), wLanWindow, BUTTON_IA, L"IA");
+	btnListRooms = env->addButton(rect<s32>(450, 325, 550, 350), wLanWindow, BUTTON_LIST_ROOMS, L"List Rooms");
+	
 	env->addStaticText(dataManager.GetSysString(1221), rect<s32>(10, 360, 220, 380), false, false, wLanWindow);
 	ebJoinHost = env->addEditBox(gameConf.lasthost, rect<s32>(110, 355, 350, 380), true, wLanWindow);
 	ebJoinHost->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);

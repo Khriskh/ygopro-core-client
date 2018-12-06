@@ -334,6 +334,8 @@ public:
 	irr::gui::IGUIEditBox* ebNickName;
 	irr::gui::IGUIListBox* lstHostList;
 	irr::gui::IGUIButton* btnLanRefresh;
+	irr::gui::IGUIButton* btnIA;
+	irr::gui::IGUIButton* btnListRooms;
 	irr::gui::IGUIEditBox* ebJoinHost;
 	irr::gui::IGUIEditBox* ebJoinPort;
 	irr::gui::IGUIEditBox* ebJoinPass;
@@ -747,6 +749,8 @@ extern Game* mainGame;
 #define BUTTON_HOST_CONFIRMO		373
 #define BUTTON_CREATE_HOSTO			374
 #define BUTTON_HOST_CANCELO			375
+#define BUTTON_IA					376
+#define BUTTON_LIST_ROOMS			377
 
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381
