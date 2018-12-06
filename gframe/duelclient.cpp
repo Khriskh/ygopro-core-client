@@ -167,10 +167,10 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 			wchar_t Condicion[5];
 			myswprintf(Condicion, L"%ls", mainGame->ebJoinCondO->getText());
 			
-			if ( wcscmp(Condicion,"1") == 0 ){
+			if ( wcscmp(Condicion,L"1") == 0 ){
 				BufferIO::CopyWStr(mainGame->ebJoinPassO->getText(), csjg.pass, 20);
 				mainGame->ebJoinCondO->setText(L"0");
-			} else if ( wcscmp(Condicion,"0") == 0) {
+			} else if ( wcscmp(Condicion,L"0") == 0) {
 				BufferIO::CopyWStr(L"L", csjg.pass, 20);
 				mainGame->ebJoinCondO->setText(L"0");
 			} else {
