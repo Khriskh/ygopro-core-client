@@ -141,29 +141,29 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HOST_CONFIRMO: {
-				wchar_t texto[20];
-				wchar_t Formato[5];
-				wchar_t Cartas[5];
-				wchar_t Modo[5];
+				char texto[20];
+				char Formato[5];
+				char Cartas[5];
+				char Modo[5];
 				
-				wchar_t ES_FORMATO[5];
+				char ES_FORMATO[5];
 				myswprintf(ES_FORMATO, L"%ls", mainGame->cbLFlist->getText());
-				wchar_t ES_CARTAS[10];
+				char ES_CARTAS[10];
 				myswprintf(ES_CARTAS, L"%ls", mainGame->cbRule->getText());
-				wchar_t ES_MODO[10];
+				char ES_MODO[10];
 				myswprintf(ES_MODO, L"%ls", mainGame->cbMatchMode->getText());
 				
-				wchar_t ES_OCG[5];
-				wchar_t ES_TCG[5];
+				char ES_OCG[5];
+				char ES_TCG[5];
 				myswprintf(ES_OCG, L"OCG");
 				myswprintf(ES_TCG, L"TCG");
 				
-				wchar_t ES_MATCH[10];
-				wchar_t ES_TAG[10];
+				char ES_MATCH[10];
+				char ES_TAG[10];
 				myswprintf(ES_MATCH, L"Match");
 				myswprintf(ES_TAG, L"Tag");
 				
-				if ( strcmp (ES_FORMATO, ES_OCG) == 0 ){
+				if ( strcmp (ES_FORMATO,ES_OCG) == 0 ){
 					myswprintf(Formato, L"OO");
 				} else {
 					myswprintf(Formato, L"TO");
