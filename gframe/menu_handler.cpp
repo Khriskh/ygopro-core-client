@@ -247,9 +247,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				myswprintf(ES_TCG, L"TCG");
 				
 				wchar_t ES_OCGTCG[10];
-				wchar_t ES_TCGOCG[10];
 				myswprintf(ES_OCGTCG, L"OCG/TCG");
-				myswprintf(ES_TCGOCG, L"TCG/OCG");
 				
 				wchar_t ES_MATCH[10];
 				wchar_t ES_TAG[10];
@@ -262,7 +260,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					myswprintf(Formato, L"TO");
 				}
 				
-				if ( wcscmp(ES_CARTAS,ES_OCGTCG) == 0 || wcscmp(ES_CARTAS,ES_TCGOCG) == 0 ){
+				if ( wcscmp(ES_CARTAS,ES_OCGTCG) == 0 ){
 					myswprintf(Cartas, L",OT");
 				} else {
 					myswprintf(Cartas, L"");
