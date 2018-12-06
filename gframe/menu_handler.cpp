@@ -113,18 +113,18 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				DuelClient::BeginRefreshHost();
 				break;
 			}
-			// case BUTTON_CREATE_HOST: {
-				// mainGame->btnHostConfirm->setEnabled(true);
-				// mainGame->btnHostCancel->setEnabled(true);
-				// mainGame->HideElement(mainGame->wLanWindow);
-				// mainGame->ShowElement(mainGame->wCreateHost);
-				// break;
-			// }
 			case BUTTON_CREATE_HOST: {
-				mainGame->btnHostConfirmO->setEnabled(true);
+				mainGame->btnHostConfirm->setEnabled(true);
 				mainGame->btnHostCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wLanWindow);
 				mainGame->ShowElement(mainGame->wCreateHost);
+				break;
+			}
+			case BUTTON_CREATE_HOSTO: {
+				mainGame->btnHostConfirmO->setEnabled(true);
+				mainGame->btnHostCancelO->setEnabled(true);
+				mainGame->HideElement(mainGame->wLanWindow);
+				mainGame->ShowElement(mainGame->wCreateHostO);
 				break;
 			}
 			case BUTTON_HOST_CONFIRM: {
@@ -147,11 +147,11 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				wchar_t Modo[5];
 				
 				wchar_t ES_FORMATO[5];
-				myswprintf(ES_FORMATO, L"%ls", mainGame->cbLFlist->getText());
+				myswprintf(ES_FORMATO, L"%ls", mainGame->cbLFlistO->getText());
 				wchar_t ES_CARTAS[10];
-				myswprintf(ES_CARTAS, L"%ls", mainGame->cbRule->getText());
+				myswprintf(ES_CARTAS, L"%ls", mainGame->cbRuleO->getText());
 				wchar_t ES_MODO[10];
-				myswprintf(ES_MODO, L"%ls", mainGame->cbMatchMode->getText());
+				myswprintf(ES_MODO, L"%ls", mainGame->cbMatchModeO->getText());
 				
 				wchar_t ES_OCG[5];
 				wchar_t ES_TCG[5];
@@ -188,13 +188,13 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					myswprintf(Modo, L",S");
 				}
 				
-				myswprintf(texto, L"%ls%ls%ls#%ls", Formato, Cartas, Modo, mainGame->ebServerName->getText());
+				myswprintf(texto, L"%ls%ls%ls#%ls", Formato, Cartas, Modo, mainGame->ebServerNameO->getText());
 				mainGame->ebJoinPass->setText(texto);
 				
-				mainGame->btnCreateHost->setEnabled(true);
+				mainGame->btnCreateHostO->setEnabled(true);
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
-				mainGame->HideElement(mainGame->wCreateHost);
+				mainGame->HideElement(mainGame->wCreateHostO);
 				mainGame->ShowElement(mainGame->wLanWindow);
 				
 				break;
@@ -204,6 +204,14 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->btnJoinHost->setEnabled(true);
 				mainGame->btnJoinCancel->setEnabled(true);
 				mainGame->HideElement(mainGame->wCreateHost);
+				mainGame->ShowElement(mainGame->wLanWindow);
+				break;
+			}
+			case BUTTON_HOST_CANCELO: {
+				mainGame->btnCreateHostO->setEnabled(true);
+				mainGame->btnJoinHost->setEnabled(true);
+				mainGame->btnJoinCancel->setEnabled(true);
+				mainGame->HideElement(mainGame->wCreateHostO);
 				mainGame->ShowElement(mainGame->wLanWindow);
 				break;
 			}

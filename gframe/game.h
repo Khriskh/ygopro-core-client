@@ -340,16 +340,22 @@ public:
 	irr::gui::IGUIButton* btnJoinHost;
 	irr::gui::IGUIButton* btnJoinCancel;
 	irr::gui::IGUIButton* btnCreateHost;
+	irr::gui::IGUIButton* btnCreateHostO;
 	//create host
 	irr::gui::IGUIWindow* wCreateHost;
+	irr::gui::IGUIWindow* wCreateHostO;
 	irr::gui::IGUIComboBox* cbLFlist;
+	irr::gui::IGUIComboBox* cbLFlistO;
 	irr::gui::IGUIComboBox* cbMatchMode;
+	irr::gui::IGUIComboBox* cbMatchModeO;
 	irr::gui::IGUIComboBox* cbRule;
+	irr::gui::IGUIComboBox* cbRuleO;
 	irr::gui::IGUIEditBox* ebTimeLimit;
 	irr::gui::IGUIEditBox* ebStartLP;
 	irr::gui::IGUIEditBox* ebStartHand;
 	irr::gui::IGUIEditBox* ebDrawCount;
 	irr::gui::IGUIEditBox* ebServerName;
+	irr::gui::IGUIEditBox* ebServerNameO;
 	irr::gui::IGUIEditBox* ebServerPass;
 	irr::gui::IGUIComboBox* cbDuelRule;
 	irr::gui::IGUICheckBox* chkNoCheckDeck;
@@ -357,6 +363,7 @@ public:
 	irr::gui::IGUIButton* btnHostConfirmO;
 	irr::gui::IGUIButton* btnHostConfirm;
 	irr::gui::IGUIButton* btnHostCancel;
+	irr::gui::IGUIButton* btnHostCancelO;
 	//host panel
 	irr::gui::IGUIWindow* wHostPrepare;
 	irr::gui::IGUIButton* btnHostPrepDuelist;
@@ -738,6 +745,8 @@ extern Game* mainGame;
 #define COMBOBOX_LIMIT				371
 #define COMBOBOX_LOCALE				372
 #define BUTTON_HOST_CONFIRMO		373
+#define BUTTON_CREATE_HOSTO			374
+#define BUTTON_HOST_CANCELO			375
 
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381

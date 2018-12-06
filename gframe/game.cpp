@@ -156,6 +156,7 @@ bool Game::Initialize() {
 	btnJoinHost = env->addButton(rect<s32>(460, 355, 570, 380), wLanWindow, BUTTON_JOIN_HOST, dataManager.GetSysString(1223));
 	btnJoinCancel = env->addButton(rect<s32>(460, 385, 570, 410), wLanWindow, BUTTON_JOIN_CANCEL, dataManager.GetSysString(1212));
 	btnCreateHost = env->addButton(rect<s32>(460, 25, 570, 50), wLanWindow, BUTTON_CREATE_HOST, dataManager.GetSysString(1224));
+	btnCreateHostO = env->addButton(rect<s32>(570, 25, 590, 50), wLanWindow, BUTTON_CREATE_HOSTO, dataManager.GetSysString(1224));
 	//create host
 	// wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
 	// wCreateHost->getCloseButton()->setVisible(false);
@@ -213,36 +214,36 @@ bool Game::Initialize() {
 	// btnHostCancel = env->addButton(rect<s32>(260, 385, 370, 410), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
 	
 	//create host2
-	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
-	wCreateHost->getCloseButton()->setVisible(false);
-	wCreateHost->setVisible(false);
+	wCreateHostO = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
+	wCreateHostO->getCloseButton()->setVisible(false);
+	wCreateHostO->setVisible(false);
 	
-	env->addStaticText(dataManager.GetSysString(1226), rect<s32>(20, 30, 220, 50), false, false, wCreateHost);
-	cbLFlist = env->addComboBox(rect<s32>(140, 25, 300, 50), wCreateHost);
-	cbLFlist->addItem(dataManager.GetSysString(1240));
-	cbLFlist->addItem(dataManager.GetSysString(1241));
-	cbLFlist->setSelected(1);
+	env->addStaticText(dataManager.GetSysString(1226), rect<s32>(20, 30, 220, 50), false, false, wCreateHostO);
+	cbLFlistO = env->addComboBox(rect<s32>(140, 25, 300, 50), wCreateHostO);
+	cbLFlistO->addItem(dataManager.GetSysString(1240));
+	cbLFlistO->addItem(dataManager.GetSysString(1241));
+	cbLFlistO->setSelected(1);
 	
-	env->addStaticText(dataManager.GetSysString(1225), rect<s32>(20, 60, 220, 80), false, false, wCreateHost);
-	cbRule = env->addComboBox(rect<s32>(140, 55, 300, 80), wCreateHost);
-	cbRule->addItem(dataManager.GetSysString(1240));
-	cbRule->addItem(dataManager.GetSysString(1241));
-	cbRule->addItem(dataManager.GetSysString(1242));
-	cbRule->setSelected(2);
+	env->addStaticText(dataManager.GetSysString(1225), rect<s32>(20, 60, 220, 80), false, false, wCreateHostO);
+	cbRuleO = env->addComboBox(rect<s32>(140, 55, 300, 80), wCreateHostO);
+	cbRuleO->addItem(dataManager.GetSysString(1240));
+	cbRuleO->addItem(dataManager.GetSysString(1241));
+	cbRuleO->addItem(dataManager.GetSysString(1242));
+	cbRuleO->setSelected(2);
 	
-	env->addStaticText(dataManager.GetSysString(1227), rect<s32>(20, 90, 220, 110), false, false, wCreateHost);
-	cbMatchMode = env->addComboBox(rect<s32>(140, 85, 300, 110), wCreateHost);
-	cbMatchMode->addItem(dataManager.GetSysString(1244));
-	cbMatchMode->addItem(dataManager.GetSysString(1245));
-	cbMatchMode->addItem(dataManager.GetSysString(1246));
-	cbMatchMode->setSelected(1);
+	env->addStaticText(dataManager.GetSysString(1227), rect<s32>(20, 90, 220, 110), false, false, wCreateHostO);
+	cbMatchModeO = env->addComboBox(rect<s32>(140, 85, 300, 110), wCreateHostO);
+	cbMatchModeO->addItem(dataManager.GetSysString(1244));
+	cbMatchModeO->addItem(dataManager.GetSysString(1245));
+	cbMatchModeO->addItem(dataManager.GetSysString(1246));
+	cbMatchModeO->setSelected(1);
 	
-	env->addStaticText(dataManager.GetSysString(1234), rect<s32>(20, 120, 220, 140), false, false, wCreateHost);
-	ebServerName = env->addEditBox(gameConf.gamename, rect<s32>(110, 115, 250, 140), true, wCreateHost);
-	ebServerName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
+	env->addStaticText(dataManager.GetSysString(1234), rect<s32>(20, 120, 220, 140), false, false, wCreateHostO);
+	ebServerNameO = env->addEditBox(gameConf.gamename, rect<s32>(110, 115, 250, 140), true, wCreateHostO);
+	ebServerNameO->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 
-	btnHostConfirmO = env->addButton(rect<s32>(260, 115, 370, 140), wCreateHost, BUTTON_HOST_CONFIRMO, dataManager.GetSysString(1211));
-	btnHostCancel = env->addButton(rect<s32>(260, 145, 370, 170), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
+	btnHostConfirmO = env->addButton(rect<s32>(260, 115, 370, 140), wCreateHostO, BUTTON_HOST_CONFIRMO, dataManager.GetSysString(1211));
+	btnHostCancelO = env->addButton(rect<s32>(260, 145, 370, 170), wCreateHostO, BUTTON_HOST_CANCELO, dataManager.GetSysString(1212));
 	
 	//host(single)
 	wHostPrepare = env->addWindow(rect<s32>(270, 120, 750, 440), false, dataManager.GetSysString(1250));
@@ -1893,8 +1894,8 @@ void Game::OnResize() {
 	btnRenameDeck->setRelativePosition(Resize(170, 99, 220, 120));
 
 	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 520));
-	//wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
-	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 280));
+	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
+	wCreateHostO->setRelativePosition(ResizeWin(320, 100, 700, 280));
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750, 440));
 	wReplay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wSinglePlay->setRelativePosition(ResizeWin(220, 100, 800, 520));
