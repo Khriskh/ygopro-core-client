@@ -146,8 +146,8 @@ bool Game::Initialize() {
 	lstHostList->setItemHeight(18);
 	
 	btnLanRefresh = env->addButton(rect<s32>(110, 325, 210, 350), wLanWindow, BUTTON_LAN_REFRESH, dataManager.GetSysString(1217));
-	btnIA = env->addButton(rect<s32>(215, 325, 315, 350), wLanWindow, BUTTON_IA, L"IA");
-	btnListRooms = env->addButton(rect<s32>(320, 325, 420, 350), wLanWindow, BUTTON_LIST_ROOMS, L"List Rooms");
+	btnIA = env->addButton(rect<s32>(215, 325, 315, 350), wLanWindow, BUTTON_IA, L"IA Online");
+	btnListRooms = env->addButton(rect<s32>(320, 325, 420, 350), wLanWindow, BUTTON_LIST_ROOMS, L"List Room Online");
 	
 	env->addStaticText(dataManager.GetSysString(1221), rect<s32>(10, 360, 220, 380), false, false, wLanWindow);
 	ebJoinHost = env->addEditBox(gameConf.lasthost, rect<s32>(110, 355, 350, 380), true, wLanWindow);
@@ -245,7 +245,7 @@ bool Game::Initialize() {
 	cbMatchModeO->addItem(L"Tag");
 	cbMatchModeO->setSelected(1);
 	
-	env->addStaticText(dataManager.GetSysString(1234), rect<s32>(20, 120, 220, 140), false, false, wCreateHostO);
+	env->addStaticText(L"Room Name", rect<s32>(20, 120, 220, 140), false, false, wCreateHostO);
 	ebServerNameO = env->addEditBox(gameConf.gamename, rect<s32>(140, 115, 300, 140), true, wCreateHostO);
 	ebServerNameO->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 
