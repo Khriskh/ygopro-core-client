@@ -163,7 +163,23 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 			else
 				csjg.version = PRO_VERSION;
 			csjg.gameid = 0;
-			BufferIO::CopyWStr(mainGame->ebJoinPass->getText(), csjg.pass, 20);
+			
+			wchar_t Condicion[5];
+			myswprintf(Condicion, L"%ls", mainGame->ebJoinCondO->getText());
+			
+			if ( wcscmp(Condicion,"1") == 0 ){
+				BufferIO::CopyWStr(mainGame->ebJoinPassO->getText(), csjg.pass, 20);
+				mainGame->ebJoinCondO->setText(L"0");
+			} else if ( wcscmp(Condicion,"0") == 0) {
+				BufferIO::CopyWStr(L"L", csjg.pass, 20);
+				mainGame->ebJoinCondO->setText(L"0");
+			} else {
+				BufferIO::CopyWStr(mainGame->ebJoinPass->getText(), csjg.pass, 20);
+			}
+			
+			
+			
+			
 			SendPacketToServer(CTOS_JOIN_GAME, csjg);
 		}
 		bufferevent_enable(bev, EV_READ);

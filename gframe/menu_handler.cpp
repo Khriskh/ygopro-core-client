@@ -197,7 +197,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				}
 				
 				myswprintf(texto, L"%ls%ls%ls#%ls", Formato, Cartas, Modo, mainGame->ebServerNameO->getText());
-				mainGame->ebJoinPass->setText(texto);
+				//mainGame->ebJoinPass->setText(texto);
+				mainGame->ebJoinCondO->setText(L"1");
 				mainGame->ebJoinPassO->setText(texto);
 				
 				bot_mode = false;
