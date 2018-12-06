@@ -213,7 +213,7 @@ bool Game::Initialize() {
 	// btnHostCancel = env->addButton(rect<s32>(260, 385, 370, 410), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
 	
 	//create host
-	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 260), false, dataManager.GetSysString(1224));
+	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
 	wCreateHost->getCloseButton()->setVisible(false);
 	wCreateHost->setVisible(false);
 	
@@ -1893,7 +1893,8 @@ void Game::OnResize() {
 	btnRenameDeck->setRelativePosition(Resize(170, 99, 220, 120));
 
 	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 520));
-	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
+	//wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
+	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 260));
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750, 440));
 	wReplay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wSinglePlay->setRelativePosition(ResizeWin(220, 100, 800, 520));
