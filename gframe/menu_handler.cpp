@@ -226,10 +226,12 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				BufferIO::CopyWStr(pstr, mainGame->gameConf.lasthost, 100);
 				BufferIO::CopyWStr(mainGame->ebJoinPort->getText(), mainGame->gameConf.lastport, 20);
 				if(DuelClient::StartClient(remote_addr, remote_port, false)) {
-					mainGame->btnCreateHost->setEnabled(false);
+					mainGame->btnCreateHostO->setEnabled(false);
 					mainGame->btnJoinHost->setEnabled(false);
 					mainGame->btnJoinCancel->setEnabled(false);
-				}
+					mainGame->HideElement(mainGame->wCreateHostO);
+				}	
+				
 				break;
 			}
 			case BUTTON_HOST_CANCEL: {
