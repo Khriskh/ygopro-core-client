@@ -418,9 +418,14 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			wchar_t delim[] = L"#" ; 
 			wchar_t* token  = wcstok(string, delim, &internal_state); 
 			
+			wchar_t texto1[20];
+			wchar_t texto2[20];
+			myswprintf(texto1, L"%ls",token[0]);
+			myswprintf(texto2, L"%ls",token[1]);
+			
 			switch(room_status) {
 				case 0: {
-					myswprintf(hoststr, L"[Waiting][%ls] %ls VS %ls", token[1], player1, player2);
+					myswprintf(hoststr, L"[Waiting] [%ls] [%ls] %ls VS %ls", texto1, texto2, player1, player2);
 					break;
 				}
 				case 1: {
