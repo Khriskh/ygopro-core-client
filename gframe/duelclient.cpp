@@ -411,9 +411,9 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 
 			hosts_srvpro.push_back(std::wstring(roomname));
 			
-			
-			wchar_t input[];
-			myswprintf(input, L"%ls",roomname);
+			wchar_t input[] = L"A bird came#down the walk";
+			// input[];
+			//myswprintf(input, L"%ls",roomname);
 			wchar_t *buffer;
 			wchar_t *token = wcstok(input, L"#", &buffer);
 			
