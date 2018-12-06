@@ -177,7 +177,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				
 				if ( wcscmp(ES_MODO,ES_MATCH) == 0 ){
 					myswprintf(Modo, L",M");
-				} else if ( wcscmp(ES_MODO,ES_TAG) == 0 {
+				} else if ( wcscmp(ES_MODO,ES_TAG) == 0) {
 					myswprintf(Modo, L",T");
 				} else {
 					myswprintf(Modo, L",S");
