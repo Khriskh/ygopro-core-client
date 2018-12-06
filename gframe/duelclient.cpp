@@ -419,7 +419,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			
 			switch(room_status) {
 				case 0: {
-					myswprintf(hoststr, L"[Waiting] [%ls] %ls VS %ls", input[0], player1, player2);
+					myswprintf(hoststr, L"[Waiting] [%ls] %ls VS %ls", token[0], player1, player2);
 					break;
 				}
 				case 1: {
