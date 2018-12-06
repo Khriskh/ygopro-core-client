@@ -413,7 +413,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			
 			
 			wchar_t string[] = L"" ;
-			myswprintf(string[], L"%ls",roomname);
+			myswprintf(string, L"%ls",roomname);
 			wchar_t* internal_state; 
 			wchar_t delim[] = L"#" ; 
 			wchar_t* token  = wcstok(string, delim, &internal_state); 
