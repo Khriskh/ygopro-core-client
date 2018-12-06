@@ -212,7 +212,7 @@ bool Game::Initialize() {
 	// btnHostConfirm = env->addButton(rect<s32>(260, 355, 370, 380), wCreateHost, BUTTON_HOST_CONFIRM, dataManager.GetSysString(1211));
 	// btnHostCancel = env->addButton(rect<s32>(260, 385, 370, 410), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
 	
-	//create host
+	//create host2
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
 	wCreateHost->getCloseButton()->setVisible(false);
 	wCreateHost->setVisible(false);
@@ -241,8 +241,8 @@ bool Game::Initialize() {
 	ebServerName = env->addEditBox(gameConf.gamename, rect<s32>(110, 115, 250, 140), true, wCreateHost);
 	ebServerName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 
-	btnHostConfirmO = env->addButton(rect<s32>(260, 120, 370, 145), wCreateHost, BUTTON_HOST_CONFIRMO, dataManager.GetSysString(1211));
-	btnHostCancel = env->addButton(rect<s32>(260, 150, 370, 175), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
+	btnHostConfirmO = env->addButton(rect<s32>(260, 115, 370, 140), wCreateHost, BUTTON_HOST_CONFIRMO, dataManager.GetSysString(1211));
+	btnHostCancel = env->addButton(rect<s32>(260, 145, 370, 170), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
 	
 	//host(single)
 	wHostPrepare = env->addWindow(rect<s32>(270, 120, 750, 440), false, dataManager.GetSysString(1250));
@@ -1894,7 +1894,7 @@ void Game::OnResize() {
 
 	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	//wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
-	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 260));
+	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 280));
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750, 440));
 	wReplay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wSinglePlay->setRelativePosition(ResizeWin(220, 100, 800, 520));
