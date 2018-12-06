@@ -339,6 +339,8 @@ public:
 	irr::gui::IGUIEditBox* ebJoinHost;
 	irr::gui::IGUIEditBox* ebJoinPort;
 	irr::gui::IGUIEditBox* ebJoinPass;
+	irr::gui::IGUIEditBox* ebJoinPassO;
+	irr::gui::IGUIEditBox* ebJoinCondO;
 	irr::gui::IGUIButton* btnJoinHost;
 	irr::gui::IGUIButton* btnJoinCancel;
 	irr::gui::IGUIButton* btnCreateHost;
