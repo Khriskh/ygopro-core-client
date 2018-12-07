@@ -428,47 +428,47 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			}
 			
 			if ( wcscmp(token2,L"OO,S") == 0 ){
-				myswprintf(token2, L"[OCG][OCG/---][SINGLE]");
+				myswprintf(token2, L" OCG | Card: OCG | Mode: SINGLE ");
 			} else if ( wcscmp(token2,L"OO,M") == 0) {
-				myswprintf(token2, L"[OCG][OCG/---][MATCH ]");
+				myswprintf(token2, L" OCG | Card: OCG | Mode: MATCH ");
 			} else if ( wcscmp(token2,L"OO,T") == 0) {
-				myswprintf(token2, L"[OCG][OCG/---][TAG   ]");
+				myswprintf(token2, L" OCG | Card: OCG | Mode: TAG ");
 			} else if ( wcscmp(token2,L"OO,OT,S") == 0) {
-				myswprintf(token2, L"[OCG][OCG/TCG][SINGLE]");
+				myswprintf(token2, L" OCG | Card: OCG/TCG | Mode: SINGLE ");
 			} else if ( wcscmp(token2,L"OO,OT,M") == 0) {
-				myswprintf(token2, L"[OCG][OCG/TCG][MATCH ]");
+				myswprintf(token2, L" OCG | Card: OCG/TCG | Mode: MATCH ");
 			} else if ( wcscmp(token2,L"OO,OT,T") == 0) {
-				myswprintf(token2, L"[OCG][OCG/TCG][TAG   ]");
+				myswprintf(token2, L" OCG | Card: OCG/TCG | Mode: TAG ");
 			} else if ( wcscmp(token2,L"TO,S") == 0 ){
-				myswprintf(token2, L"[TCG][---/TCG][SINGLE]");
+				myswprintf(token2, L" TCG | Card: TCG | Mode: SINGLE ");
 			} else if ( wcscmp(token2,L"TO,M") == 0) {
-				myswprintf(token2, L"[TCG][---/TCG][MATCH ]");
+				myswprintf(token2, L" TCG | Card: TCG | Mode: MATCH ");
 			} else if ( wcscmp(token2,L"TO,T") == 0) {
-				myswprintf(token2, L"[TCG][---/TCG][TAG   ]");
+				myswprintf(token2, L" TCG | Card: TCG | Mode: TAG ");
 			} else if ( wcscmp(token2,L"TO,OT,S") == 0) {
-				myswprintf(token2, L"[TCG][OCG/TCG][SINGLE]");
+				myswprintf(token2, L" TCG | Card: OCG/TCG | Mode: SINGLE ");
 			} else if ( wcscmp(token2,L"TO,OT,M") == 0) {
-				myswprintf(token2, L"[TCG][OCG/TCG][MATCH ]");
+				myswprintf(token2, L" TCG | Card: OCG/TCG | Mode: MATCH ");
 			} else if ( wcscmp(token2,L"TO,OT,T") == 0) {
-				myswprintf(token2, L"[TCG][OCG/TCG][TAG   ]");
+				myswprintf(token2, L" TCG | Card: OCG/TCG | Mode: TAG ");
 			} else if ( wcscmp(token2,L"AI") == 0) {
-				myswprintf(token2, L"[   ][OCG/TCG][  AI  ]");
+				myswprintf(token2, L" AI | OCG/TCG ");
 			} else{
-				myswprintf(token2, L"[       RANDOM       ]");
+				myswprintf(token2, L" RANDOM ");
 			}
 			
 			switch(room_status) {
 				case 0: {
 					
-					myswprintf(hoststr, L"[Waiting]%ls[Room: %ls] %ls VS %ls", token2, token3, player1, player2);
+					myswprintf(hoststr, L"Waiting | %ls | Room: %ls |  %ls VS %ls", token2, token3, player1, player2);
 					break;
 				}
 				case 1: {
-					myswprintf(hoststr, L"[Duel]%ls[Room: %ls] %ls VS %ls", token2, token3, player1, player2);
+					myswprintf(hoststr, L"Duel | %ls | Room: %ls |  %ls VS %ls", token2, token3, player1, player2);
 					break;
 				}
 				case 2: {
-					myswprintf(hoststr, L"[Siding]%ls[Room: %ls] %ls VS %ls", token2, token3, player1, player2);
+					myswprintf(hoststr, L"Siding | %ls | Room: %ls |  %ls VS %ls", token2, token3, player1, player2);
 					break;
 				}
 			}
