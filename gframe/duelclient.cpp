@@ -461,7 +461,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 						myswprintf(token2, L"[       RANDOM       ]");
 					}
 					
-					myswprintf(hoststr, L"[Waiting]%ls[%ls] %ls VS %ls", token2, token3, player1, player2);
+					myswprintf(hoststr, L"[Waiting]%ls[Room: %ls] %ls VS %ls", token2, token3, player1, player2);
 					break;
 				}
 				case 1: {
