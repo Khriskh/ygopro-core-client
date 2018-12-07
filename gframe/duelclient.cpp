@@ -425,11 +425,43 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			while (token) { 
 				myswprintf(token3, L"%ls",token);
 				token = wcstok(NULL, delim, &ptr); 
-			} 
+			}
 			
 			switch(room_status) {
 				case 0: {
-					myswprintf(hoststr, L"[Waiting] [%ls] [%ls] %ls VS %ls", token2, token3, player1, player2);
+					
+					if ( wcscmp(token2,L"OO,S") == 0 ){
+						myswprintf(token2, L"[OCG][OCG/---][SINGLE]");
+					} else if ( wcscmp(token2,L"OO,M") == 0) {
+						myswprintf(token2, L"[OCG][OCG/---][MATCH ]");
+					} else if ( wcscmp(token2,L"OO,T") == 0) {
+						myswprintf(token2, L"[OCG][OCG/---][TAG   ]");
+					} else if ( wcscmp(token2,L"OO,OT,S") == 0) {
+						myswprintf(token2, L"[OCG][OCG/TCG][SINGLE]");
+					} else if ( wcscmp(token2,L"OO,OT,M") == 0) {
+						myswprintf(token2, L"[OCG][OCG/TCG][MATCH ]");
+					} else if ( wcscmp(token2,L"OO,OT,T") == 0) {
+						myswprintf(token2, L"[OCG][OCG/TCG][TAG   ]");
+					} 
+					else if ( wcscmp(token2,L"TO,S") == 0 ){
+						myswprintf(token2, L"[TCG][---/TCG][SINGLE]");
+					} else if ( wcscmp(token2,L"TO,M") == 0) {
+						myswprintf(token2, L"[TCG][---/TCG][MATCH ]");
+					} else if ( wcscmp(token2,L"TO,T") == 0) {
+						myswprintf(token2, L"[TCG][---/TCG][TAG   ]");
+					} else if ( wcscmp(token2,L"TO,OT,S") == 0) {
+						myswprintf(token2, L"[TCG][OCG/TCG][SINGLE]");
+					} else if ( wcscmp(token2,L"TO,OT,M") == 0) {
+						myswprintf(token2, L"[TCG][OCG/TCG][MATCH ]");
+					} else if ( wcscmp(token2,L"TO,OT,T") == 0) {
+						myswprintf(token2, L"[TCG][OCG/TCG][TAG   ]");
+					} else if ( wcscmp(token2,L"AI") == 0) {
+						myswprintf(token2, L"[   ][OCG/TCG][  AI  ]");
+					} else{
+						myswprintf(token2, L"[       RANDOM       ]");
+					}
+					
+					myswprintf(hoststr, L"[Waiting]%ls[%ls] %ls VS %ls", token2, token3, player1, player2);
 					break;
 				}
 				case 1: {
