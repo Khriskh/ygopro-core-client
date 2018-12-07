@@ -418,58 +418,57 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			wchar_t delim[] = L"#"; 
 			wchar_t* token = wcstok(str, delim, &ptr);
 			
-			wchar_t token2[20];
+			wchar_t token2[40];
 			myswprintf(token2, L"%ls",token);
-			wchar_t token3[20];
+			wchar_t token3[40];
 			
 			while (token) { 
 				myswprintf(token3, L"%ls",token);
 				token = wcstok(NULL, delim, &ptr); 
 			}
 			
+			if ( wcscmp(token2,L"OO,S") == 0 ){
+				myswprintf(token2, L"[OCG][OCG/---][SINGLE]");
+			} else if ( wcscmp(token2,L"OO,M") == 0) {
+				myswprintf(token2, L"[OCG][OCG/---][MATCH ]");
+			} else if ( wcscmp(token2,L"OO,T") == 0) {
+				myswprintf(token2, L"[OCG][OCG/---][TAG   ]");
+			} else if ( wcscmp(token2,L"OO,OT,S") == 0) {
+				myswprintf(token2, L"[OCG][OCG/TCG][SINGLE]");
+			} else if ( wcscmp(token2,L"OO,OT,M") == 0) {
+				myswprintf(token2, L"[OCG][OCG/TCG][MATCH ]");
+			} else if ( wcscmp(token2,L"OO,OT,T") == 0) {
+				myswprintf(token2, L"[OCG][OCG/TCG][TAG   ]");
+			} else if ( wcscmp(token2,L"TO,S") == 0 ){
+				myswprintf(token2, L"[TCG][---/TCG][SINGLE]");
+			} else if ( wcscmp(token2,L"TO,M") == 0) {
+				myswprintf(token2, L"[TCG][---/TCG][MATCH ]");
+			} else if ( wcscmp(token2,L"TO,T") == 0) {
+				myswprintf(token2, L"[TCG][---/TCG][TAG   ]");
+			} else if ( wcscmp(token2,L"TO,OT,S") == 0) {
+				myswprintf(token2, L"[TCG][OCG/TCG][SINGLE]");
+			} else if ( wcscmp(token2,L"TO,OT,M") == 0) {
+				myswprintf(token2, L"[TCG][OCG/TCG][MATCH ]");
+			} else if ( wcscmp(token2,L"TO,OT,T") == 0) {
+				myswprintf(token2, L"[TCG][OCG/TCG][TAG   ]");
+			} else if ( wcscmp(token2,L"AI") == 0) {
+				myswprintf(token2, L"[   ][OCG/TCG][  AI  ]");
+			} else{
+				myswprintf(token2, L"[       RANDOM       ]");
+			}
+			
 			switch(room_status) {
 				case 0: {
-					
-					if ( wcscmp(token2,L"OO,S") == 0 ){
-						myswprintf(token2, L"[OCG][OCG/---][SINGLE]");
-					} else if ( wcscmp(token2,L"OO,M") == 0) {
-						myswprintf(token2, L"[OCG][OCG/---][MATCH ]");
-					} else if ( wcscmp(token2,L"OO,T") == 0) {
-						myswprintf(token2, L"[OCG][OCG/---][TAG   ]");
-					} else if ( wcscmp(token2,L"OO,OT,S") == 0) {
-						myswprintf(token2, L"[OCG][OCG/TCG][SINGLE]");
-					} else if ( wcscmp(token2,L"OO,OT,M") == 0) {
-						myswprintf(token2, L"[OCG][OCG/TCG][MATCH ]");
-					} else if ( wcscmp(token2,L"OO,OT,T") == 0) {
-						myswprintf(token2, L"[OCG][OCG/TCG][TAG   ]");
-					} 
-					else if ( wcscmp(token2,L"TO,S") == 0 ){
-						myswprintf(token2, L"[TCG][---/TCG][SINGLE]");
-					} else if ( wcscmp(token2,L"TO,M") == 0) {
-						myswprintf(token2, L"[TCG][---/TCG][MATCH ]");
-					} else if ( wcscmp(token2,L"TO,T") == 0) {
-						myswprintf(token2, L"[TCG][---/TCG][TAG   ]");
-					} else if ( wcscmp(token2,L"TO,OT,S") == 0) {
-						myswprintf(token2, L"[TCG][OCG/TCG][SINGLE]");
-					} else if ( wcscmp(token2,L"TO,OT,M") == 0) {
-						myswprintf(token2, L"[TCG][OCG/TCG][MATCH ]");
-					} else if ( wcscmp(token2,L"TO,OT,T") == 0) {
-						myswprintf(token2, L"[TCG][OCG/TCG][TAG   ]");
-					} else if ( wcscmp(token2,L"AI") == 0) {
-						myswprintf(token2, L"[   ][OCG/TCG][  AI  ]");
-					} else{
-						myswprintf(token2, L"[       RANDOM       ]");
-					}
 					
 					myswprintf(hoststr, L"[Waiting]%ls[Room: %ls] %ls VS %ls", token2, token3, player1, player2);
 					break;
 				}
 				case 1: {
-					myswprintf(hoststr, L"[SRVPro][G%d,T%d][%ls] (%d,LP%d) %ls VS %ls (%d,LP%d)", room_duel_count, room_turn_count, roomname, player1_score, player1_lp, player1, player2, player2_score, player2_lp);
+					myswprintf(hoststr, L"[Duel]%ls[Room: %ls] %ls VS %ls", token2, token3, player1, player2);
 					break;
 				}
 				case 2: {
-					myswprintf(hoststr, L"[SRVPro][G%d,Siding][%ls] (%d) %ls VS %ls (%d)", room_duel_count, roomname, player1_score, player1, player2, player2_score);
+					myswprintf(hoststr, L"[Siding]%ls[Room: %ls] %ls VS %ls", token2, token3, player1, player2);
 					break;
 				}
 			}
