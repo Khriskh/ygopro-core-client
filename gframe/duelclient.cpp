@@ -428,29 +428,29 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			}
 			
 			if ( wcscmp(token2,L"OO,S") == 0 ){
-				myswprintf(token2, L"  OCG  |  Card: OCG  |  Mode: SINGLE  ");
+				myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: SINGLE  ");
 			} else if ( wcscmp(token2,L"OO,M") == 0) {
-				myswprintf(token2, L"  OCG  |  Card: OCG  |  Mode: MATCH  ");
+				myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: MATCH  ");
 			} else if ( wcscmp(token2,L"OO,T") == 0) {
-				myswprintf(token2, L"  OCG  |  Card: OCG  |  Mode: TAG  ");
+				myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: TAG  ");
 			} else if ( wcscmp(token2,L"OO,OT,S") == 0) {
-				myswprintf(token2, L"  OCG  |  Card: OCG/TCG  |  Mode: SINGLE  ");
+				myswprintf(token2, L"  OCG  |  Cards: OCG/TCG  |  Mode: SINGLE  ");
 			} else if ( wcscmp(token2,L"OO,OT,M") == 0) {
-				myswprintf(token2, L"  OCG  |  Card: OCG/TCG  |  Mode: MATCH  ");
+				myswprintf(token2, L"  OCG  |  Cards: OCG/TCG  |  Mode: MATCH  ");
 			} else if ( wcscmp(token2,L"OO,OT,T") == 0) {
-				myswprintf(token2, L"  OCG  |  Card: OCG/TCG  |  Mode: TAG  ");
+				myswprintf(token2, L"  OCG  |  Cards: OCG/TCG  |  Mode: TAG  ");
 			} else if ( wcscmp(token2,L"TO,S") == 0 ){
-				myswprintf(token2, L"  TCG  |  Card: TCG  |  Mode: SINGLE  ");
+				myswprintf(token2, L"  TCG  |  Cards: TCG  |  Mode: SINGLE  ");
 			} else if ( wcscmp(token2,L"TO,M") == 0) {
-				myswprintf(token2, L"  TCG  |  Card: TCG  |  Mode: MATCH  ");
+				myswprintf(token2, L"  TCG  |  Cards: TCG  |  Mode: MATCH  ");
 			} else if ( wcscmp(token2,L"TO,T") == 0) {
-				myswprintf(token2, L"  TCG  |  Card: TCG  |  Mode: TAG  ");
+				myswprintf(token2, L"  TCG  |  Cards: TCG  |  Mode: TAG  ");
 			} else if ( wcscmp(token2,L"TO,OT,S") == 0) {
-				myswprintf(token2, L"  TCG  |  Card: OCG/TCG  |  Mode: SINGLE  ");
+				myswprintf(token2, L"  TCG  |  Cards: OCG/TCG  |  Mode: SINGLE  ");
 			} else if ( wcscmp(token2,L"TO,OT,M") == 0) {
-				myswprintf(token2, L"  TCG  |  Card: OCG/TCG  |  Mode: MATCH  ");
+				myswprintf(token2, L"  TCG  |  Cards: OCG/TCG  |  Mode: MATCH  ");
 			} else if ( wcscmp(token2,L"TO,OT,T") == 0) {
-				myswprintf(token2, L"  TCG  |  Card: OCG/TCG  |  Mode: TAG  ");
+				myswprintf(token2, L"  TCG  |  Cards: OCG/TCG  |  Mode: TAG  ");
 			} else if ( wcscmp(token2,L"AI") == 0) {
 				myswprintf(token2, L"  AI  |  OCG/TCG  ");
 			} else{
