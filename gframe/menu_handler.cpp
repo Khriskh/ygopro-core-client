@@ -663,7 +663,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				if(sel == -1)
 					break;
 				if(DuelClient::is_srvpro) {
-					mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[sel].c_str());
+					//mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[sel].c_str());
 					break;
 				}
 				int addr = DuelClient::hosts[sel].ipaddr;
