@@ -105,6 +105,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					mainGame->btnJoinHost->setEnabled(false);
 					mainGame->btnJoinCancel->setEnabled(false);
 				}
+				mainGame->ebJoinPass->setText(L"");
 				break;
 			}
 			
