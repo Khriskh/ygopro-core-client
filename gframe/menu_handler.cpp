@@ -65,7 +65,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				
 				int selO = mainGame->lstHostList->getSelected();
 				if(selO == -1)
-					break;
+					mainGame->ebJoinPass->setText(L"");
 				if(DuelClient::is_srvpro) {
 					mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[selO].c_str());
 				}

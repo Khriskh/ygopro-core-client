@@ -149,7 +149,7 @@ bool Game::Initialize() {
 	
 	btnLanRefresh = env->addButton(rect<s32>(110, 325, 210, 350), wLanWindow, BUTTON_LAN_REFRESH, dataManager.GetSysString(1217));
 	btnIA = env->addButton(rect<s32>(215, 325, 315, 350), wLanWindow, BUTTON_IA, L"IA Online");
-	btnListRooms = env->addButton(rect<s32>(320, 325, 420, 350), wLanWindow, BUTTON_LIST_ROOMS, L"List Room Online");
+	btnListRooms = env->addButton(rect<s32>(320, 325, 420, 350), wLanWindow, BUTTON_LIST_ROOMS, L"Rooms Online");
 	
 	env->addStaticText(dataManager.GetSysString(1221), rect<s32>(10, 360, 220, 380), false, false, wLanWindow);
 	ebJoinHost = env->addEditBox(gameConf.lasthost, rect<s32>(110, 355, 350, 380), true, wLanWindow);
@@ -224,7 +224,7 @@ bool Game::Initialize() {
 	btnHostCancel = env->addButton(rect<s32>(260, 385, 370, 410), wCreateHost, BUTTON_HOST_CANCEL, dataManager.GetSysString(1212));
 	
 	//create host2
-	wCreateHostO = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
+	wCreateHostO = env->addWindow(rect<s32>(320, 100, 700, 520), false, L"Host Online");
 	wCreateHostO->getCloseButton()->setVisible(false);
 	wCreateHostO->setVisible(false);
 	

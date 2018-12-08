@@ -579,8 +579,8 @@ void Game::DrawMisc() {
 		DrawShadowText(numFont, dInfo.str_card_count[0], Resize(550, 49, 575, 68), Resize(0, 1, 2, 0), dInfo.card_count_color[0], 0xff000000, true, false, 0);
 		DrawShadowText(numFont, dInfo.str_card_count[1], Resize(757, 49, 782, 68), Resize(0, 1, 2, 0), dInfo.card_count_color[1], 0xff000000, true, false, 0);
 
-		DrawShadowText(numFont, dInfo.str_total_attack[0], Resize(486, 31, 536, 50), Resize(0, 1, 2, 0), dInfo.total_attack_color[0], 0xff000000, true, false, 0);
-		DrawShadowText(numFont, dInfo.str_total_attack[1], Resize(793, 31, 843, 50), Resize(0, 1, 2, 0), dInfo.total_attack_color[1], 0xff000000, true, false, 0);
+		//DrawShadowText(numFont, dInfo.str_total_attack[0], Resize(486, 31, 536, 50), Resize(0, 1, 2, 0), dInfo.total_attack_color[0], 0xff000000, true, false, 0);
+		//DrawShadowText(numFont, dInfo.str_total_attack[1], Resize(793, 31, 843, 50), Resize(0, 1, 2, 0), dInfo.total_attack_color[1], 0xff000000, true, false, 0);
 
 		driver->draw2DImage(imageManager.tAttack, ResizeCardMid(477, 32, 486, 50, 486, 41), recti(32, 0, 96, 128), 0, 0, true);
 		driver->draw2DImage(imageManager.tAttack, ResizeCardMid(784, 32, 793, 50, 793, 41), recti(32, 0, 96, 128), 0, 0, true);
