@@ -202,10 +202,19 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_CREATE_HOST: {
-				mainGame->btnHostConfirm->setEnabled(true);
-				mainGame->btnHostCancel->setEnabled(true);
-				mainGame->HideElement(mainGame->wLanWindow);
-				mainGame->ShowElement(mainGame->wCreateHost);
+				//mainGame->btnHostConfirm->setEnabled(true);
+				//mainGame->btnHostCancel->setEnabled(true);
+				//mainGame->HideElement(mainGame->wLanWindow);
+				//mainGame->ShowElement(mainGame->wCreateHost);
+				
+				int sel = mainGame->lstHostList->getSelected();
+				if(sel == -1)
+					break;
+				if(DuelClient::is_srvpro) {
+					mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[sel].c_str());
+					break;
+				}
+				
 				break;
 			}
 			case BUTTON_CREATE_HOSTO: {
@@ -654,7 +663,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				if(sel == -1)
 					break;
 				if(DuelClient::is_srvpro) {
-					mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[sel].c_str());
+					//mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[sel].c_str());
 					break;
 				}
 				int addr = DuelClient::hosts[sel].ipaddr;
