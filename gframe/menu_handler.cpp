@@ -63,10 +63,11 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_JOIN_HOST: {
 				bot_mode = false;
 				
-				int sel = mainGame->lstHostList->getSelected();
-				if(DuelClient::is_srvpro) {
-					mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[sel].c_str());
+				int selO = mainGame->lstHostList->getSelected();
+				if(selO == -1)
 					break;
+				if(DuelClient::is_srvpro) {
+					mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[selO].c_str());
 				}
 				
 				char ip[20];
