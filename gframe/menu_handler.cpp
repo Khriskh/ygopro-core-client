@@ -167,7 +167,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_LIST_ROOMS: {
 				mainGame->ebJoinCondO->setText(L"2");
-				mainGame->lstHostList->setSelected(-1)
+				mainGame->lstHostList->setSelected(-1);
 				bot_mode = false;
 				char ip[20];
 				const wchar_t* pstr = mainGame->ebJoinHost->getText();
