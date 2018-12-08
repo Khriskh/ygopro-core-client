@@ -64,9 +64,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				bot_mode = false;
 				
 				int selO = mainGame->lstHostList->getSelected();
-				if(selO == -1)
-					mainGame->ebJoinPass->setText(L"");
-				if(DuelClient::is_srvpro) {
+				if(selO != -1){
 					mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[selO].c_str());
 				}
 				
@@ -167,7 +165,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_LIST_ROOMS: {
 				mainGame->ebJoinCondO->setText(L"2");
-				mainGame->lstHostList->setSelected(-1);
+				
 				bot_mode = false;
 				char ip[20];
 				const wchar_t* pstr = mainGame->ebJoinHost->getText();
