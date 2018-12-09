@@ -63,14 +63,11 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			case BUTTON_JOIN_HOST: {
 				bot_mode = false;
 				
-				int selO = mainGame->lstHostList->getSelected();
-
-				
 				wchar_t Salas[5];
 				myswprintf(Salas, L"%ls", mainGame->ebJoinLista->getText());
 				
 				if ( wcscmp(Salas,L"1") == 0 ){
-					
+					mainGame->btnJoinHost->setText(L"1");
 					int sel = mainGame->lstHostList->getSelected();
 					if(sel == -1)
 						break;
@@ -83,18 +80,12 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					mainGame->ebJoinPort->setText(buf);
 					
 				} else if ( wcscmp(Salas,L"2") == 0) {
-					if(selO != -1){
-						mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[selO].c_str());
+					mainGame->btnJoinHost->setText(L"2");
+					int sel = mainGame->lstHostList->getSelected();
+					if(sel != -1){
+						mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[sel].c_str());
 					}
 				}
-				
-				int addr = DuelClient::hosts[selO].ipaddr;
-				int port = DuelClient::hosts[selO].port;
-				wchar_t buf[20];
-				myswprintf(buf, L"%d.%d.%d.%d", addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff);
-				mainGame->ebJoinHost->setText(buf);
-				myswprintf(buf, L"%d", port);
-				mainGame->ebJoinPort->setText(buf);
 				
 				char ip[20];
 				const wchar_t* pstr = mainGame->ebJoinHost->getText();
@@ -144,8 +135,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_LAN_REFRESH: {
-				DuelClient::is_srvpro = false;
 				mainGame->ebJoinLista->setText(L"1");
+				DuelClient::is_srvpro = false;
 				DuelClient::BeginRefreshHost();
 				break;
 			}
