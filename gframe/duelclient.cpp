@@ -387,6 +387,30 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			wchar_t player2[64];
 			wchar_t hoststr[1024];
 
+			memcpy(temp1, pdata, 64);
+			pdata += 64;
+			BufferIO::DecodeUTF8(temp1, roomname);
+
+			unsigned char room_status = BufferIO::ReadUInt8(pdata);
+			char room_duel_count = BufferIO::ReadInt8(pdata);
+			char room_turn_count = BufferIO::ReadInt8(pdata);
+
+			memcpy(temp2, pdata, 128);
+			pdata += 128;
+			BufferIO::DecodeUTF8(temp2, player1);
+
+			char player1_score = BufferIO::ReadInt8(pdata);
+			int player1_lp = BufferIO::ReadInt32(pdata);
+
+			memcpy(temp2, pdata, 128);
+			pdata += 128;
+			BufferIO::DecodeUTF8(temp2, player2);
+
+			char player2_score = BufferIO::ReadInt8(pdata);
+			int player2_lp = BufferIO::ReadInt32(pdata);
+
+			hosts_srvpro.push_back(std::wstring(roomname));
+			
 			wchar_t str[32];
 			myswprintf(str, L"%ls",roomname);
 			wchar_t* ptr;
@@ -402,85 +426,55 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				token = wcstok(NULL, delim, &ptr); 
 			}
 			
-			if ( wcscmp(token2,L"AI") == 0 ) {
-			} else {
-				
-				memcpy(temp1, pdata, 64);
-				pdata += 64;
-				BufferIO::DecodeUTF8(temp1, roomname);
-
-				unsigned char room_status = BufferIO::ReadUInt8(pdata);
-				char room_duel_count = BufferIO::ReadInt8(pdata);
-				char room_turn_count = BufferIO::ReadInt8(pdata);
-
-				memcpy(temp2, pdata, 128);
-				pdata += 128;
-				BufferIO::DecodeUTF8(temp2, player1);
-
-				char player1_score = BufferIO::ReadInt8(pdata);
-				int player1_lp = BufferIO::ReadInt32(pdata);
-
-				memcpy(temp2, pdata, 128);
-				pdata += 128;
-				BufferIO::DecodeUTF8(temp2, player2);
-
-				char player2_score = BufferIO::ReadInt8(pdata);
-				int player2_lp = BufferIO::ReadInt32(pdata);
-
-				hosts_srvpro.push_back(std::wstring(roomname));
-				
-				if ( wcscmp(token2,token3) == 0 ){
-					myswprintf(token3, L" --- ");
-				}
-				
-				if ( wcscmp(token2,L"OO,S") == 0 ){
-					myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: SINGLE  ");
-				} else if ( wcscmp(token2,L"OO,M") == 0) {
-					myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: MATCH  ");
-				} else if ( wcscmp(token2,L"OO,T") == 0) {
-					myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: TAG  ");
-				} else if ( wcscmp(token2,L"OO,OT,S") == 0) {
-					myswprintf(token2, L"  OCG  |  Cards: OCG/TCG  |  Mode: SINGLE  ");
-				} else if ( wcscmp(token2,L"OO,OT,M") == 0) {
-					myswprintf(token2, L"  OCG  |  Cards: OCG/TCG  |  Mode: MATCH  ");
-				} else if ( wcscmp(token2,L"OO,OT,T") == 0) {
-					myswprintf(token2, L"  OCG  |  Cards: OCG/TCG  |  Mode: TAG  ");
-				} else if ( wcscmp(token2,L"TO,S") == 0 ){
-					myswprintf(token2, L"  TCG  |  Cards: TCG  |  Mode: SINGLE  ");
-				} else if ( wcscmp(token2,L"TO,M") == 0) {
-					myswprintf(token2, L"  TCG  |  Cards: TCG  |  Mode: MATCH  ");
-				} else if ( wcscmp(token2,L"TO,T") == 0) {
-					myswprintf(token2, L"  TCG  |  Cards: TCG  |  Mode: TAG  ");
-				} else if ( wcscmp(token2,L"TO,OT,S") == 0) {
-					myswprintf(token2, L"  TCG  |  Cards: OCG/TCG  |  Mode: SINGLE  ");
-				} else if ( wcscmp(token2,L"TO,OT,M") == 0) {
-					myswprintf(token2, L"  TCG  |  Cards: OCG/TCG  |  Mode: MATCH  ");
-				} else if ( wcscmp(token2,L"TO,OT,T") == 0) {
-					myswprintf(token2, L"  TCG  |  Cards: OCG/TCG  |  Mode: TAG  ");
-				} else if ( wcscmp(token2,L"AI") == 0) {
-					myswprintf(token2, L"  AI  |  OCG/TCG  ");
-				} else{
-					myswprintf(token2, L" RANDOM ");
-				}
-				
-
-				switch(room_status) {
-					case 0: {
-						myswprintf(hoststr, L"Waiting  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
-						break;
-					}
-					case 1: {
-						myswprintf(hoststr, L"Duel  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
-						break;
-					}
-					case 2: {
-						myswprintf(hoststr, L"Siding  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
-						break;
-					}
-				}
-				mainGame->lstHostList->addItem(hoststr);
-			
+			if ( wcscmp(token2,token3) == 0 ){
+				myswprintf(token3, L" --- ");
 			}
+			
+			if ( wcscmp(token2,L"OO,S") == 0 ){
+				myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: SINGLE  ");
+			} else if ( wcscmp(token2,L"OO,M") == 0) {
+				myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: MATCH  ");
+			} else if ( wcscmp(token2,L"OO,T") == 0) {
+				myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: TAG  ");
+			} else if ( wcscmp(token2,L"OO,OT,S") == 0) {
+				myswprintf(token2, L"  OCG  |  Cards: OCG/TCG  |  Mode: SINGLE  ");
+			} else if ( wcscmp(token2,L"OO,OT,M") == 0) {
+				myswprintf(token2, L"  OCG  |  Cards: OCG/TCG  |  Mode: MATCH  ");
+			} else if ( wcscmp(token2,L"OO,OT,T") == 0) {
+				myswprintf(token2, L"  OCG  |  Cards: OCG/TCG  |  Mode: TAG  ");
+			} else if ( wcscmp(token2,L"TO,S") == 0 ){
+				myswprintf(token2, L"  TCG  |  Cards: TCG  |  Mode: SINGLE  ");
+			} else if ( wcscmp(token2,L"TO,M") == 0) {
+				myswprintf(token2, L"  TCG  |  Cards: TCG  |  Mode: MATCH  ");
+			} else if ( wcscmp(token2,L"TO,T") == 0) {
+				myswprintf(token2, L"  TCG  |  Cards: TCG  |  Mode: TAG  ");
+			} else if ( wcscmp(token2,L"TO,OT,S") == 0) {
+				myswprintf(token2, L"  TCG  |  Cards: OCG/TCG  |  Mode: SINGLE  ");
+			} else if ( wcscmp(token2,L"TO,OT,M") == 0) {
+				myswprintf(token2, L"  TCG  |  Cards: OCG/TCG  |  Mode: MATCH  ");
+			} else if ( wcscmp(token2,L"TO,OT,T") == 0) {
+				myswprintf(token2, L"  TCG  |  Cards: OCG/TCG  |  Mode: TAG  ");
+			} else if ( wcscmp(token2,L"AI") == 0) {
+				myswprintf(token2, L"  AI  |  OCG/TCG  ");
+			} else{
+				myswprintf(token2, L" RANDOM ");
+			}
+			
+			switch(room_status) {
+				case 0: {
+					myswprintf(hoststr, L"Waiting  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
+					break;
+				}
+				case 1: {
+					myswprintf(hoststr, L"Duel  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
+					break;
+				}
+				case 2: {
+					myswprintf(hoststr, L"Siding  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
+					break;
+				}
+			}
+			mainGame->lstHostList->addItem(hoststr);
 		}
 		mainGame->gMutex.Unlock();
 		break;
