@@ -66,8 +66,13 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				int selO = mainGame->lstHostList->getSelected();
 				if(selO != -1){
 					mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[selO].c_str());
-					mainGame->ebJoinHost->setText(DuelClient::hosts_srvpro[selO].ipaddr());
-					mainGame->ebJoinPort->setText(DuelClient::hosts_srvpro[selO].port());
+					int addr = DuelClient::hosts[selO].ipaddr;
+					int port = DuelClient::hosts[selO].port;
+					wchar_t buf[20];
+					myswprintf(buf, L"%d.%d.%d.%d", addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff);
+					mainGame->ebJoinHost->setText(buf);
+					myswprintf(buf, L"%d", port);
+					mainGame->ebJoinPort->setText(buf);
 				}
 				
 				char ip[20];
