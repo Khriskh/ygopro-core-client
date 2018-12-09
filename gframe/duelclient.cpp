@@ -427,6 +427,10 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				token = wcstok(NULL, delim, &ptr); 
 			}
 			
+			if ( wcscmp(token2,token3") == 0 ){
+				myswprintf(token3, L" --- ");
+			}
+			
 			if ( wcscmp(token2,L"OO,S") == 0 ){
 				myswprintf(token2, L"  OCG  |  Cards: OCG  |  Mode: SINGLE  ");
 			} else if ( wcscmp(token2,L"OO,M") == 0) {
@@ -457,22 +461,24 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				myswprintf(token2, L" RANDOM ");
 			}
 			
-			switch(room_status) {
-				case 0: {
-					
-					myswprintf(hoststr, L"Waiting  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
-					break;
+			if ( wcscmp(token2,L"AI") == 0) {
+			} else {
+				switch(room_status) {
+					case 0: {
+						myswprintf(hoststr, L"Waiting  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
+						break;
+					}
+					case 1: {
+						myswprintf(hoststr, L"Duel  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
+						break;
+					}
+					case 2: {
+						myswprintf(hoststr, L"Siding  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
+						break;
+					}
 				}
-				case 1: {
-					myswprintf(hoststr, L"Duel  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
-					break;
-				}
-				case 2: {
-					myswprintf(hoststr, L"Siding  |%ls|  Room: %ls  |  %ls VS %ls", token2, token3, player1, player2);
-					break;
-				}
+				mainGame->lstHostList->addItem(hoststr);
 			}
-			mainGame->lstHostList->addItem(hoststr);
 		}
 		mainGame->gMutex.Unlock();
 		break;
