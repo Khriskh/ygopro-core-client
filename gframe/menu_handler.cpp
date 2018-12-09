@@ -66,6 +66,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				int selO = mainGame->lstHostList->getSelected();
 				if(selO != -1){
 					mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[selO].c_str());
+					mainGame->ebJoinHost->setText(DuelClient::hosts_srvpro[selO].ipaddr());
+					mainGame->ebJoinPort->setText(DuelClient::hosts_srvpro[selO].port());
 				}
 				
 				char ip[20];
@@ -663,13 +665,13 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					//mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[sel].c_str());
 					break;
 				}
-				int addr = DuelClient::hosts[sel].ipaddr;
-				int port = DuelClient::hosts[sel].port;
-				wchar_t buf[20];
-				myswprintf(buf, L"%d.%d.%d.%d", addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff);
-				mainGame->ebJoinHost->setText(buf);
-				myswprintf(buf, L"%d", port);
-				mainGame->ebJoinPort->setText(buf);
+				//int addr = DuelClient::hosts[sel].ipaddr;
+				//int port = DuelClient::hosts[sel].port;
+				//wchar_t buf[20];
+				//myswprintf(buf, L"%d.%d.%d.%d", addr & 0xff, (addr >> 8) & 0xff, (addr >> 16) & 0xff, (addr >> 24) & 0xff);
+				//mainGame->ebJoinHost->setText(buf);
+				//myswprintf(buf, L"%d", port);
+				//mainGame->ebJoinPort->setText(buf);
 				break;
 			}
 			case LISTBOX_REPLAY_LIST: {
