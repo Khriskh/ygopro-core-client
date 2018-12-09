@@ -427,7 +427,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				token = wcstok(NULL, delim, &ptr); 
 			}
 			
-			if ( wcscmp(token2,token3") == 0 ){
+			if ( wcscmp(token2,token3) == 0 ){
 				myswprintf(token3, L" --- ");
 			}
 			
