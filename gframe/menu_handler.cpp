@@ -67,7 +67,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				myswprintf(Salas, L"%ls", mainGame->ebJoinLista->getText());
 				
 				if ( wcscmp(Salas,L"1") == 0 ){
-					mainGame->btnJoinHost->setText(L"1");
+					//mainGame->btnJoinHost->setText(L"1");
 					int sel = mainGame->lstHostList->getSelected();
 					if(sel == -1)
 						break;
@@ -80,7 +80,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					mainGame->ebJoinPort->setText(buf);
 					
 				} else if ( wcscmp(Salas,L"2") == 0) {
-					mainGame->btnJoinHost->setText(L"2");
+					//mainGame->btnJoinHost->setText(L"2");
 					int sel = mainGame->lstHostList->getSelected();
 					if(sel != -1){
 						mainGame->ebJoinPass->setText(DuelClient::hosts_srvpro[sel].c_str());

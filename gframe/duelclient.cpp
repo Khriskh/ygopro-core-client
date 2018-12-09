@@ -461,7 +461,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 				myswprintf(token2, L" RANDOM ");
 			}
 			
-			if ( wcscmp(token2,L"AI") == 0) {
+			if ( wcscmp(token2,L"  AI  |  OCG/TCG  ") == 0) {
 			} else {
 				switch(room_status) {
 					case 0: {
