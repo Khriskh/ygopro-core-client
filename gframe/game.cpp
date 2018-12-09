@@ -159,6 +159,7 @@ bool Game::Initialize() {
 	
 	ebJoinPassO = env->addEditBox(L"", rect<s32>(0, 0, 0, 0), true, wLanWindow);
 	ebJoinCondO = env->addEditBox(L"0", rect<s32>(0, 0, 0, 0), true, wLanWindow);
+	ebJoinLista = env->addEditBox(L"0", rect<s32>(0, 0, 0, 0), true, wLanWindow);
 	
 	env->addStaticText(dataManager.GetSysString(1222), rect<s32>(10, 390, 220, 410), false, false, wLanWindow);
 	ebJoinPass = env->addEditBox(gameConf.roompass, rect<s32>(110, 385, 420, 410), true, wLanWindow);
