@@ -343,6 +343,7 @@ public:
 	irr::gui::IGUIEditBox* ebJoinCondO;
 	irr::gui::IGUIEditBox* ebJoinLista;
 	irr::gui::IGUIButton* btnJoinHost;
+	irr::gui::IGUIButton* btnJoinServer;
 	irr::gui::IGUIButton* btnJoinCancel;
 	irr::gui::IGUIButton* btnCreateHost;
 	irr::gui::IGUIButton* btnCreateHostO;

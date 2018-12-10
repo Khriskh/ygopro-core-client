@@ -178,6 +178,7 @@ bool Game::Initialize() {
 	cbServer->addItem(L"Moon Server");
 	cbServer->addItem(L"Korean Server");
 	cbServer->addItem(L"Nanahira Server");
+	btnJoinServer = env->addButton(rect<s32>(460, 420, 570, 445), wLanWindow, BUTTON_JOIN_HOST, dataManager.GetSysString(1223));
 	
 	//create host
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
