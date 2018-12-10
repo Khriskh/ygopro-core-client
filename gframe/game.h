@@ -756,6 +756,7 @@ extern Game* mainGame;
 #define BUTTON_HOST_CANCELO			375
 #define BUTTON_IA					376
 #define BUTTON_LIST_ROOMS			377
+#define BUTTON_JOIN_SERVER			378
 
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381

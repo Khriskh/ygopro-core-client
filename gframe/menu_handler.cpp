@@ -60,6 +60,20 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->ShowElement(mainGame->wLanWindow);
 				break;
 			}
+			case BUTTON_JOIN_SERVER: {
+				wchar_t Servidor[40];
+				myswprintf(Servidor, L"%ls", mainGame->cbServer->getText());
+				
+				if ( wcscmp(Servidor,L"Koishi Server TCG") == 0 ){
+					mainGame->ebJoinHost->setText(L"222.73.218.25");
+					mainGame->ebJoinPort->setText(L"1311");
+				} else if ( wcscmp(Servidor,L"Koishi Server OCG") == 0 ){
+					mainGame->ebJoinHost->setText(L"222.73.218.25");
+					mainGame->ebJoinPort->setText(L"7210");
+				}
+				
+				break;
+			}
 			case BUTTON_JOIN_HOST: {
 				bot_mode = false;
 				

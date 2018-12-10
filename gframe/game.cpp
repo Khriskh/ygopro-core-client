@@ -167,8 +167,8 @@ bool Game::Initialize() {
 	btnCreateHost = env->addButton(rect<s32>(360, 25, 460, 50), wLanWindow, BUTTON_CREATE_HOST, dataManager.GetSysString(1224));
 	btnCreateHostO = env->addButton(rect<s32>(465, 25, 560, 50), wLanWindow, BUTTON_CREATE_HOSTO, L"Host Online");
 	
-	env->addStaticText(L"Server:", rect<s32>(10, 425, 220, 445), false, false, wLanWindow);
-	cbServer = env->addComboBox(rect<s32>(110, 420, 420, 445), wLanWindow);
+	env->addStaticText(L"Server:", rect<s32>(10, 430, 220, 450), false, false, wLanWindow);
+	cbServer = env->addComboBox(rect<s32>(110, 425, 420, 450), wLanWindow);
 	cbServer->addItem(L"Koishi Server TCG");
 	cbServer->addItem(L"Koishi Server OCG");
 	cbServer->addItem(L"SzefoServer TCG");
@@ -178,7 +178,7 @@ bool Game::Initialize() {
 	cbServer->addItem(L"Moon Server");
 	cbServer->addItem(L"Korean Server");
 	cbServer->addItem(L"Nanahira Server");
-	btnJoinServer = env->addButton(rect<s32>(460, 420, 570, 445), wLanWindow, BUTTON_JOIN_HOST, dataManager.GetSysString(1223));
+	btnJoinServer = env->addButton(rect<s32>(460, 425, 570, 450), wLanWindow, BUTTON_JOIN_SERVER, L"OK");
 	
 	//create host
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
@@ -1914,7 +1914,7 @@ void Game::OnResize() {
 	btnDeleteDeck->setRelativePosition(Resize(225, 95, 290, 120));
 	btnRenameDeck->setRelativePosition(Resize(170, 99, 220, 120));
 
-	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 560));
+	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 565));
 	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
 	wCreateHostO->setRelativePosition(ResizeWin(320, 100, 650, 320));
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750, 440));
