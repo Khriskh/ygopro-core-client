@@ -70,7 +70,28 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				} else if ( wcscmp(Servidor,L"Koishi Server OCG") == 0 ){
 					mainGame->ebJoinHost->setText(L"222.73.218.25");
 					mainGame->ebJoinPort->setText(L"7210");
-				}
+				} else if ( wcscmp(Servidor,L"SzefoServer TCG") == 0 ){
+					mainGame->ebJoinHost->setText(L"szefoserver.ddns.net");
+					mainGame->ebJoinPort->setText(L"7210");
+				} else if ( wcscmp(Servidor,L"Mercury233 Server OCG") == 0 ){
+					mainGame->ebJoinHost->setText(L"118.178.111.167");
+					mainGame->ebJoinPort->setText(L"233");
+				} else if ( wcscmp(Servidor,L"Mercury233 Server OCG Beta Cards") == 0 ){
+					mainGame->ebJoinHost->setText(L"118.178.111.167");
+					mainGame->ebJoinPort->setText(L"23333");
+				} else if ( wcscmp(Servidor,L"Terra Server") == 0 ){
+					mainGame->ebJoinHost->setText(L"23.254.201.48");
+					mainGame->ebJoinPort->setText(L"7911");
+				} else if ( wcscmp(Servidor,L"Moon Server") == 0 ){
+					mainGame->ebJoinHost->setText(L"23.254.201.48");
+					mainGame->ebJoinPort->setText(L"7999");
+				} else if ( wcscmp(Servidor,L"Korean Server") == 0 ){
+					mainGame->ebJoinHost->setText(L"cygopro.fun25.co.kr");
+					mainGame->ebJoinPort->setText(L"17225");
+				} else if ( wcscmp(Servidor,L"Nanahira Server") == 0 ){
+					mainGame->ebJoinHost->setText(L"213.159.202.230");
+					mainGame->ebJoinPort->setText(L"7210");
+				} 
 				
 				break;
 			}
