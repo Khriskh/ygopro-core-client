@@ -167,11 +167,17 @@ bool Game::Initialize() {
 	btnCreateHost = env->addButton(rect<s32>(360, 25, 460, 50), wLanWindow, BUTTON_CREATE_HOST, dataManager.GetSysString(1224));
 	btnCreateHostO = env->addButton(rect<s32>(465, 25, 560, 50), wLanWindow, BUTTON_CREATE_HOSTO, L"Host Online");
 	
-	cbServer = env->addComboBox(rect<s32>(110, 415, 420, 440), wLanWindow);
-	cbServer->addItem(L"-");
-	cbServer->addItem(L"-");
-	cbServer->addItem(L"-");
-	cbServer->addItem(L"-");
+	env->addStaticText(L"Server:", rect<s32>(10, 425, 220, 445), false, false, wLanWindow);
+	cbServer = env->addComboBox(rect<s32>(110, 420, 420, 445), wLanWindow);
+	cbServer->addItem(L"Koishi Server TCG");
+	cbServer->addItem(L"Koishi Server OCG");
+	cbServer->addItem(L"SzefoServer TCG");
+	cbServer->addItem(L"Mercury233 Server OCG");
+	cbServer->addItem(L"Mercury233 Server OCG Beta Cards");
+	cbServer->addItem(L"Terra Server");
+	cbServer->addItem(L"Moon Server");
+	cbServer->addItem(L"Korean Server");
+	cbServer->addItem(L"Nanahira Server");
 	
 	//create host
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
