@@ -1907,7 +1907,7 @@ void Game::OnResize() {
 	btnDeleteDeck->setRelativePosition(Resize(225, 95, 290, 120));
 	btnRenameDeck->setRelativePosition(Resize(170, 99, 220, 120));
 
-	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 520));
+	wLanWindow->setRelativePosition(ResizeWin(220, 100, 800, 560));
 	wCreateHost->setRelativePosition(ResizeWin(320, 100, 700, 520));
 	wCreateHostO->setRelativePosition(ResizeWin(320, 100, 650, 320));
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750, 440));
