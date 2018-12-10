@@ -168,10 +168,10 @@ bool Game::Initialize() {
 	btnCreateHostO = env->addButton(rect<s32>(465, 25, 560, 50), wLanWindow, BUTTON_CREATE_HOSTO, L"Host Online");
 	
 	cbServer = env->addComboBox(rect<s32>(110, 415, 420, 440), wLanWindow);
-	cbServer->addItem(dataManager.GetSysString(L"-"));
-	cbServer->addItem(dataManager.GetSysString(L"-"));
-	cbServer->addItem(dataManager.GetSysString(L"-"));
-	cbServer->addItem(dataManager.GetSysString(L"-"));
+	cbServer->addItem(L"-");
+	cbServer->addItem(L"-");
+	cbServer->addItem(L"-");
+	cbServer->addItem(L"-");
 	
 	//create host
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
