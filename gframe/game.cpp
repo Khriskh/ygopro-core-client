@@ -136,9 +136,7 @@ bool Game::Initialize() {
 	btnModeExit = env->addButton(rect<s32>(10, 170, 270, 200), wMainMenu, BUTTON_MODE_EXIT, dataManager.GetSysString(1210));
 
 	//lan mode
-	
-	
-	wLanWindow = env->addWindow(rect<s32>(220, 100, 800, 520), false, dataManager.GetSysString(1200));
+	wLanWindow = env->addWindow(rect<s32>(220, 100, 800, 550), false, dataManager.GetSysString(1200));
 	wLanWindow->getCloseButton()->setVisible(false);
 	wLanWindow->setVisible(false);
 	env->addStaticText(dataManager.GetSysString(1220), rect<s32>(10, 30, 220, 50), false, false, wLanWindow);
@@ -168,6 +166,12 @@ bool Game::Initialize() {
 	btnJoinCancel = env->addButton(rect<s32>(460, 385, 570, 410), wLanWindow, BUTTON_JOIN_CANCEL, dataManager.GetSysString(1212));
 	btnCreateHost = env->addButton(rect<s32>(360, 25, 460, 50), wLanWindow, BUTTON_CREATE_HOST, dataManager.GetSysString(1224));
 	btnCreateHostO = env->addButton(rect<s32>(465, 25, 560, 50), wLanWindow, BUTTON_CREATE_HOSTO, L"Host Online");
+	
+	cbServer = env->addComboBox(rect<s32>(110, 415, 420, 440), wLanWindow);
+	cbServer->addItem(dataManager.GetSysString(L"-"));
+	cbServer->addItem(dataManager.GetSysString(L"-"));
+	cbServer->addItem(dataManager.GetSysString(L"-"));
+	cbServer->addItem(dataManager.GetSysString(L"-"));
 	
 	//create host
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));

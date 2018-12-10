@@ -346,6 +346,7 @@ public:
 	irr::gui::IGUIButton* btnJoinCancel;
 	irr::gui::IGUIButton* btnCreateHost;
 	irr::gui::IGUIButton* btnCreateHostO;
+	irr::gui::IGUIComboBox* cbServer;
 	//create host
 	irr::gui::IGUIWindow* wCreateHost;
 	irr::gui::IGUIWindow* wCreateHostO;
