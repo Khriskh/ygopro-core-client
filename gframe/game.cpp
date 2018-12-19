@@ -139,20 +139,20 @@ bool Game::Initialize() {
 	wLanWindow = env->addWindow(rect<s32>(220, 100, 800, 550), false, dataManager.GetSysString(1200));
 	wLanWindow->getCloseButton()->setVisible(false);
 	wLanWindow->setVisible(false);
-	env->addStaticText(L"Server:", rect<s32>(10, 30, 170, 50), false, false, wLanWindow);
+	env->addStaticText(L"Server:", rect<s32>(10, 30, 90, 50), false, false, wLanWindow);
 	ebNickName = env->addEditBox(gameConf.nickname, rect<s32>(90, 70, 295, 95), true, wLanWindow); //OK
 	ebNickName->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
 	lstHostList = env->addListBox(rect<s32>(10, 130, 570, 390), wLanWindow, LISTBOX_LAN_HOST, true); //OK
 	lstHostList->setItemHeight(18);
 	
 	btnIA = env->addButton(rect<s32>(320, 395, 400, 420), wLanWindow, BUTTON_IA, L"IA"); //ok
-	btnLanRefresh = env->addButton(rect<s32>(355, 100, 455, 125), wLanWindow, BUTTON_LAN_REFRESH, L"Rooms"); //ok
-	btnListRooms = env->addButton(rect<s32>(475, 100, 570, 125), wLanWindow, BUTTON_LIST_ROOMS, L"Rooms"); //ok
+	btnLanRefresh = env->addButton(rect<s32>(355, 100, 455, 125), wLanWindow, BUTTON_LAN_REFRESH, L"Refresh Rooms"); //ok
+	btnListRooms = env->addButton(rect<s32>(475, 100, 570, 125), wLanWindow, BUTTON_LIST_ROOMS, L"Refresh Rooms"); //ok
 	
 	btnOcgRanked = env->addButton(rect<s32>(90, 100, 190, 125), wLanWindow, BUTTON_OCG_RANKED, L"OCG"); //ok
 	btnTcgRanked = env->addButton(rect<s32>(200, 100, 295, 125), wLanWindow, BUTTON_TCG_RANKED, L"TCG"); //ok
 	
-	env->addStaticText(L"Nickname:", rect<s32>(10, 75, 170, 95), false, false, wLanWindow);
+	env->addStaticText(L"Nickname:", rect<s32>(10, 75, 90, 95), false, false, wLanWindow);
 	ebJoinHost = env->addEditBox(gameConf.lasthost, rect<s32>(305, 25, 505, 50), true, wLanWindow); //ok
 	ebJoinHost->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	ebJoinPort = env->addEditBox(gameConf.lastport, rect<s32>(510, 25, 570, 50), true, wLanWindow); //ok
@@ -162,7 +162,7 @@ bool Game::Initialize() {
 	ebJoinCondO = env->addEditBox(L"0", rect<s32>(0, 0, 0, 0), true, wLanWindow);
 	ebJoinLista = env->addEditBox(L"0", rect<s32>(0, 0, 0, 0), true, wLanWindow);
 	
-	env->addStaticText(L"Ranked:", rect<s32>(10, 105, 170, 125), false, false, wLanWindow);
+	env->addStaticText(L"Ranked:", rect<s32>(10, 105, 90, 125), false, false, wLanWindow);
 	ebJoinPass = env->addEditBox(gameConf.roompass, rect<s32>(90, 395, 310, 420), true, wLanWindow); //ok
 	ebJoinPass->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	btnJoinHost = env->addButton(rect<s32>(405, 395, 485, 420), wLanWindow, BUTTON_JOIN_HOST, L"Join");
@@ -170,7 +170,7 @@ bool Game::Initialize() {
 	btnCreateHost = env->addButton(rect<s32>(355, 70, 455, 95), wLanWindow, BUTTON_CREATE_HOST, L"Host Offline"); //ok
 	btnCreateHostO = env->addButton(rect<s32>(475, 70, 570, 95), wLanWindow, BUTTON_CREATE_HOSTO, L"Host Online"); //ok
 	
-	env->addStaticText(L"Password:", rect<s32>(10, 400, 170, 420), false, false, wLanWindow);
+	env->addStaticText(L"Password:", rect<s32>(10, 400, 90, 420), false, false, wLanWindow);
 	cbServer = env->addComboBox(rect<s32>(90, 25, 260, 50), wLanWindow);
 	cbServer->addItem(L"Koishi Server TCG");
 	cbServer->addItem(L"Koishi Server OCG");
