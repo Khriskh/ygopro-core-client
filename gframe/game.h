@@ -348,6 +348,8 @@ public:
 	irr::gui::IGUIButton* btnCreateHost;
 	irr::gui::IGUIButton* btnCreateHostO;
 	irr::gui::IGUIComboBox* cbServer;
+	irr::gui::IGUIButton* btnOcgRanked;
+	irr::gui::IGUIButton* btnTcgRanked;
 	//create host
 	irr::gui::IGUIWindow* wCreateHost;
 	irr::gui::IGUIWindow* wCreateHostO;
@@ -764,6 +766,9 @@ extern Game* mainGame;
 #define BUTTON_RENAME_DECK			386
 #define BUTTON_RENAME_DECK_SAVE		387
 #define BUTTON_RENAME_DECK_CANCEL	388
+
+#define BUTTON_OCG_RANKED			401
+#define BUTTON_TCG_RANKED			402
 
 #define TEXTURE_DUEL				0
 #define TEXTURE_DECK				1

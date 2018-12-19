@@ -169,6 +169,14 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					mainGame->device->closeDevice();
 				break;
 			}
+			case BUTTON_OCG_RANKED: {
+
+				break;
+			}
+			case BUTTON_TCG_RANKED: {
+
+				break;
+			}
 			case BUTTON_LAN_REFRESH: {
 				mainGame->ebJoinLista->setText(L"1");
 				DuelClient::is_srvpro = false;

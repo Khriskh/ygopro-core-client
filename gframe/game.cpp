@@ -139,36 +139,39 @@ bool Game::Initialize() {
 	wLanWindow = env->addWindow(rect<s32>(220, 100, 800, 550), false, dataManager.GetSysString(1200));
 	wLanWindow->getCloseButton()->setVisible(false);
 	wLanWindow->setVisible(false);
-	env->addStaticText(dataManager.GetSysString(1220), rect<s32>(10, 30, 220, 50), false, false, wLanWindow);
-	ebNickName = env->addEditBox(gameConf.nickname, rect<s32>(110, 25, 350, 50), true, wLanWindow);
+	env->addStaticText(L"Server:", rect<s32>(10, 30, 170, 50), false, false, wLanWindow);
+	ebNickName = env->addEditBox(gameConf.nickname, rect<s32>(90, 70, 295, 95), true, wLanWindow); //OK
 	ebNickName->setTextAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_CENTER);
-	lstHostList = env->addListBox(rect<s32>(10, 60, 570, 320), wLanWindow, LISTBOX_LAN_HOST, true);
+	lstHostList = env->addListBox(rect<s32>(10, 130, 570, 390), wLanWindow, LISTBOX_LAN_HOST, true); //OK
 	lstHostList->setItemHeight(18);
 	
-	btnLanRefresh = env->addButton(rect<s32>(110, 325, 210, 350), wLanWindow, BUTTON_LAN_REFRESH, dataManager.GetSysString(1217));
-	btnIA = env->addButton(rect<s32>(215, 325, 315, 350), wLanWindow, BUTTON_IA, L"IA Online");
-	btnListRooms = env->addButton(rect<s32>(320, 325, 420, 350), wLanWindow, BUTTON_LIST_ROOMS, L"Rooms Online");
+	btnLanRefresh = env->addButton(rect<s32>(335, 100, 435, 125), wLanWindow, BUTTON_LAN_REFRESH, L"Rooms Offline"); //ok
+	btnIA = env->addButton(rect<s32>(320, 395, 400, 420), wLanWindow, BUTTON_IA, L"IA Online"); //ok
+	btnListRooms = env->addButton(rect<s32>(465, 100, 560, 125), wLanWindow, BUTTON_LIST_ROOMS, L"Rooms Online"); //ok
 	
-	env->addStaticText(dataManager.GetSysString(1221), rect<s32>(10, 360, 220, 380), false, false, wLanWindow);
-	ebJoinHost = env->addEditBox(gameConf.lasthost, rect<s32>(110, 355, 350, 380), true, wLanWindow);
+	btnOcgRanked = env->addButton(rect<s32>(90, 100, 190, 125), wLanWindow, BUTTON_OCG_RANKED, L"Rooms Online"); //ok
+	btnTcgRanked = env->addButton(rect<s32>(200, 100, 295, 125), wLanWindow, BUTTON_TCG_RANKED, L"Rooms Online"); //ok
+	
+	env->addStaticText(L"Nickname:", rect<s32>(10, 75, 170, 95), false, false, wLanWindow);
+	ebJoinHost = env->addEditBox(gameConf.lasthost, rect<s32>(305, 25, 505, 50), true, wLanWindow); //ok
 	ebJoinHost->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
-	ebJoinPort = env->addEditBox(gameConf.lastport, rect<s32>(360, 355, 420, 380), true, wLanWindow);
+	ebJoinPort = env->addEditBox(gameConf.lastport, rect<s32>(510, 25, 570, 50), true, wLanWindow); //ok
 	ebJoinPort->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	
 	ebJoinPassO = env->addEditBox(L"", rect<s32>(0, 0, 0, 0), true, wLanWindow);
 	ebJoinCondO = env->addEditBox(L"0", rect<s32>(0, 0, 0, 0), true, wLanWindow);
 	ebJoinLista = env->addEditBox(L"0", rect<s32>(0, 0, 0, 0), true, wLanWindow);
 	
-	env->addStaticText(dataManager.GetSysString(1222), rect<s32>(10, 390, 220, 410), false, false, wLanWindow);
-	ebJoinPass = env->addEditBox(gameConf.roompass, rect<s32>(110, 385, 420, 410), true, wLanWindow);
+	env->addStaticText(L"Ranked:", rect<s32>(10, 105, 170, 125), false, false, wLanWindow);
+	ebJoinPass = env->addEditBox(gameConf.roompass, rect<s32>(90, 395, 310, 420), true, wLanWindow); //ok
 	ebJoinPass->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
-	btnJoinHost = env->addButton(rect<s32>(460, 355, 570, 380), wLanWindow, BUTTON_JOIN_HOST, dataManager.GetSysString(1223));
-	btnJoinCancel = env->addButton(rect<s32>(460, 385, 570, 410), wLanWindow, BUTTON_JOIN_CANCEL, dataManager.GetSysString(1212));
-	btnCreateHost = env->addButton(rect<s32>(360, 25, 460, 50), wLanWindow, BUTTON_CREATE_HOST, dataManager.GetSysString(1224));
-	btnCreateHostO = env->addButton(rect<s32>(465, 25, 560, 50), wLanWindow, BUTTON_CREATE_HOSTO, L"Host Online");
+	btnJoinHost = env->addButton(rect<s32>(405, 395, 485, 420), wLanWindow, BUTTON_JOIN_HOST, L"Join");
+	btnJoinCancel = env->addButton(rect<s32>(490, 395, 570, 420), wLanWindow, BUTTON_JOIN_CANCEL, L"Cancel");
+	btnCreateHost = env->addButton(rect<s32>(335, 70, 435, 95), wLanWindow, BUTTON_CREATE_HOST, L"Host Offline"); //ok
+	btnCreateHostO = env->addButton(rect<s32>(465, 70, 560, 95), wLanWindow, BUTTON_CREATE_HOSTO, L"Host Online"); //ok
 	
-	env->addStaticText(L"Server:", rect<s32>(10, 430, 220, 450), false, false, wLanWindow);
-	cbServer = env->addComboBox(rect<s32>(110, 425, 420, 450), wLanWindow);
+	env->addStaticText(L"Password:", rect<s32>(10, 400, 170, 420), false, false, wLanWindow);
+	cbServer = env->addComboBox(rect<s32>(90, 25, 260, 50), wLanWindow);
 	cbServer->addItem(L"Koishi Server TCG");
 	cbServer->addItem(L"Koishi Server OCG");
 	cbServer->addItem(L"SzefoServer TCG");
@@ -178,7 +181,7 @@ bool Game::Initialize() {
 	cbServer->addItem(L"Moon Server");
 	cbServer->addItem(L"Korean Server");
 	cbServer->addItem(L"Nanahira Server");
-	btnJoinServer = env->addButton(rect<s32>(460, 425, 570, 450), wLanWindow, BUTTON_JOIN_SERVER, L"OK");
+	btnJoinServer = env->addButton(rect<s32>(270, 25, 295, 50), wLanWindow, BUTTON_JOIN_SERVER, L"OK"); //ok
 	
 	//create host
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
