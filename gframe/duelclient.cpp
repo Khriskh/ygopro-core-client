@@ -173,6 +173,12 @@ void DuelClient::ClientEvent(bufferevent *bev, short events, void *ctx) {
 				BufferIO::CopyWStr(L"L", csjg.pass, 20);
 			} else if ( wcscmp(Condicion,L"3") == 0) {
 				BufferIO::CopyWStr(L"AI", csjg.pass, 20);
+			} else if ( wcscmp(Condicion,L"4") == 0) {
+				BufferIO::CopyWStr(L"OO,M,R", csjg.pass, 20);
+				mainGame->stRanked->setText(L"OCG RANKED");
+			} else if ( wcscmp(Condicion,L"5") == 0) {
+				BufferIO::CopyWStr(L"TO,M,R", csjg.pass, 20);
+				mainGame->stRanked->setText(L"TCG RANKED");
 			} else {
 				BufferIO::CopyWStr(mainGame->ebJoinPass->getText(), csjg.pass, 20);
 			}
