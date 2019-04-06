@@ -918,6 +918,37 @@ int32 scriptlib::card_get_fieldidr(lua_State *L) {
 	lua_pushinteger(L, pcard->fieldid_r);
 	return 1;
 }
+int32 scriptlib::card_is_origin_code_rule(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 code1 = 0;
+	uint32 code2 = 0;
+	effect_set eset;
+	pcard->filter_effect(EFFECT_ADD_CODE, &eset);
+	if(pcard->data.alias && !eset.size()){
+		code1 = pcard->data.alias;
+		code2 = 0;
+	}
+	else {
+		code1 = pcard->data.code;
+		if(eset.size())
+			code2 = eset.get_last()->get_value(pcard);
+	}
+	uint32 count = lua_gettop(L) - 1;
+	uint32 result = FALSE;
+	for(uint32 i = 0; i < count; ++i) {
+		if(lua_isnil(L, i + 2))
+			continue;
+		uint32 tcode = lua_tointeger(L, i + 2);
+		if(code1 == tcode || (code2 && code2 == tcode)) {
+			result = TRUE;
+			break;
+		}
+	}
+	lua_pushboolean(L, result);
+	return 1;
+}
 int32 scriptlib::card_is_code(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -1666,8 +1697,22 @@ int32 scriptlib::card_is_has_effect(lua_State *L) {
 		lua_pushnil(L);
 		return 1;
 	}
-	for(int32 i = 0; i < size; ++i)
-		interpreter::effect2value(L, eset[i]);
+	int32 check_player = PLAYER_NONE;
+	if(lua_gettop(L) >= 3) {
+		check_player = lua_tointeger(L, 3);
+		if(check_player > PLAYER_NONE)
+			check_player = PLAYER_NONE;
+	}
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(check_player == PLAYER_NONE || eset[i]->check_count_limit(check_player))
+			interpreter::effect2value(L, eset[i]);
+		else
+			size--;
+	}
+	if(!size) {
+		lua_pushnil(L);
+		return 1;
+	}
 	return size;
 }
 int32 scriptlib::card_reset_effect(lua_State *L) {

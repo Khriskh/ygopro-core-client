@@ -35,8 +35,8 @@ struct Config {
 	int chkWaitChain;
 	int chkIgnore1;
 	int chkIgnore2;
-	int chkHideSetname;
-	int chkHideHintButton;
+	int hide_setname;
+	int hide_hint_button;
 	int control_mode;
 	int draw_field_spell;
 	int separate_clear_button;
@@ -52,6 +52,7 @@ struct Config {
 	int window_height;
 	bool resize_popup_menu;
 	int auto_save_replay;
+	int prefer_expansion_script;
 	bool enable_sound;
 	bool enable_music;
 	double sound_volume;
@@ -128,9 +129,7 @@ public:
 	void BuildProjectionMatrix(irr::core::matrix4& mProjection, f32 left, f32 right, f32 bottom, f32 top, f32 znear, f32 zfar);
 	void InitStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, u32 cHeight, irr::gui::CGUITTFont* font, const wchar_t* text);
 	void SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gui::CGUITTFont* font, const wchar_t* text, u32 pos = 0);
-	void LoadExpansionDB();
-	void LoadExpansionDBDirectry(const char* path);
-	void LoadExpansionStrings();
+	void LoadExpansions();
 	void RefreshDeck(irr::gui::IGUIComboBox* cbDeck);
 	void RefreshReplay();
 	void RefreshSingleplay();
@@ -171,6 +170,7 @@ public:
 	int LocalPlayer(int player);
 	const wchar_t* LocalName(int local_player);
 	const char* GetLocaleDir(const char* dir);
+	const wchar_t* GetLocaleDirWide(const char* dir);
 	bool CheckRegEx(const std::wstring& text, const std::wstring& exp, bool exact = false);
 
 	bool HasFocus(EGUI_ELEMENT_TYPE type) const {
@@ -184,8 +184,8 @@ public:
 	position2di Resize(s32 x, s32 y);
 	position2di ResizeReverse(s32 x, s32 y);
 	recti ResizePhaseHint(s32 x, s32 y, s32 x2, s32 y2, s32 width);
-	recti ResizeWin(s32 x, s32 y, s32 x2, s32 y2, bool chat = false);
-	recti ResizeCard(s32 x, s32 y, s32 x2, s32 y2);
+	recti ResizeWin(s32 x, s32 y, s32 x2, s32 y2);
+	recti ResizeCardImgWin(s32 x, s32 y, s32 mx, s32 my);
 	recti ResizeCardHint(s32 x, s32 y, s32 x2, s32 y2);
 	position2di ResizeCardHint(s32 x, s32 y);
 	recti ResizeCardMid(s32 x, s32 y, s32 x2, s32 y2, s32 midx, s32 midy);
@@ -251,6 +251,8 @@ public:
 	float yScale;
 
 	CGUISkinSystem *skinSystem;
+	wchar_t locale_buf[256];
+	wchar_t orig_dir[64];
 	char locale_buf_utf8[256];
 
 	ClientField dField;
@@ -304,11 +306,10 @@ public:
 	irr::gui::IGUIWindow* tabSystem;
 	irr::gui::IGUIElement* elmTabSystemLast;
 	irr::gui::IGUIScrollBar* scrTabSystem;
-	irr::gui::IGUICheckBox* chkHideSetname;
-	irr::gui::IGUICheckBox* chkHideHintButton;
 	irr::gui::IGUICheckBox* chkIgnoreDeckChanges;
 	irr::gui::IGUICheckBox* chkAutoSearch;
 	irr::gui::IGUICheckBox* chkMultiKeywords;
+	irr::gui::IGUICheckBox* chkPreferExpansionScript;
 	irr::gui::IGUICheckBox* chkRegex;
 	irr::gui::IGUICheckBox* chkEnableSound;
 	irr::gui::IGUICheckBox* chkEnableMusic;
@@ -363,8 +364,8 @@ public:
 	irr::gui::IGUIEditBox* ebStartLP;
 	irr::gui::IGUIEditBox* ebStartHand;
 	irr::gui::IGUIEditBox* ebDrawCount;
-	irr::gui::IGUIEditBox* ebServerName;
 	irr::gui::IGUIEditBox* ebServerNameO;
+	irr::gui::IGUIEditBox* ebServerName;
 	irr::gui::IGUIEditBox* ebServerPass;
 	irr::gui::IGUIComboBox* cbDuelRule;
 	irr::gui::IGUICheckBox* chkNoCheckDeck;
@@ -516,6 +517,13 @@ public:
 	irr::gui::IGUIButton* btnSideSort;
 	irr::gui::IGUIButton* btnSideReload;
 	irr::gui::IGUIEditBox* ebDeckname;
+	irr::gui::IGUIButton* btnRenameDeck;
+	//deck rename
+	irr::gui::IGUIWindow* wRenameDeck;
+	irr::gui::IGUIEditBox* ebREName;
+	irr::gui::IGUIButton* btnREYes;
+	irr::gui::IGUIButton* btnRENo;
+  //
 	irr::gui::IGUIStaticText* stBanlist;
 	irr::gui::IGUIStaticText* stDeck;
 	irr::gui::IGUIStaticText* stCategory;
@@ -527,12 +535,6 @@ public:
 	irr::gui::IGUIStaticText* stStar;
 	irr::gui::IGUIStaticText* stSearch;
 	irr::gui::IGUIStaticText* stScale;
-	irr::gui::IGUIButton* btnRenameDeck;
-	//deck rename
-	irr::gui::IGUIWindow* wRenameDeck;
-	irr::gui::IGUIEditBox* ebREName;
-	irr::gui::IGUIButton* btnREYes;
-	irr::gui::IGUIButton* btnRENo;
 	//filter
 	irr::gui::IGUIStaticText* wFilter;
 	irr::gui::IGUIScrollBar* scrFilter;
@@ -740,7 +742,8 @@ extern Game* mainGame;
 #define SCROLL_TAB_SYSTEM			351
 #define CHECKBOX_AUTO_SEARCH		360
 #define CHECKBOX_MULTI_KEYWORDS		372
-#define CHECKBOX_REGEX				373
+#define CHECKBOX_PREFER_EXPANSION	373
+#define CHECKBOX_REGEX				374
 #define CHECKBOX_ENABLE_SOUND		361
 #define CHECKBOX_ENABLE_MUSIC		362
 #define SCROLL_VOLUME				363
@@ -764,12 +767,12 @@ extern Game* mainGame;
 #define BUTTON_MARKS_FILTER			380
 #define BUTTON_MARKERS_OK			381
 
+#define BUTTON_OCG_RANKED			401
+#define BUTTON_TCG_RANKED			402
+
 #define BUTTON_RENAME_DECK			386
 #define BUTTON_RENAME_DECK_SAVE		387
 #define BUTTON_RENAME_DECK_CANCEL	388
-
-#define BUTTON_OCG_RANKED			401
-#define BUTTON_TCG_RANKED			402
 
 #define TEXTURE_DUEL				0
 #define TEXTURE_DECK				1
@@ -779,7 +782,9 @@ extern Game* mainGame;
 #define TEXTURE_ATTACK				5
 #define TEXTURE_ACTIVATE			6
 
+#ifndef DEFAULT_DUEL_RULE
 #define DEFAULT_DUEL_RULE			4
+#endif
 
 #define CARD_ARTWORK_VERSIONS_OFFSET	10
 #endif // GAME_H

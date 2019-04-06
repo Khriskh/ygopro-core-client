@@ -17,7 +17,7 @@ int32 field::field_used_count[32] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3
 bool chain::chain_operation_sort(const chain& c1, const chain& c2) {
 	return c1.triggering_effect->id < c2.triggering_effect->id;
 }
-void chain::set_triggering_place(card* pcard) {
+void chain::set_triggering_state(card* pcard) {
 	triggering_controler = pcard->current.controler;
 	if(pcard->current.is_location(LOCATION_FZONE))
 		triggering_location = LOCATION_SZONE | LOCATION_FZONE;
@@ -27,6 +27,14 @@ void chain::set_triggering_place(card* pcard) {
 		triggering_location = pcard->current.location;
 	triggering_sequence = pcard->current.sequence;
 	triggering_position = pcard->current.position;
+	triggering_state.code = pcard->get_code();
+	triggering_state.code2 = pcard->get_another_code();
+	triggering_state.level = pcard->get_level();
+	triggering_state.rank = pcard->get_rank();
+	triggering_state.attribute = pcard->get_attribute();
+	triggering_state.race = pcard->get_race();
+	triggering_state.attack = pcard->get_attack();
+	triggering_state.defense = pcard->get_defense();
 }
 bool tevent::operator< (const tevent& v) const {
 	return std::memcmp(this, &v, sizeof(tevent)) < 0;
@@ -573,7 +581,17 @@ int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer
 	if(core.duel_rule >= 4 && !is_player_affected_by_effect(playerid, EFFECT_EXTRA_TOMAIN_KOISHI) && !pcard->is_affected_by_effect(EFFECT_EXTRA_TOMAIN_KOISHI))
 		useable_count = get_useable_count_fromex_rule4(pcard, playerid, uplayer, zone, list);
 	else
+	{
 		useable_count = get_useable_count_other(pcard, playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone, list);
+		if(core.duel_rule >= 4) {
+			uint32 temp_list = 0;
+			get_useable_count_fromex_rule4(pcard, playerid, uplayer, zone, &temp_list);
+			if(~temp_list & ((1u << 5) | (1u << 6)))
+				useable_count++;
+			if(list)
+				*list &= temp_list;
+		}
+	}
 	if(use_temp_card)
 		pcard->current.location = 0;
 	return useable_count;
@@ -592,10 +610,20 @@ int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 up
 		pcard->current.location = LOCATION_EXTRA;
 	}
 	int32 spsummonable_count = 0;
-	if(core.duel_rule >= 4)
+	if(core.duel_rule >= 4 && !is_player_affected_by_effect(playerid, EFFECT_EXTRA_TOMAIN_KOISHI) && !pcard->is_affected_by_effect(EFFECT_EXTRA_TOMAIN_KOISHI))
 		spsummonable_count = get_spsummonable_count_fromex_rule4(pcard, playerid, uplayer, zone, list);
 	else
+	{
 		spsummonable_count = get_tofield_count(pcard, playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone, list);
+		if(core.duel_rule >= 4) {
+			uint32 temp_list = 0;
+			get_spsummonable_count_fromex_rule4(pcard, playerid, uplayer, zone, &temp_list);
+			if(~temp_list & ((1u << 5) | (1u << 6)))
+				spsummonable_count++;
+			if(list)
+				*list &= temp_list;
+		}
+	}
 	if(use_temp_card)
 		pcard->current.location = 0;
 	return spsummonable_count;
@@ -1230,8 +1258,11 @@ void field::remove_oath_effect(effect* reason_effect) {
 void field::reset_phase(uint32 phase) {
 	for(auto eit = effects.pheff.begin(); eit != effects.pheff.end();) {
 		auto rm = eit++;
-		if((*rm)->code == EFFECT_SET_CONTROL)
-			continue;
+		// work around: skip turn still raise reset_phase(PHASE_END)
+		// without this taking control only for one turn will be returned when skipping turn
+		// RESET_TURN_END should be introduced
+		//if((*rm)->code == EFFECT_SET_CONTROL)
+		//	continue;
 		if((*rm)->reset(phase, RESET_PHASE)) {
 			if((*rm)->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect((*rm));
@@ -1773,7 +1804,7 @@ void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* mater
 	}
 	for(auto& pcard : player[1 - playerid].list_mzone) {
 		if(pcard && (pcard->get_level() || pcard->is_affected_by_effect(EFFECT_MINIATURE_GARDEN_GIRL)) && pcard->is_affect_by_effect(peffect)
-		        && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
+		        && (pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE) || is_player_affected_by_effect(playerid, EFFECT_SEA_PULSE))
 		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect))
 			material->insert(pcard);
 	}
@@ -1782,6 +1813,9 @@ void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* mater
 			material->insert(pcard);
 	for(auto& pcard : player[playerid].list_grave)
 		if((pcard->data.type & TYPE_MONSTER) && pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid))
+			material->insert(pcard);
+	for(auto& pcard : player[playerid].list_extra)
+		if(pcard && (pcard->get_level() || pcard->is_affected_by_effect(EFFECT_MINIATURE_GARDEN_GIRL)) && (pcard->data.type & TYPE_MONSTER) && pcard->is_affected_by_effect(EFFECT_MAP_OF_HEAVEN) && pcard->is_capable_send_to_grave(playerid))
 			material->insert(pcard);
 }
 void field::get_fusion_material(uint8 playerid, card_set* material) {
@@ -1800,13 +1834,17 @@ void field::get_fusion_material(uint8 playerid, card_set* material) {
 void field::ritual_release(card_set* material) {
 	card_set rel;
 	card_set rem;
+	card_set tg;
 	for(auto& pcard : *material) {
 		if(pcard->current.location == LOCATION_GRAVE)
 			rem.insert(pcard);
+		else if (pcard->current.location == LOCATION_EXTRA && pcard->is_affected_by_effect(EFFECT_MAP_OF_HEAVEN))
+			tg.insert(pcard);
 		else
 			rel.insert(pcard);
 	}
 	release(&rel, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player);
+	send_to(&tg, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	send_to(&rem, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, POS_FACEUP);
 }
 void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, group* mg) {
@@ -3153,7 +3191,7 @@ int32 field::is_chain_negatable(uint8 chaincount) {
 		peffect = core.current_chain.back().triggering_effect;
 	else
 		peffect = core.current_chain[chaincount - 1].triggering_effect;
-	if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
+	if(peffect->is_flag(EFFECT_FLAG_CANNOT_INACTIVATE))
 		return FALSE;
 	filter_field_effect(EFFECT_CANNOT_INACTIVATE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {

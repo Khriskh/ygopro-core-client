@@ -12,7 +12,7 @@
 #include <sstream>
 #include <regex>
 
-unsigned short PRO_VERSION = 0x1348;
+unsigned short PRO_VERSION = 0x1349;
 
 namespace ygo {
 
@@ -78,19 +78,20 @@ bool Game::Initialize() {
 		ErrorLog("Failed to load textures!");
 		return false;
 	}
-	LoadExpansionDB();
-	if(dataManager.LoadDB(GetLocaleDir("cards.cdb"))) {} else
-	if(!dataManager.LoadDB("cards.cdb")) {
+	dataManager.FileSystem = device->getFileSystem();
+	LoadExpansions();
+	if(dataManager.LoadDB(GetLocaleDirWide("cards.cdb"))) {} else
+	if(!dataManager.LoadDB(L"cards.cdb")) {
 		ErrorLog("Failed to load card database (cards.cdb)!");
 		return false;
 	}
-	if(dataManager.LoadDB(GetLocaleDir("prerelease.cdb"))) {} else
-	if(!dataManager.LoadDB("prerelease.cdb")) {
+	if(dataManager.LoadDB(GetLocaleDirWide("prerelease.cdb"))) {} else
+	if(!dataManager.LoadDB(L"prerelease.cdb")) {
 		ErrorLog("Failed to load card database (prerelease.cdb)!");
 		return false;
 	}
-	if(dataManager.LoadDB(GetLocaleDir("preupdate.cdb"))) {} else
-	if(!dataManager.LoadDB("preupdate.cdb")) {
+	if(dataManager.LoadDB(GetLocaleDirWide("preupdate.cdb"))) {} else
+	if(!dataManager.LoadDB(L"preupdate.cdb")) {
 		ErrorLog("Failed to load card database (preupdate.cdb)!");
 		return false;
 	}
@@ -99,7 +100,7 @@ bool Game::Initialize() {
 		ErrorLog("Failed to load strings!");
 		return false;
 	}
-	LoadExpansionStrings();
+	dataManager.LoadStrings("./expansions/strings.conf");
 	env = device->getGUIEnvironment();
 	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 16);
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 12);
@@ -399,12 +400,6 @@ bool Game::Initialize() {
 	chkIgnore2 = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, -1, dataManager.GetSysString(1291));
 	chkIgnore2->setChecked(gameConf.chkIgnore2 != 0);
 	posY += 30;
-	chkHideSetname = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, -1, dataManager.GetSysString(1354));
-	chkHideSetname->setChecked(gameConf.chkHideSetname != 0);
-	posY += 30;
-	chkHideHintButton = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, -1, dataManager.GetSysString(1355));
-	chkHideHintButton->setChecked(gameConf.chkHideHintButton != 0);
-	posY += 30;
 	chkIgnoreDeckChanges = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, -1, dataManager.GetSysString(1357));
 	chkIgnoreDeckChanges->setChecked(gameConf.chkIgnoreDeckChanges != 0);
 	posY += 30;
@@ -414,8 +409,11 @@ bool Game::Initialize() {
 	chkMultiKeywords = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, CHECKBOX_MULTI_KEYWORDS, dataManager.GetSysString(1378));
 	chkMultiKeywords->setChecked(gameConf.search_multiple_keywords > 0);
 	posY += 30;
-	chkRegex = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, CHECKBOX_REGEX, dataManager.GetSysString(1379));
+	chkRegex = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, CHECKBOX_REGEX, dataManager.GetSysString(1386));
 	chkRegex->setChecked(gameConf.search_regex > 0);
+	posY += 30;
+	chkPreferExpansionScript = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabSystem, CHECKBOX_PREFER_EXPANSION, dataManager.GetSysString(1379));
+	chkPreferExpansionScript->setChecked(gameConf.prefer_expansion_script != 0);
 	posY += 30;
 	env->addStaticText(dataManager.GetSysString(1282), rect<s32>(posX + 23, posY + 3, posX + 120, posY + 28), false, false, tabSystem);
 	btnWinResizeS = env->addButton(rect<s32>(posX + 115, posY, posX + 145, posY + 25), tabSystem, BUTTON_WINDOW_RESIZE_S, dataManager.GetSysString(1283));
@@ -706,14 +704,23 @@ bool Game::Initialize() {
 		btnStartFilter->setRelativePosition(rect<s32>(260, 80 + 125 / 6, 390, 100 + 125 / 6));
 		btnClearFilter = env->addButton(rect<s32>(205, 80 + 125 / 6, 255, 100 + 125 / 6), wFilter, BUTTON_CLEAR_FILTER, dataManager.GetSysString(1304));
 	}
-	wCategories = env->addWindow(rect<s32>(630, 60, 1000, 270), false, dataManager.strBuffer);
+	wCategories = env->addWindow(rect<s32>(600, 60, 1000, 305), false, dataManager.strBuffer);
 	wCategories->getCloseButton()->setVisible(false);
 	wCategories->setDrawTitlebar(false);
 	wCategories->setDraggable(false);
 	wCategories->setVisible(false);
-	btnCategoryOK = env->addButton(rect<s32>(135, 175, 235, 200), wCategories, BUTTON_CATEGORY_OK, dataManager.GetSysString(1211));
+	btnCategoryOK = env->addButton(rect<s32>(150, 210, 250, 235), wCategories, BUTTON_CATEGORY_OK, dataManager.GetSysString(1211));
+	int catewidth = 0;
+	for(int i = 0; i < 32; ++i) {
+		irr::core::dimension2d<unsigned int> dtxt = mainGame->guiFont->getDimension(dataManager.GetSysString(1100 + i));
+		if(dtxt.Width + 40 > catewidth)
+			catewidth = dtxt.Width + 40;
+	}
 	for(int i = 0; i < 32; ++i)
-		chkCategory[i] = env->addCheckBox(false, recti(10 + (i % 4) * 90, 10 + (i / 4) * 20, 100 + (i % 4) * 90, 30 + (i / 4) * 20), wCategories, -1, dataManager.GetSysString(1100 + i));
+		chkCategory[i] = env->addCheckBox(false, recti(10 + (i % 4) * catewidth, 5 + (i / 4) * 25, 10 + (i % 4 + 1) * catewidth, 5 + (i / 4 + 1) * 25), wCategories, -1, dataManager.GetSysString(1100 + i));
+	int wcatewidth = catewidth * 4 + 16;
+	wCategories->setRelativePosition(rect<s32>(1000 - wcatewidth, 60, 1000, 305));
+	btnCategoryOK->setRelativePosition(recti(wcatewidth / 2 - 50, 210, wcatewidth / 2 + 50, 235));
 	btnMarksFilter = env->addButton(rect<s32>(60, 80 + 125 / 6, 190, 100 + 125 / 6), wFilter, BUTTON_MARKS_FILTER, dataManager.GetSysString(1374));
 	wLinkMarks = env->addWindow(rect<s32>(700, 30, 820, 150), false, dataManager.strBuffer);
 	wLinkMarks->getCloseButton()->setVisible(false);
@@ -776,7 +783,7 @@ bool Game::Initialize() {
 	btnLoadSinglePlay = env->addButton(rect<s32>(459, 301, 569, 326), tabSingle, BUTTON_LOAD_SINGLEPLAY, dataManager.GetSysString(1211));
 	btnSinglePlayCancel = env->addButton(rect<s32>(459, 331, 569, 356), tabSingle, BUTTON_CANCEL_SINGLEPLAY, dataManager.GetSysString(1210));
 	env->addStaticText(dataManager.GetSysString(1352), rect<s32>(360, 10, 550, 30), false, true, tabSingle);
-	stSinglePlayInfo = env->addStaticText(L"", rect<s32>(360, 40, 550, 280), false, true, tabSingle);
+	stSinglePlayInfo = env->addStaticText(L"", rect<s32>(360, 40, 560, 280), false, true, tabSingle);
 	//replay save
 	wReplaySave = env->addWindow(rect<s32>(510, 200, 820, 320), false, dataManager.GetSysString(1340));
 	wReplaySave->getCloseButton()->setVisible(false);
@@ -1045,34 +1052,47 @@ void Game::SetStaticText(irr::gui::IGUIStaticText* pControl, u32 cWidth, irr::gu
 	dataManager.strBuffer[pbuffer] = 0;
 	pControl->setText(dataManager.strBuffer);
 }
-void Game::LoadExpansionDB() {
-	LoadExpansionDBDirectry("./expansions");
-	FileSystem::TraversalDir("./expansions", [this](const char* name, bool isdir) {
-		if(isdir && strcmp(name, ".") && strcmp(name, "..") && strcmp(name, "pics") && strcmp(name, "script")) {
-			char subdir[1024];
-			sprintf(subdir, "./expansions/%s", name);
-			LoadExpansionDBDirectry(subdir);
-		}
-	});
-}
-void Game::LoadExpansionDBDirectry(const char* path) {
-	FileSystem::TraversalDir(path, [path](const char* name, bool isdir) {
-		if(!isdir && strrchr(name, '.') && !mystrncasecmp(strrchr(name, '.'), ".cdb", 4)) {
-			char fpath[1024];
-			sprintf(fpath, "%s/%s", path, name);
+void Game::LoadExpansions() {
+	FileSystem::TraversalDir(L"./expansions", [](const wchar_t* name, bool isdir) {
+		if(!isdir && wcsrchr(name, '.') && !mywcsncasecmp(wcsrchr(name, '.'), L".cdb", 4)) {
+			wchar_t fpath[1024];
+			myswprintf(fpath, L"./expansions/%ls", name);
 			dataManager.LoadDB(fpath);
 		}
-	});
-}
-void Game::LoadExpansionStrings() {
-	dataManager.LoadStrings("./expansions/strings.conf");
-	FileSystem::TraversalDir("./expansions", [](const char* name, bool isdir) {
-		if(isdir && strcmp(name, ".") && strcmp(name, "..") && strcmp(name, "pics") && strcmp(name, "script")) {
-			char fpath[1024];
-			sprintf(fpath, "./expansions/%s/strings.conf", name);
-			dataManager.LoadStrings(fpath);
+		if(!isdir && wcsrchr(name, '.') && !mywcsncasecmp(wcsrchr(name, '.'), L".zip", 4)) {
+			wchar_t fpath[1024];
+			myswprintf(fpath, L"./expansions/%ls", name);
+#ifdef _WIN32
+			dataManager.FileSystem->addFileArchive(fpath, true, false);
+#else
+			char upath[1024];
+			BufferIO::EncodeUTF8(fpath, upath);
+			dataManager.FileSystem->addFileArchive(upath, true, false);
+#endif
 		}
 	});
+	for(u32 i = 0; i < DataManager::FileSystem->getFileArchiveCount(); ++i) {
+		const IFileList* archive = DataManager::FileSystem->getFileArchive(i)->getFileList();
+		for(u32 j = 0; j < archive->getFileCount(); ++j) {
+#ifdef _WIN32
+			const wchar_t* fname = archive->getFullFileName(j).c_str();
+#else
+			wchar_t fname[1024];
+			const char* uname = archive->getFullFileName(j).c_str();
+			BufferIO::DecodeUTF8(uname, fname);
+#endif
+			if(wcsrchr(fname, '.') && !mywcsncasecmp(wcsrchr(fname, '.'), L".cdb", 4))
+				dataManager.LoadDB(fname);
+			if(wcsrchr(fname, '.') && !mywcsncasecmp(wcsrchr(fname, '.'), L".conf", 5)) {
+#ifdef _WIN32
+				IReadFile* reader = DataManager::FileSystem->createAndOpenFile(fname);
+#else
+				IReadFile* reader = DataManager::FileSystem->createAndOpenFile(uname);
+#endif
+				dataManager.LoadStrings(reader);
+			}
+		}
+	}
 }
 void Game::RefreshDeck(irr::gui::IGUIComboBox* cbDeck) {
 	cbDeck->clear();
@@ -1101,6 +1121,7 @@ void Game::RefreshReplay() {
 }
 void Game::RefreshSingleplay() {
 	lstSinglePlayList->clear();
+	stSinglePlayInfo->setText(L"");
 	FileSystem::TraversalDir(L"./single", [this](const wchar_t* name, bool isdir) {
 		if(!isdir && wcsrchr(name, '.') && !mywcsncasecmp(wcsrchr(name, '.'), L".lua", 4))
 			lstSinglePlayList->addItem(name);
@@ -1192,8 +1213,8 @@ void Game::LoadConfig() {
 	gameConf.chkWaitChain = 0;
 	gameConf.chkIgnore1 = 0;
 	gameConf.chkIgnore2 = 0;
-	gameConf.chkHideSetname = 0;
-	gameConf.chkHideHintButton = 0;
+	gameConf.hide_setname = 0;
+	gameConf.hide_hint_button = 0;
 	gameConf.control_mode = 0;
 	gameConf.draw_field_spell = 1;
 	gameConf.separate_clear_button = 1;
@@ -1205,6 +1226,7 @@ void Game::LoadConfig() {
 	gameConf.enable_bot_mode = 1;
 	gameConf.quick_animation = 0;
 	gameConf.auto_save_replay = 0;
+	gameConf.prefer_expansion_script = 0;
 	gameConf.enable_sound = true;
 	gameConf.sound_volume = 0.5;
 	gameConf.enable_music = true;
@@ -1264,9 +1286,9 @@ void Game::LoadConfig() {
 			} else if(!strcmp(strbuf, "mute_spectators")) {
 				gameConf.chkIgnore2 = atoi(valbuf);
 			} else if(!strcmp(strbuf, "hide_setname")) {
-				gameConf.chkHideSetname = atoi(valbuf);
+				gameConf.hide_setname = atoi(valbuf);
 			} else if(!strcmp(strbuf, "hide_hint_button")) {
-				gameConf.chkHideHintButton = atoi(valbuf);
+				gameConf.hide_hint_button = atoi(valbuf);
 			} else if(!strcmp(strbuf, "control_mode")) {
 				gameConf.control_mode = atoi(valbuf);
 			} else if(!strcmp(strbuf, "draw_field_spell")) {
@@ -1289,6 +1311,8 @@ void Game::LoadConfig() {
 				gameConf.quick_animation = atoi(valbuf);
 			} else if(!strcmp(strbuf, "auto_save_replay")) {
 				gameConf.auto_save_replay = atoi(valbuf);
+			} else if(!strcmp(strbuf, "prefer_expansion_script")) {
+				gameConf.prefer_expansion_script = atoi(valbuf);
 			} else if(!strcmp(strbuf, "window_maximized")) {
 				gameConf.window_maximized = atoi(valbuf) > 0;
 			} else if(!strcmp(strbuf, "window_width")) {
@@ -1382,9 +1406,9 @@ void Game::LoadConfig() {
 			} else if(!strcmp(strbuf, "mute_spectators")) {
 				gameConf.chkIgnore2 = atoi(valbuf);
 			} else if(!strcmp(strbuf, "hide_setname")) {
-				gameConf.chkHideSetname = atoi(valbuf);
+				gameConf.hide_setname = atoi(valbuf);
 			} else if(!strcmp(strbuf, "hide_hint_button")) {
-				gameConf.chkHideHintButton = atoi(valbuf);
+				gameConf.hide_hint_button = atoi(valbuf);
 			} else if(!strcmp(strbuf, "control_mode")) {
 				gameConf.control_mode = atoi(valbuf);
 			} else if(!strcmp(strbuf, "draw_field_spell")) {
@@ -1407,6 +1431,8 @@ void Game::LoadConfig() {
 				gameConf.quick_animation = atoi(valbuf);
 			} else if(!strcmp(strbuf, "auto_save_replay")) {
 				gameConf.auto_save_replay = atoi(valbuf);
+			} else if(!strcmp(strbuf, "prefer_expansion_script")) {
+				gameConf.prefer_expansion_script = atoi(valbuf);
 			} else if(!strcmp(strbuf, "window_maximized")) {
 				gameConf.window_maximized = atoi(valbuf) > 0;
 			} else if(!strcmp(strbuf, "window_width")) {
@@ -1450,9 +1476,36 @@ void Game::LoadConfig() {
 			}
 		}
 		fclose(fp_user);
-	} else {
+	} else
+#else // YGOPRO_COMPAT_MYCARD
+	if(!gameConf.locale || wcslen(gameConf.locale) <= 0)
+#endif
+	{
+		unsigned int lcid = 0;
 #ifdef _WIN32
-		unsigned int lcid = ((unsigned int)GetSystemDefaultLangID()) & 0xff;
+		lcid = ((unsigned int)GetSystemDefaultLangID()) & 0xff;
+#else
+		char* locale_str = getenv("LANG");
+		if(locale_str) {
+			if(strstr(locale_str, "zh"))
+				lcid = 0x04;
+			else
+			if(strstr(locale_str, "en"))
+				lcid = 0x09;
+			else
+			if(strstr(locale_str, "es"))
+				lcid = 0x0a;
+			else
+			if(strstr(locale_str, "ja"))
+				lcid = 0x11;
+			else
+			if(strstr(locale_str, "ko"))
+				lcid = 0x12;
+			else
+			if(strstr(locale_str, "pt"))
+				lcid = 0x16;
+		}
+#endif
 		switch(lcid) {
 			case 0x04: {
 				myswprintf(mainGame->gameConf.locale, L"%ls", L"zh-CN");
@@ -1474,11 +1527,12 @@ void Game::LoadConfig() {
 				myswprintf(mainGame->gameConf.locale, L"%ls", L"ko-KR");
 				break;
 			}
+			case 0x16: {
+				myswprintf(mainGame->gameConf.locale, L"%ls", L"pt-BR");
+				break;
+			}
 		}
-#endif
-		//SaveConfig();
 	}
-#endif //YGOPRO_COMPAT_MYCARD
 }
 void Game::SaveConfig() {
 #ifdef YGOPRO_COMPAT_MYCARD
@@ -1517,8 +1571,8 @@ void Game::SaveConfig() {
 	fprintf(fp, "waitchain = %d\n", (chkWaitChain->isChecked() ? 1 : 0));
 	fprintf(fp, "mute_opponent = %d\n", (chkIgnore1->isChecked() ? 1 : 0));
 	fprintf(fp, "mute_spectators = %d\n", (chkIgnore2->isChecked() ? 1 : 0));
-	fprintf(fp, "hide_setname = %d\n", (chkHideSetname->isChecked() ? 1 : 0));
-	fprintf(fp, "hide_hint_button = %d\n", (chkHideHintButton->isChecked() ? 1 : 0));
+	fprintf(fp, "hide_setname = %d\n", gameConf.hide_setname);
+	fprintf(fp, "hide_hint_button = %d\n", gameConf.hide_hint_button);
 	fprintf(fp, "#control_mode = 0: Key A/S/D/R Chain Buttons. control_mode = 1: MouseLeft/MouseRight/NULL/F9 Without Chain Buttons\n");
 	fprintf(fp, "control_mode = %d\n", gameConf.control_mode);
 	fprintf(fp, "draw_field_spell = %d\n", gameConf.draw_field_spell);
@@ -1533,6 +1587,7 @@ void Game::SaveConfig() {
 	fprintf(fp, "enable_bot_mode = %d\n", gameConf.enable_bot_mode);
 	fprintf(fp, "quick_animation = %d\n", gameConf.quick_animation);
 	fprintf(fp, "auto_save_replay = %d\n", (chkAutoSaveReplay->isChecked() ? 1 : 0));
+	fprintf(fp, "prefer_expansion_script = %d\n", gameConf.prefer_expansion_script);
 	fprintf(fp, "window_maximized = %d\n", (gameConf.window_maximized ? 1 : 0));
 	fprintf(fp, "window_width = %d\n", gameConf.window_width);
 	fprintf(fp, "window_height = %d\n", gameConf.window_height);
@@ -1569,7 +1624,7 @@ void Game::ShowCardInfo(int code, bool resize) {
 	else myswprintf(formatBuffer, L"%ls[%08d]", dataManager.GetName(code), code);
 	stName->setText(formatBuffer);
 	int offset = 0;
-	if(!chkHideSetname->isChecked()) {
+	if(!gameConf.hide_setname) {
 		unsigned long long sc = cd.setcode;
 		if(cd.alias) {
 			auto aptr = dataManager._datas.find(cd.alias);
@@ -1898,7 +1953,13 @@ void Game::OnResize() {
 		btnClearFilter->setRelativePosition(Resize(205, 80 + 125 / 6, 255, 100 + 125 / 6));
 	btnMarksFilter->setRelativePosition(Resize(60, 80 + 125 / 6, 190, 100 + 125 / 6));
 
-	wCategories->setRelativePosition(ResizeWin(450, 60, 1000, 270));
+	recti btncatepos = btnEffectFilter->getAbsolutePosition();
+	wCategories->setRelativePosition(recti(
+		btncatepos.LowerRightCorner.X - wCategories->getRelativePosition().getWidth(),
+		btncatepos.LowerRightCorner.Y - btncatepos.getHeight() / 2,
+		btncatepos.LowerRightCorner.X,
+		btncatepos.LowerRightCorner.Y - btncatepos.getHeight() / 2 + 245));
+
 	wLinkMarks->setRelativePosition(ResizeWin(700, 30, 820, 150));
 	stBanlist->setRelativePosition(Resize(10, 9, 100, 29));
 	stDeck->setRelativePosition(Resize(10, 39, 100, 59));
@@ -1939,7 +2000,8 @@ void Game::OnResize() {
 	wANAttribute->setRelativePosition(ResizeWin(500, 200, 830, 285));
 	wANRace->setRelativePosition(ResizeWin(480, 200, 850, 410));
 	wReplaySave->setRelativePosition(ResizeWin(510, 200, 820, 320));
-	stHintMsg->setRelativePosition(ResizeWin(500, 60, 820, 90));
+
+	stHintMsg->setRelativePosition(ResizeWin(660 - 160 * xScale, 60, 660 + 160 * xScale, 90));
 
 	//sound / music volume bar
 	scrSoundVolume->setRelativePosition(recti(scrSoundVolume->getRelativePosition().UpperLeftCorner.X, scrSoundVolume->getRelativePosition().UpperLeftCorner.Y, 20 + (300 * xScale) - 70, scrSoundVolume->getRelativePosition().LowerRightCorner.Y));
@@ -1986,13 +2048,15 @@ void Game::OnResize() {
 		btnReset->setRelativePosition(recti(1, 1, width, height));
 	}
 
-	wCardImg->setRelativePosition(ResizeCard(1, 1, 20, 18));
-	imgCard->setRelativePosition(ResizeCard(10, 9, 0, 0));
+	wCardImg->setRelativePosition(ResizeCardImgWin(1, 1, 20, 18));
+	imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0));
 	wInfos->setRelativePosition(Resize(1, 275, 301, 639));
 	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
 		ShowCardInfo(showingcode, true);
+	else
+		ClearCardInfo();
 	btnClearLog->setRelativePosition(Resize(160, 300, 260, 325));
 
 	wPhase->setRelativePosition(Resize(480, 310, 855, 330));
@@ -2001,7 +2065,7 @@ void Game::OnResize() {
 	btnM2->setRelativePosition(Resize(160, 0, 210, 20));
 	btnEP->setRelativePosition(Resize(320, 0, 370, 20));
 
-	wChat->setRelativePosition(ResizeWin(wInfos->getRelativePosition().LowerRightCorner.X + 6, 615, 1020, 640, true));
+	wChat->setRelativePosition(recti(wInfos->getRelativePosition().LowerRightCorner.X + 6, window_size.Height - 25, window_size.Width, window_size.Height));
 	ebChatInput->setRelativePosition(recti(3, 2, window_size.Width - wChat->getRelativePosition().UpperLeftCorner.X - 6, 22));
 
 	btnLeaveGame->setRelativePosition(Resize(205, 5, 295, 80));
@@ -2044,19 +2108,13 @@ position2di Game::ResizeReverse(s32 x, s32 y) {
 	y = y / yScale;
 	return position2di(x, y);
 }
-recti Game::ResizeWin(s32 x, s32 y, s32 x2, s32 y2, bool chat) {
-	s32 sx = x2 - x;
-	s32 sy = y2 - y;
-	if(chat) {
-		y = window_size.Height - sy;
-		x2 = window_size.Width;
-		y2 = y + sy;
-		return recti(x, y, x2, y2);
-	}
-	x = (x + sx / 2) * xScale - sx / 2;
-	y = (y + sy / 2) * yScale - sy / 2;
-	x2 = sx + x;
-	y2 = sy + y;
+recti Game::ResizeWin(s32 x, s32 y, s32 x2, s32 y2) {
+	s32 w = x2 - x;
+	s32 h = y2 - y;
+	x = (x + w / 2) * xScale - w / 2;
+	y = (y + h / 2) * yScale - h / 2;
+	x2 = w + x;
+	y2 = h + y;
 	return recti(x, y, x2, y2);
 }
 recti Game::ResizePhaseHint(s32 x, s32 y, s32 x2, s32 y2, s32 width) {
@@ -2066,17 +2124,15 @@ recti Game::ResizePhaseHint(s32 x, s32 y, s32 x2, s32 y2, s32 width) {
 	y2 = y2 * yScale;
 	return recti(x, y, x2, y2);
 }
-recti Game::ResizeCard(s32 x, s32 y, s32 x2, s32 y2) {
+recti Game::ResizeCardImgWin(s32 x, s32 y, s32 mx, s32 my) {
 	float mul = xScale;
 	if(xScale > yScale)
 		mul = yScale;
-	s32 sx = CARD_IMG_WIDTH * mul + x2 * xScale;
-	s32 sy = CARD_IMG_HEIGHT * mul + y2 * yScale;
+	s32 w = CARD_IMG_WIDTH * mul + mx * xScale;
+	s32 h = CARD_IMG_HEIGHT * mul + my * yScale;
 	x = x * xScale;
 	y = y * yScale;
-	x2 = sx + x;
-	y2 = sy + y;
-	return recti(x, y, x2, y2);
+	return recti(x, y, x + w, y + h);
 }
 recti Game::ResizeCardHint(s32 x, s32 y, s32 x2, s32 y2) {
 	return ResizeCardMid(x, y, x2, y2, (x + x2) * 0.5, (y + y2) * 0.5);
@@ -2181,12 +2237,17 @@ bool Game::CheckRegEx(const std::wstring& text, const std::wstring& exp, bool ex
 const char* Game::GetLocaleDir(const char* dir) {
 	if(!gameConf.locale || !wcscmp(gameConf.locale, L"default"))
 		return dir;
-	wchar_t locale_buf[256];
-	wchar_t orig_dir[64];
 	BufferIO::DecodeUTF8(dir, orig_dir);
 	myswprintf(locale_buf, L"locales/%ls/%ls", gameConf.locale, orig_dir);
 	BufferIO::EncodeUTF8(locale_buf, locale_buf_utf8);
 	return locale_buf_utf8;
+}
+const wchar_t* Game::GetLocaleDirWide(const char* dir) {
+	BufferIO::DecodeUTF8(dir, orig_dir);
+	if(!gameConf.locale || !wcscmp(gameConf.locale, L"default"))
+		return orig_dir;
+	myswprintf(locale_buf, L"locales/%ls/%ls", gameConf.locale, orig_dir);
+	return locale_buf;
 }
 void Game::SetCursor(ECURSOR_ICON icon) {
 	ICursorControl* cursor = mainGame->device->getCursorControl();

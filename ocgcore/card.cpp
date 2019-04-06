@@ -287,7 +287,19 @@ uint32 card::get_info_location() {
 		return c + (l << 8) + (s << 16) + (ss << 24);
 	}
 }
-// get the current code
+// mapping of double-name cards
+uint32 card::second_code(uint32 code){
+	switch(code){
+		case CARD_MARINE_DOLPHIN:
+			return 17955766u;
+		case CARD_TWINKLE_MOSS:
+			return 17732278u;
+		default:
+			return 0;
+	}
+}
+// return: the current card name
+// for double-name card, it returns printed name
 uint32 card::get_code() {
 	if(assume_type == ASSUME_CODE)
 		return assume_value;
@@ -306,21 +318,24 @@ uint32 card::get_code() {
 	} else {
 		card_data dat;
 		read_card(code, &dat);
-		if (dat.alias)
+		if (dat.alias && !second_code(code))
 			code = dat.alias;
 	}
 	return code;
 }
-// get the current second-code
+// return: the current second card name
+// for double-name cards, it returns the name in description
 uint32 card::get_another_code() {
-	if(is_affected_by_effect(EFFECT_CHANGE_CODE))
-		return 0;
+	uint32 code = get_code();
+	if(code != data.code){
+		return second_code(code);
+	}
 	effect_set eset;
 	filter_effect(EFFECT_ADD_CODE, &eset);
 	if(!eset.size())
 		return 0;
 	uint32 otcode = eset.get_last()->get_value(this);
-	if(get_code() != otcode)
+	if(code != otcode)
 		return otcode;
 	return 0;
 }
@@ -2000,11 +2015,13 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	read_card(code, &cdata);
 	if(cdata.type & TYPE_NORMAL)
 		return -1;
+	if(is_status(STATUS_EFFECT_REPLACED))
+		set_status(STATUS_EFFECT_REPLACED, FALSE);
 	for(auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
 		effect* peffect = rm->first;
 		auto it = rm->second;
-		if(peffect->is_flag(EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY_INHERIT))
+		if (peffect->is_flag(EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY_INHERIT))
 			remove_effect(peffect, it);
 	}
 	uint32 cr = pduel->game_field->core.copy_reset;
@@ -2834,6 +2851,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	}
 	return 0;
 }
+// return the last control-changing continous effect
 effect* card::check_control_effect() {
 	effect* ret_effect = 0;
 	for (auto& pcard : equiping_cards) {
@@ -2857,7 +2875,7 @@ effect* card::check_control_effect() {
 	auto rg = single_effect.equal_range(EFFECT_SET_CONTROL);
 	for (; rg.first != rg.second; ++rg.first) {
 		effect* peffect = rg.first->second;
-		if(!peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+		if(!peffect->is_flag(EFFECT_FLAG_OWNER_RELATE))
 			continue;
 		if(!ret_effect || peffect->id > ret_effect->id)
 			ret_effect = peffect;
@@ -3778,6 +3796,8 @@ int32 card::is_can_be_ritual_material(card* scard) {
 				return TRUE;
 		return FALSE;
 	}
+	if(current.location == LOCATION_EXTRA && is_affected_by_effect(EFFECT_MAP_OF_HEAVEN) && scard && scard->get_level() < 7)
+		return FALSE;
 	return TRUE;
 }
 int32 card::is_can_be_xyz_material(card* scard) {

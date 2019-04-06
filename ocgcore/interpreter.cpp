@@ -109,6 +109,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetTurnID", scriptlib::card_get_turnid },
 	{ "GetFieldID", scriptlib::card_get_fieldid },
 	{ "GetRealFieldID", scriptlib::card_get_fieldidr },
+	{ "IsOriginalCodeRule", scriptlib::card_is_origin_code_rule },
 	{ "IsCode", scriptlib::card_is_code },
 	{ "IsType", scriptlib::card_is_type },
 	{ "IsFusionType", scriptlib::card_is_fusion_type },
@@ -631,7 +632,7 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	set_duel_info(lua_state, pd);
 	//Initial
 	luaL_openlibs(lua_state);
-	/*
+#ifdef YGOPRO_LUA_SAFE
 	lua_pushnil(lua_state);
  	lua_setglobal(lua_state, "io");
  	lua_pushnil(lua_state);
@@ -642,7 +643,7 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_pushnil(lua_state);
 	lua_setfield(lua_state, -2, "os");
 	lua_pop(lua_state, 1);
-	*/
+#endif
 	//add bit lib back
 	lua_getglobal(lua_state, "bit32");
 	lua_setglobal(lua_state, "bit");
@@ -700,6 +701,8 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	//effect flag2s
 	lua_pushinteger(lua_state, EFFECT_FLAG2_SPOSITCH);
 	lua_setglobal(lua_state, "EFFECT_FLAG2_SPOSITCH");
+	lua_pushinteger(lua_state, EFFECT_FLAG2_AVAILABLE_BD);
+	lua_setglobal(lua_state, "EFFECT_FLAG2_AVAILABLE_BD");
 	//effects
 	lua_pushinteger(lua_state, EFFECT_CHANGE_LINK_MARKER_KOISHI);
 	lua_setglobal(lua_state, "EFFECT_CHANGE_LINK_MARKER_KOISHI");
@@ -727,6 +730,11 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_setglobal(lua_state, "EFFECT_CHANGE_SUMMON_LOCATION_KOISHI");
 	lua_pushinteger(lua_state, EFFECT_LINK_SPELL_KOISHI);
 	lua_setglobal(lua_state, "EFFECT_LINK_SPELL_KOISHI");
+	lua_pushinteger(lua_state, EFFECT_SEA_PULSE);
+	lua_setglobal(lua_state, "EFFECT_SEA_PULSE");
+	lua_pushinteger(lua_state, EFFECT_MAP_OF_HEAVEN);
+	lua_setglobal(lua_state, "EFFECT_MAP_OF_HEAVEN");
+
 	//music hints
 	lua_pushinteger(lua_state, HINT_MUSIC);
 	lua_setglobal(lua_state, "HINT_MUSIC");
