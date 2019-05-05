@@ -550,7 +550,7 @@ int32 card::get_base_attack() {
 	if(swap)
 		filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
 	eset.sort();
-	// calculate continous effects of this first
+	// calculate continuous effects of this first
 	for(int32 i = 0; i < eset.size();) {
 		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			switch(eset[i]->code) {
@@ -937,31 +937,22 @@ uint32 card::get_level() {
 	effect_set effects;
 	int32 level = data.level;
 	temp.level = level;
-	int32 up = 0, upc = 0;
+	int32 up = 0;
 	filter_effect(EFFECT_UPDATE_LEVEL, &effects, FALSE);
-	filter_effect(EFFECT_CHANGE_LEVEL, &effects, FALSE);
-	filter_effect(EFFECT_CHANGE_LEVEL_FINAL, &effects);
+	filter_effect(EFFECT_CHANGE_LEVEL, &effects);
 	for (int32 i = 0; i < effects.size(); ++i) {
 		switch (effects[i]->code) {
 		case EFFECT_UPDATE_LEVEL:
-			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !effects[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))
-				up += effects[i]->get_value(this);
-			else
-				upc += effects[i]->get_value(this);
+			up += effects[i]->get_value(this);
 			break;
 		case EFFECT_CHANGE_LEVEL:
 			level = effects[i]->get_value(this);
 			up = 0;
 			break;
-		case EFFECT_CHANGE_LEVEL_FINAL:
-			level = effects[i]->get_value(this);
-			up = 0;
-			upc = 0;
-			break;
 		}
-		temp.level = level + up + upc;
+		temp.level = level + up;
 	}
-	level += up + upc;
+	level += up;
 	if(level < 1 && (get_type() & TYPE_MONSTER))
 		level = 1;
 	temp.level = 0xffffffff;
@@ -979,31 +970,22 @@ uint32 card::get_rank() {
 	effect_set effects;
 	int32 rank = data.level;
 	temp.level = rank;
-	int32 up = 0, upc = 0;
+	int32 up = 0;
 	filter_effect(EFFECT_UPDATE_RANK, &effects, FALSE);
-	filter_effect(EFFECT_CHANGE_RANK, &effects, FALSE);
-	filter_effect(EFFECT_CHANGE_RANK_FINAL, &effects);
+	filter_effect(EFFECT_CHANGE_RANK, &effects);
 	for (int32 i = 0; i < effects.size(); ++i) {
 		switch (effects[i]->code) {
 		case EFFECT_UPDATE_RANK:
-			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !effects[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))
-				up += effects[i]->get_value(this);
-			else
-				upc += effects[i]->get_value(this);
+			up += effects[i]->get_value(this);
 			break;
 		case EFFECT_CHANGE_RANK:
 			rank = effects[i]->get_value(this);
 			up = 0;
 			break;
-		case EFFECT_CHANGE_RANK_FINAL:
-			rank = effects[i]->get_value(this);
-			up = 0;
-			upc = 0;
-			break;
 		}
-		temp.level = rank + up + upc;
+		temp.level = rank + up;
 	}
-	rank += up + upc;
+	rank += up;
 	if(rank < 1 && (get_type() & TYPE_MONSTER))
 		rank = 1;
 	temp.level = 0xffffffff;
@@ -2349,12 +2331,14 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 }
 int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc) {
 	effect_set eset;
-	if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
-		return FALSE;
-	if(!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
-		return FALSE;
-	if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
-		return FALSE;
+	if(count > 0) {
+		if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
+			return FALSE;
+		if(!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
+			return FALSE;
+		if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
+			return FALSE;
+	}
 	uint32 check = countertype & COUNTER_WITHOUT_PERMIT;
 	if(!check) {
 		filter_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
@@ -2362,8 +2346,16 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 			uint32 prange = eset[i]->get_value();
 			if(loc)
 				check = loc & prange;
-			else
-				check = current.is_location(prange) && is_position(POS_FACEUP);
+			else if(current.location & LOCATION_ONFIELD) {
+				uint32 filter = TRUE;
+				if(eset[i]->target) {
+					pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(this, PARAM_TYPE_CARD);
+					filter = pduel->lua->check_condition(eset[i]->target, 2);
+				}
+				check = current.is_location(prange) && is_position(POS_FACEUP) && filter;
+			} else
+				check = TRUE;
 			if(check)
 				break;
 		}
@@ -2851,7 +2843,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	}
 	return 0;
 }
-// return the last control-changing continous effect
+// return the last control-changing continuous effect
 effect* card::check_control_effect() {
 	effect* ret_effect = 0;
 	for (auto& pcard : equiping_cards) {
@@ -3745,14 +3737,16 @@ int32 card::is_capable_be_effect_target(effect* peffect, uint8 playerid) {
 	}
 	return TRUE;
 }
-int32 card::is_can_be_fusion_material(card* fcard) {
+int32 card::is_can_be_fusion_material(card* fcard, uint32 summon_type) {
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
 	effect_set eset;
 	filter_effect(EFFECT_CANNOT_BE_FUSION_MATERIAL, &eset);
-	for(int32 i = 0; i < eset.size(); ++i)
-		if(eset[i]->get_value(fcard))
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
+		if(eset[i]->get_value(fcard, 1))
 			return FALSE;
+	}
 	eset.clear();
 	filter_effect(EFFECT_EXTRA_FUSION_MATERIAL, &eset);
 	if(eset.size()) {
