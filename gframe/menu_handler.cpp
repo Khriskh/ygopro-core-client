@@ -487,6 +487,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HP_DUELIST: {
+				mainGame->cbCategorySelect->setEnabled(true);
 				mainGame->cbDeckSelect->setEnabled(true);
 				DuelClient::SendPacketToServer(CTOS_HS_TODUELIST);
 				break;
@@ -907,6 +908,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			break;
 		}
+		case irr::gui::EGET_COMBO_BOX_CHANGED: {
 			switch(id) {
 			case COMBOBOX_HP_CATEGORY: {
 				int catesel = mainGame->cbCategorySelect->getSelected();

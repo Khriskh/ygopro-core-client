@@ -494,7 +494,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 	}
 	case STOC_SELECT_TP: {
 		mainGame->gMutex.Lock();
-		mainGame->ShowElement(mainGame->wFTSelect);
+		mainGame->PopupElement(mainGame->wFTSelect);
 		mainGame->gMutex.Unlock();
 		break;
 	}
@@ -1058,6 +1058,8 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len, bool retry) {
 		if(!retry && last_successful_msg_length) {
 			mainGame->gMutex.Lock();
 			mainGame->stMessage->setText(dataManager.GetDesc(1422));
+			mainGame->PopupElement(mainGame->wMessage);
+			mainGame->gMutex.Unlock();
 			mainGame->actionSignal.Reset();
 			mainGame->actionSignal.Wait();
 			select_hint = last_select_hint;
