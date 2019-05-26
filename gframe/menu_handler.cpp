@@ -12,6 +12,8 @@
 namespace ygo {
 
 void UpdateDeck() {
+	BufferIO::CopyWStr(mainGame->cbCategorySelect->getItem(mainGame->cbCategorySelect->getSelected()),
+		mainGame->gameConf.lastcategory, 64);
 	BufferIO::CopyWStr(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()),
 		mainGame->gameConf.lastdeck, 64);
 	char deckbuf[1024];
@@ -506,17 +508,19 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_HP_READY: {
-				if(mainGame->cbDeckSelect->getSelected() == -1 ||
-					!deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()))) {
+				if(mainGame->cbCategorySelect->getSelected() == -1 || mainGame->cbDeckSelect->getSelected() == -1 ||
+					!deckManager.LoadDeck(mainGame->cbCategorySelect, mainGame->cbDeckSelect)) {
 					break;
 				}
 				UpdateDeck();
 				DuelClient::SendPacketToServer(CTOS_HS_READY);
+				mainGame->cbCategorySelect->setEnabled(false);
 				mainGame->cbDeckSelect->setEnabled(false);
 				break;
 			}
 			case BUTTON_HP_NOTREADY: {
 				DuelClient::SendPacketToServer(CTOS_HS_NOTREADY);
+				mainGame->cbCategorySelect->setEnabled(true);
 				mainGame->cbDeckSelect->setEnabled(true);
 				break;
 			}
@@ -667,7 +671,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					NetServer::StopServer();
 					break;
 				}
-				STARTUPINFO si;
+				STARTUPINFOW si;
 				PROCESS_INFORMATION pi;
 				ZeroMemory(&si, sizeof(si));
 				si.cb = sizeof(si);
@@ -720,7 +724,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_DECK_EDIT: {
-				mainGame->RefreshDeck(mainGame->cbDBDecks);
+				mainGame->RefreshCategoryDeck(mainGame->cbDBCategory, mainGame->cbDBDecks);
 				if(open_file && deckManager.LoadDeck(open_file_name)) {
 #ifdef WIN32
 					wchar_t *dash = wcsrchr(open_file_name, L'\\');
@@ -743,8 +747,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 						}
 					}
 					open_file = false;
-				} else if(mainGame->cbDBDecks->getSelected() != -1) {
-					deckManager.LoadDeck(mainGame->cbDBDecks->getItem(mainGame->cbDBDecks->getSelected()));
+				} else if(mainGame->cbDBCategory->getSelected() != -1 && mainGame->cbDBDecks->getSelected() != -1) {
+					deckManager.LoadDeck(mainGame->cbDBCategory, mainGame->cbDBDecks);
 					mainGame->ebDeckname->setText(L"");
 				}
 				mainGame->HideElement(mainGame->wMainMenu);
@@ -903,6 +907,22 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			break;
 		}
+			switch(id) {
+			case COMBOBOX_HP_CATEGORY: {
+				int catesel = mainGame->cbCategorySelect->getSelected();
+				if(catesel == 3) {
+					catesel = 2;
+					mainGame->cbCategorySelect->setSelected(2);
+				}
+				if(catesel >= 0) {
+					mainGame->RefreshDeck(mainGame->cbCategorySelect, mainGame->cbDeckSelect);
+					mainGame->cbDeckSelect->setSelected(0);
+				}
+				break;
+			}
+			}
+			break;
+		}
 		case irr::gui::EGET_CHECKBOX_CHANGED: {
 			switch(id) {
 			case CHECKBOX_HP_READY: {
@@ -910,16 +930,18 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					break;
 				mainGame->env->setFocus(mainGame->wHostPrepare);
 				if(static_cast<irr::gui::IGUICheckBox*>(caller)->isChecked()) {
-					if(mainGame->cbDeckSelect->getSelected() == -1 ||
-					        !deckManager.LoadDeck(mainGame->cbDeckSelect->getItem(mainGame->cbDeckSelect->getSelected()))) {
+					if(mainGame->cbCategorySelect->getSelected() == -1 || mainGame->cbDeckSelect->getSelected() == -1 ||
+						!deckManager.LoadDeck(mainGame->cbCategorySelect, mainGame->cbDeckSelect)) {
 						static_cast<irr::gui::IGUICheckBox*>(caller)->setChecked(false);
 						break;
 					}
 					UpdateDeck();
 					DuelClient::SendPacketToServer(CTOS_HS_READY);
+					mainGame->cbCategorySelect->setEnabled(false);
 					mainGame->cbDeckSelect->setEnabled(false);
 				} else {
 					DuelClient::SendPacketToServer(CTOS_HS_NOTREADY);
+					mainGame->cbCategorySelect->setEnabled(true);
 					mainGame->cbDeckSelect->setEnabled(true);
 				}
 				break;
