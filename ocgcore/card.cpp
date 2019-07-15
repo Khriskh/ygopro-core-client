@@ -2161,8 +2161,15 @@ uint8 card::refresh_control_status() {
 	filter_effect(EFFECT_SET_CONTROL, &eset);
 	if(eset.size()) {
 		effect* peffect = eset.get_last();
-		if(peffect->id >= last_id)
+		if(peffect->id >= last_id) {
+			card* pcard = peffect->get_handler();
+			pduel->game_field->core.readjust_map[pcard]++;
+			if(pduel->game_field->core.readjust_map[pcard] > 3) {
+				pduel->game_field->send_to(pcard, 0, REASON_RULE, peffect->get_handler_player(), PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+				return final;
+			}
 			final = (uint8)peffect->get_value(this);
+		}
 	}
 	return final;
 }
@@ -3052,13 +3059,14 @@ int32 card::is_spsummonable(effect* peffect) {
 		}
 		if(pduel->lua->check_condition(peffect->condition, param_count))
 			result = TRUE;
-	} else if(pduel->game_field->core.limit_link) {
+	} else if(pduel->game_field->core.limit_link || pduel->game_field->core.limit_link_card) {
 		pduel->lua->add_param(pduel->game_field->core.limit_link, PARAM_TYPE_GROUP);
-		uint32 param_count = 3;
+		pduel->lua->add_param(pduel->game_field->core.limit_link_card, PARAM_TYPE_CARD);
+		uint32 param_count = 4;
 		if(pduel->game_field->core.limit_link_minc) {
 			pduel->lua->add_param(pduel->game_field->core.limit_link_minc, PARAM_TYPE_INT);
 			pduel->lua->add_param(pduel->game_field->core.limit_link_maxc, PARAM_TYPE_INT);
-			param_count = 5;
+			param_count = 6;
 		}
 		if(pduel->lua->check_condition(peffect->condition, param_count))
 			result = TRUE;
@@ -3240,6 +3248,7 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 	pduel->game_field->core.limit_xyz_minc = 0;
 	pduel->game_field->core.limit_xyz_maxc = 0;
 	pduel->game_field->core.limit_link = 0;
+	pduel->game_field->core.limit_link_card = 0;
 	pduel->game_field->core.limit_link_minc = 0;
 	pduel->game_field->core.limit_link_maxc = 0;
 	pduel->game_field->restore_lp_cost();

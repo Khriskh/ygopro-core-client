@@ -785,8 +785,7 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		return FALSE;
 	}
 	case 1: {
-		effect* peffect = core.select_effects[returns.ivalue[0]];
-		if(peffect) {
+		if(effect* peffect = core.select_effects[returns.ivalue[0]]) {
 			tevent e;
 			e.event_cards = 0;
 			e.event_player = rplayer;
@@ -795,8 +794,23 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 			e.reason_effect = core.reason_effect;
 			e.reason_player = rplayer;
 			solve_continuous(rplayer, peffect, e);
-			core.units.begin()->step = 3;
-			return FALSE;
+			core.units.begin()->peffect = peffect;
+		}
+		return FALSE;
+	}
+	case 2: {
+		uint16 cancelable = FALSE;
+		if(core.units.begin()->peffect) {
+			int32 replace_count = returns.ivalue[0];
+			if(replace_count >= max)
+				return TRUE;
+			min -= replace_count;
+			max -= replace_count;
+			if(min <= 0) {
+				cancelable = TRUE;
+				min = 0;
+			}
+			core.units.begin()->arg4 = replace_count;
 		}
 		core.select_cards.clear();
 		if(pcard) {
@@ -812,10 +826,10 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(rplayer);
 		pduel->write_buffer32(519);
-		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, rplayer, min + (max << 16));
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, rplayer + (cancelable << 16), min + (max << 16));
 		return FALSE;
 	}
-	case 2: {
+	case 3: {
 		card_set cset;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i)
 			cset.insert(core.select_cards[returns.bvalue[i + 1]]);
@@ -827,11 +841,8 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		send_to(&cset, core.reason_effect, reason, rplayer, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		return FALSE;
 	}
-	case 3: {
-		return FALSE;
-	}
 	case 4: {
-		returns.ivalue[0] = 1;
+		returns.ivalue[0] += core.units.begin()->arg4;
 		return TRUE;
 	}
 	}
@@ -2547,6 +2558,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		int32 xminc = core.limit_xyz_minc;
 		int32 xmaxc = core.limit_xyz_maxc;
 		group* lmaterials = core.limit_link;
+		card* lcard = core.limit_link_card;
 		int32 lminc = core.limit_link_minc;
 		int32 lmaxc = core.limit_link_maxc;
 		target->filter_spsummon_procedure(sumplayer, &eset, summon_type);
@@ -2559,6 +2571,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		core.limit_xyz_minc = xminc;
 		core.limit_xyz_maxc = xmaxc;
 		core.limit_link = lmaterials;
+		core.limit_link_card = lcard;
 		core.limit_link_minc = lminc;
 		core.limit_link_maxc = lmaxc;
 		if(!eset.size())
@@ -2598,8 +2611,9 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 					pduel->lua->add_param(core.limit_xyz_minc, PARAM_TYPE_INT);
 					pduel->lua->add_param(core.limit_xyz_maxc, PARAM_TYPE_INT);
 				}
-			} else if(core.limit_link) {
+			} else if(core.limit_link || core.limit_link_card) {
 				pduel->lua->add_param(core.limit_link, PARAM_TYPE_GROUP);
+				pduel->lua->add_param(core.limit_link_card, PARAM_TYPE_CARD);
 				if(core.limit_link_minc) {
 					pduel->lua->add_param(core.limit_link_minc, PARAM_TYPE_INT);
 					pduel->lua->add_param(core.limit_link_maxc, PARAM_TYPE_INT);
@@ -2650,9 +2664,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 					core.limit_xyz_maxc = 0;
 				}
 			}
-			if(core.limit_link) {
+			if(core.limit_link || core.limit_link_card) {
 				pduel->lua->add_param(core.limit_link, PARAM_TYPE_GROUP);
+				pduel->lua->add_param(core.limit_link_card, PARAM_TYPE_CARD);
 				core.limit_link = 0;
+				core.limit_link_card = 0;
 				if(core.limit_link_minc) {
 					pduel->lua->add_param(core.limit_link_minc, PARAM_TYPE_INT);
 					pduel->lua->add_param(core.limit_link_maxc, PARAM_TYPE_INT);
@@ -6078,18 +6094,14 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 			process_instant_event();
 		} else {
 			solve_continuous(peffect->get_handler_player(), peffect, e);
-			core.units.begin()->step = 1;
+			//call Duel.SetCoinResult in operation if necessary
+			return TRUE;
 		}
 		return FALSE;
 	}
 	case 1: {
 		raise_event((card*)0, EVENT_TOSS_COIN, reason_effect, 0, reason_player, playerid, count);
 		process_instant_event();
-		return TRUE;
-	}
-	case 2: {
-		for(uint8 i = 0; i < 5; ++i)
-			core.coin_result[i] = (returns.ivalue[0] >> (i * 4)) & 0xf;
 		return TRUE;
 	}
 	}
@@ -6139,18 +6151,14 @@ int32 field::toss_dice(uint16 step, effect * reason_effect, uint8 reason_player,
 			process_instant_event();
 		} else {
 			solve_continuous(peffect->get_handler_player(), peffect, e);
-			core.units.begin()->step = 1;
+			//call Duel.SetDiceResult in operation if necessary
+			return TRUE;
 		}
 		return FALSE;
 	}
 	case 1: {
 		raise_event((card*)0, EVENT_TOSS_DICE, reason_effect, 0, reason_player, playerid, count1 + (count2 << 16));
 		process_instant_event();
-		return TRUE;
-	}
-	case 2: {
-		for(uint8 i = 0; i < 5; ++i)
-			core.dice_result[i] = (returns.ivalue[0] >> (i * 4)) & 0xf;
 		return TRUE;
 	}
 	}
