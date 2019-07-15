@@ -12,7 +12,7 @@ bool SingleMode::is_continuing = false;
 Replay SingleMode::last_replay;
 
 bool SingleMode::StartPlay() {
-	Thread::NewThread(SinglePlayThread, 0);
+	std::thread(SinglePlayThread).detach();
 	return true;
 }
 void SingleMode::StopPlay(bool is_exiting) {
@@ -28,7 +28,7 @@ void SingleMode::SetResponse(unsigned char* resp, unsigned int len) {
 	last_replay.WriteData(resp, len);
 	set_responseb(pduel, resp);
 }
-int SingleMode::SinglePlayThread(void* param) {
+int SingleMode::SinglePlayThread() {
 	const int start_lp = 8000;
 	const int start_hand = 5;
 	const int draw_count = 1;
@@ -130,6 +130,7 @@ int SingleMode::SinglePlayThread(void* param) {
 		}
 	}
 	last_replay.EndRecord();
+	mainGame->gMutex.Lock();
 	time_t nowtime = time(NULL);
 	tm* localedtime = localtime(&nowtime);
 	wchar_t timetext[40];
@@ -684,17 +685,8 @@ bool SingleMode::SinglePlayAnalyze(char* msg, unsigned int len) {
 			}
 			break;
 		}
-		case MSG_ANNOUNCE_CARD: {
-			player = BufferIO::ReadInt8(pbuf);
-			pbuf += 4;
-			if(!DuelClient::ClientAnalyze(offset, pbuf - offset)) {
-				mainGame->singleSignal.Reset();
-				mainGame->singleSignal.Wait();
-			}
-			break;
-		}
-		case MSG_ANNOUNCE_NUMBER:
-		case MSG_ANNOUNCE_CARD_FILTER: {
+		case MSG_ANNOUNCE_CARD:
+		case MSG_ANNOUNCE_NUMBER: {
 			player = BufferIO::ReadInt8(pbuf);
 			count = BufferIO::ReadUInt8(pbuf);
 			pbuf += 4 * count;
