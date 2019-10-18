@@ -190,7 +190,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					hints.ai_flags = EVUTIL_AI_ADDRCONFIG;
 					int status = evutil_getaddrinfo(hostname, port, &hints, &answer);
 					if(status != 0) {
-						mainGame->gMutex.Lock();
+						mainGame->gMutex.lock();
 						soundManager.PlaySoundEffect(SOUND_INFO);
 						mainGame->env->addMessageBox(L"", dataManager.GetSysString(1412));
 						mainGame->gMutex.unlock();
@@ -234,7 +234,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					hints.ai_flags = EVUTIL_AI_ADDRCONFIG;
 					int status = evutil_getaddrinfo(hostname, port, &hints, &answer);
 					if(status != 0) {
-						mainGame->gMutex.Lock();
+						mainGame->gMutex.lock();
 						soundManager.PlaySoundEffect(SOUND_INFO);
 						mainGame->env->addMessageBox(L"", dataManager.GetSysString(1412));
 						mainGame->gMutex.unlock();
@@ -284,7 +284,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					hints.ai_flags = EVUTIL_AI_ADDRCONFIG;
 					int status = evutil_getaddrinfo(hostname, port, &hints, &answer);
 					if(status != 0) {
-						mainGame->gMutex.Lock();
+						mainGame->gMutex.lock();
 						soundManager.PlaySoundEffect(SOUND_INFO);
 						mainGame->env->addMessageBox(L"", dataManager.GetSysString(1412));
 						mainGame->gMutex.unlock();
@@ -328,7 +328,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					hints.ai_flags = EVUTIL_AI_ADDRCONFIG;
 					int status = evutil_getaddrinfo(hostname, port, &hints, &answer);
 					if(status != 0) {
-						mainGame->gMutex.Lock();
+						mainGame->gMutex.lock();
 						soundManager.PlaySoundEffect(SOUND_INFO);
 						mainGame->env->addMessageBox(L"", dataManager.GetSysString(1412));
 						mainGame->gMutex.unlock();
@@ -447,7 +447,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 					hints.ai_flags = EVUTIL_AI_ADDRCONFIG;
 					int status = evutil_getaddrinfo(hostname, port, &hints, &answer);
 					if(status != 0) {
-						mainGame->gMutex.Lock();
+						mainGame->gMutex.lock();
 						soundManager.PlaySoundEffect(SOUND_INFO);
 						mainGame->env->addMessageBox(L"", dataManager.GetSysString(1412));
 						mainGame->gMutex.unlock();
