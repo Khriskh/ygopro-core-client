@@ -12,7 +12,7 @@
 #include <sstream>
 #include <regex>
 
-unsigned short PRO_VERSION = 0x134A;
+unsigned short PRO_VERSION = 0x134B;
 
 namespace ygo {
 
@@ -183,7 +183,6 @@ bool Game::Initialize() {
 	cbServer->addItem(L"Korean Server");
 	cbServer->addItem(L"Nanahira Server");
 	btnJoinServer = env->addButton(rect<s32>(270, 25, 295, 50), wLanWindow, BUTTON_JOIN_SERVER, L">>"); //ok
-	
 	//create host
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
 	wCreateHost->getCloseButton()->setVisible(false);
@@ -191,7 +190,7 @@ bool Game::Initialize() {
 	env->addStaticText(dataManager.GetSysString(1226), rect<s32>(20, 30, 220, 50), false, false, wCreateHost);
 	cbLFlist = env->addComboBox(rect<s32>(140, 25, 300, 50), wCreateHost);
 	for(unsigned int i = 0; i < deckManager._lfList.size(); ++i)
-		cbLFlist->addItem(deckManager._lfList[i].listName, deckManager._lfList[i].hash);
+		cbLFlist->addItem(deckManager._lfList[i].listName.c_str(), deckManager._lfList[i].hash);
 	env->addStaticText(dataManager.GetSysString(1225), rect<s32>(20, 60, 220, 80), false, false, wCreateHost);
 	cbRule = env->addComboBox(rect<s32>(140, 55, 300, 80), wCreateHost);
 	cbRule->addItem(dataManager.GetSysString(1240));
@@ -634,7 +633,7 @@ bool Game::Initialize() {
 	cbLFList = env->addComboBox(rect<s32>(350, posY, 480, posY + 25), wDeckManage, COMBOBOX_LFLIST);
 	cbLFList->setMaxSelectionRows(10);
 	for(unsigned int i = 0; i < deckManager._lfList.size(); ++i)
-		cbLFList->addItem(deckManager._lfList[i].listName);
+		cbLFList->addItem(deckManager._lfList[i].listName.c_str());
 	//deck manage query
 	wDMQuery = env->addWindow(rect<s32>(400, 200, 710, 320), false, dataManager.GetSysString(1460));
 	wDMQuery->getCloseButton()->setVisible(false);
@@ -949,7 +948,7 @@ void Game::MainLoop() {
 		atkframe += 0.1f;
 		atkdy = (float)sin(atkframe);
 		driver->beginScene(true, true, SColor(0, 0, 0, 0));
-		gMutex.Lock();
+		gMutex.lock();
 		if(dInfo.isStarted) {
 			if(dInfo.isFinished && showcardcode == 1)
 				soundManager.PlayBGM(BGM_WIN);
@@ -978,7 +977,7 @@ void Game::MainLoop() {
 		}
 		DrawGUI();
 		DrawSpec();
-		gMutex.Unlock();
+		gMutex.unlock();
 		if(signalFrame > 0) {
 			signalFrame--;
 			if(!signalFrame)
@@ -995,16 +994,12 @@ void Game::MainLoop() {
 			}
 		}
 		driver->endScene();
-		if(closeSignal.Wait(0))
+		if(closeSignal.Wait(1))
 			CloseDuelWindow();
 		fps++;
 		cur_time = timer->getTime();
 		if(cur_time < fps * 17 - 20)
-#ifdef _WIN32
-			Sleep(20);
-#else
-			usleep(20000);
-#endif
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		if(cur_time >= 1000) {
 			myswprintf(cap, L"YGOProES FPS: %d", fps);
 			device->setWindowCaption(cap);
@@ -1025,11 +1020,7 @@ void Game::MainLoop() {
 	DuelClient::StopClient(true);
 	if(dInfo.isSingleMode)
 		SingleMode::StopPlay(true);
-#ifdef _WIN32
-	Sleep(500);
-#else
-	usleep(500000);
-#endif
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	SaveConfig();
 //	device->drop();
 }
