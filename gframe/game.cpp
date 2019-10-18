@@ -85,16 +85,6 @@ bool Game::Initialize() {
 		ErrorLog("Failed to load card database (cards.cdb)!");
 		return false;
 	}
-	if(dataManager.LoadDB(GetLocaleDirWide("prerelease.cdb"))) {} else
-	if(!dataManager.LoadDB(L"prerelease.cdb")) {
-		ErrorLog("Failed to load card database (prerelease.cdb)!");
-		return false;
-	}
-	if(dataManager.LoadDB(GetLocaleDirWide("preupdate.cdb"))) {} else
-	if(!dataManager.LoadDB(L"preupdate.cdb")) {
-		ErrorLog("Failed to load card database (preupdate.cdb)!");
-		return false;
-	}
 	if(dataManager.LoadStrings(GetLocaleDir("strings.conf"))) {} else
 	if(!dataManager.LoadStrings("strings.conf")) {
 		ErrorLog("Failed to load strings!");
