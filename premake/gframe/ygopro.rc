@@ -13,11 +13,11 @@ BLOCK "080404b0"
 BEGIN
 VALUE "FileDescription", "YGOProES"
 VALUE "InternalName", "YGOProES"
-VALUE "LegalCopyright", "Copyright (C) 2018 YGOProES"
+VALUE "LegalCopyright", "Copyright (C) 2019 YGOProES"
 VALUE "OriginalFilename", "ygopro.exe"
 VALUE "ProductName", "YGOProES"
-VALUE "FileVersion", "1.034.9.YGOProES"
-VALUE "ProductVersion", "1.034.9.YGOProES"
+VALUE "FileVersion", "ChristianYGO"
+VALUE "ProductVersion", "ChristianYGO"
 END
 END
 BLOCK "VarFileInfo"
