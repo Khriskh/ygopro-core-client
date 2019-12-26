@@ -409,7 +409,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_SSET_G: {
-		if (sset_g(it->step, it->arg1, it->arg2, it->ptarget, it->arg3, it->peffect)) {
+		if (sset_g(it->step, it->arg1, it->arg2, it->ptarget, it->arg3, it->peffect, it->arg4)) {
 			core.units.pop_front();
 		} else
 			it->step++;
@@ -504,10 +504,11 @@ int32 field::process() {
 		if(it->step == 0) {
 			card* attacker = core.attacker;
 			if(!attacker
-			        || (attacker->fieldid_r != core.pre_field[0])
-			        || (attacker->current.location != LOCATION_MZONE)
-			        || !attacker->is_capable_attack()
-			        || !attacker->is_affect_by_effect(core.reason_effect)) {
+				|| core.effect_damage_step != 0
+				|| (attacker->fieldid_r != core.pre_field[0])
+				|| (attacker->current.location != LOCATION_MZONE)
+				|| !attacker->is_capable_attack()
+				|| !attacker->is_affect_by_effect(core.reason_effect)) {
 				returns.ivalue[0] = 0;
 				core.units.pop_front();
 			} else {
@@ -590,12 +591,14 @@ int32 field::process() {
 				core.units.pop_front();
 				return pduel->bufferlen;
 			}
+			core.not_material = it->arg2;
 			core.sub_solving_event.push_back(e);
 			pduel->lua->add_param(it->ptr1, PARAM_TYPE_CARD);
 			pduel->lua->add_param(it->arg1 >> 16, PARAM_TYPE_INT);
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, it->peffect, 0, it->arg1 & 0xffff, 0);
 			it->step++;
 		} else {
+			core.not_material = 0;
 			core.units.pop_front();
 		}
 		return pduel->bufferlen;
@@ -2463,6 +2466,10 @@ int32 field::process_battle_command(uint16 step) {
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, FALSE);
 			core.attacker->attack_controler = core.attacker->current.controler;
 			core.pre_field[0] = core.attacker->fieldid_r;
+			if(core.chain_attack && core.chain_attacker_id != core.attacker->fieldid) {
+				core.chain_attack = FALSE;
+				core.chain_attacker_id = 0;
+			}
 			effect_set eset;
 			filter_player_effect(infos.turn_player, EFFECT_ATTACK_COST, &eset, FALSE);
 			core.attacker->filter_effect(EFFECT_ATTACK_COST, &eset);
@@ -2595,10 +2602,6 @@ int32 field::process_battle_command(uint16 step) {
 	case 7: {
 		if(!core.units.begin()->arg1) {
 			core.phase_action = TRUE;
-			if(core.chain_attack && core.chain_attacker_id != core.attacker->fieldid) {
-				core.chain_attack = FALSE;
-				core.chain_attacker_id = 0;
-			}
 			core.attack_state_count[infos.turn_player]++;
 			check_card_counter(core.attacker, 5, infos.turn_player);
 			core.attacker->attack_announce_count++;
@@ -2762,7 +2765,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 21: {
 		if(core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
-			core.units.begin()->step = 32;
+			core.units.begin()->step = 33;
 			return FALSE;
 		}
 		if(!core.attack_target) {
@@ -2800,7 +2803,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 23: {
 		if(core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
-			core.units.begin()->step = 32;
+			core.units.begin()->step = 33;
 			return FALSE;
 		}
 		infos.phase = PHASE_DAMAGE_CAL;
@@ -2833,7 +2836,7 @@ int32 field::process_battle_command(uint16 step) {
 			reset_phase(PHASE_DAMAGE_CAL);
 			adjust_all();
 			infos.phase = PHASE_DAMAGE;
-			core.units.begin()->step = 32;
+			core.units.begin()->step = 33;
 			return FALSE;
 		}
 		return FALSE;
@@ -2940,8 +2943,6 @@ int32 field::process_battle_command(uint16 step) {
 		process_instant_event();
 		//this timing does not exist in Master Rule 3
 		core.damage_calculated = TRUE;
-		if(core.effect_damage_step)
-			return TRUE;
 		return FALSE;
 	}
 	case 27: {
@@ -3064,6 +3065,12 @@ int32 field::process_battle_command(uint16 step) {
 		raise_event((card*)0, EVENT_BATTLED, 0, 0, PLAYER_NONE, 0, 0);
 		process_single_event();
 		process_instant_event();
+		if(core.effect_damage_step)
+			return TRUE;
+		core.units.begin()->step = 32;
+	}
+	// fall through
+	case 32: {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
@@ -3075,7 +3082,7 @@ int32 field::process_battle_command(uint16 step) {
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, TRUE);
 		return FALSE;
 	}
-	case 32: {
+	case 33: {
 		group* des = core.units.begin()->ptarget;
 		if(des) {
 			for(auto cit = des->container.begin(); cit != des->container.end();) {
@@ -3088,7 +3095,7 @@ int32 field::process_battle_command(uint16 step) {
 		adjust_all();
 		return FALSE;
 	}
-	case 33: {
+	case 34: {
 		core.units.begin()->ptarget = 0;
 		core.damage_calculated = TRUE;
 		core.selfdes_disabled = FALSE;
@@ -3244,7 +3251,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	}
 	case 2: {
 		core.effect_damage_step = 2;
-		add_process(PROCESSOR_BATTLE_COMMAND, 27, 0, 0, 0, 0);
+		add_process(PROCESSOR_BATTLE_COMMAND, 32, 0, 0, 0, 0);
 		return FALSE;
 	}
 	case 3: {
@@ -3362,6 +3369,30 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 					if(dp[1 - pd] && !core.attacker->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, core.attack_target)
 					        && !is_player_affected_by_effect(1 - pd, EFFECT_AVOID_BATTLE_DAMAGE))
 						core.battle_damage[1 - pd] = a - d;
+					bool double_damage = false;
+					//bool half_damage = false;
+					for(int32 i = 0; i < eset.size(); ++i) {
+						if(eset[i]->get_value() == DOUBLE_DAMAGE)
+							double_damage = true;
+						//if(eset[i]->get_value() == HALF_DAMAGE)
+						//	half_damage = true;
+					}
+					//if(double_damage && half_damage) {
+					//	double_damage = false;
+					//	half_damage = false;
+					//}
+					if(double_damage) {
+						if(dp[0])
+							core.battle_damage[0] *= 2;
+						if(dp[1])
+							core.battle_damage[1] *= 2;
+					}
+					//if(half_damage) {
+					//	if(dp[0])
+					//		core.battle_damage[0] /= 2;
+					//	if(dp[1])
+					//		core.battle_damage[1] /= 2;
+					//}
 					reason_card = core.attacker;
 				}
 				bd[1] = TRUE;
@@ -3499,6 +3530,8 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 			tag_swap(turn_player);
 		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_TURN)) {
 			core.units.begin()->step = 17;
+			reset_phase(PHASE_DRAW);
+			reset_phase(PHASE_STANDBY);
 			reset_phase(PHASE_END);
 			adjust_all();
 			return FALSE;

@@ -786,53 +786,13 @@ int32 field::get_szone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
 }
 uint32 field::get_linked_zone(int32 playerid) {
 	uint32 zones = 0;
-	for(uint32 i = 1; i < 5; ++i) {
-		card* pcard = player[playerid].list_mzone[i];
-		if(pcard && pcard->is_link_marker(LINK_MARKER_LEFT))
-			zones |= 1u << (i - 1);
+	for(auto& pcard : player[playerid].list_mzone) {
+		if(pcard)
+			zones |= pcard->get_linked_zone() & 0xff;
 	}
-	for(uint32 i = 0; i < 4; ++i) {
-		card* pcard = player[playerid].list_mzone[i];
-		if(pcard && pcard->is_link_marker(LINK_MARKER_RIGHT))
-			zones |= 1u << (i + 1);
-	}
-	if((player[playerid].list_mzone[0] && player[playerid].list_mzone[0]->is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (player[playerid].list_mzone[1] && player[playerid].list_mzone[1]->is_link_marker(LINK_MARKER_TOP))
-		|| (player[playerid].list_mzone[2] && player[playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_LEFT)))
-		zones |= 1u << 5;
-	if((player[playerid].list_mzone[2] && player[playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (player[playerid].list_mzone[3] && player[playerid].list_mzone[3]->is_link_marker(LINK_MARKER_TOP))
-		|| (player[playerid].list_mzone[4] && player[playerid].list_mzone[4]->is_link_marker(LINK_MARKER_TOP_LEFT)))
-		zones |= 1u << 6;
-	for(uint32 i = 0; i < 2; ++i) {
-		card* pcard = player[playerid].list_mzone[i + 5];
-		if(pcard) {
-			if(pcard->is_link_marker(LINK_MARKER_BOTTOM_LEFT))
-				zones |= 1u << (i * 2);
-			if(pcard->is_link_marker(LINK_MARKER_BOTTOM))
-				zones |= 1u << (i * 2 + 1);
-			if(pcard->is_link_marker(LINK_MARKER_BOTTOM_RIGHT))
-				zones |= 1u << (i * 2 + 2);
-		}
-	}
-	if((player[1 - playerid].list_mzone[2] && player[1 - playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (player[1 - playerid].list_mzone[3] && player[1 - playerid].list_mzone[3]->is_link_marker(LINK_MARKER_TOP))
-		|| (player[1 - playerid].list_mzone[4] && player[1 - playerid].list_mzone[4]->is_link_marker(LINK_MARKER_TOP_LEFT)))
-		zones |= 1u << 5;
-	if((player[1 - playerid].list_mzone[0] && player[1 - playerid].list_mzone[0]->is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (player[1 - playerid].list_mzone[1] && player[1 - playerid].list_mzone[1]->is_link_marker(LINK_MARKER_TOP))
-		|| (player[1 - playerid].list_mzone[2] && player[1 - playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_LEFT)))
-		zones |= 1u << 6;
-	for(uint32 i = 0; i < 2; ++i) {
-		card* pcard = player[1 - playerid].list_mzone[i + 5];
-		if(pcard) {
-			if(pcard->is_link_marker(LINK_MARKER_TOP_LEFT))
-				zones |= 1u << (4 - i * 2);
-			if(pcard->is_link_marker(LINK_MARKER_TOP))
-				zones |= 1u << (3 - i * 2);
-			if(pcard->is_link_marker(LINK_MARKER_TOP_RIGHT))
-				zones |= 1u << (2 - i * 2);
-		}
+	for(auto& pcard : player[1 - playerid].list_mzone) {
+		if(pcard)
+			zones |= pcard->get_linked_zone() >> 16;
 	}
 	for(uint32 i = 0; i < 5; ++i) {
 		if(i > 0 && player[playerid].list_szone[i] && player[playerid].list_szone[i]->is_link_marker(LINK_MARKER_TOP_LEFT))
@@ -1278,11 +1238,6 @@ void field::remove_oath_effect(effect* reason_effect) {
 void field::reset_phase(uint32 phase) {
 	for(auto eit = effects.pheff.begin(); eit != effects.pheff.end();) {
 		auto rm = eit++;
-		// work around: skip turn still raise reset_phase(PHASE_END)
-		// without this taking control only for one turn will be returned when skipping turn
-		// RESET_TURN_END should be introduced
-		//if((*rm)->code == EFFECT_SET_CONTROL)
-		//	continue;
 		if((*rm)->reset(phase, RESET_PHASE)) {
 			if((*rm)->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect((*rm));
@@ -1832,7 +1787,7 @@ void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* mater
 		if((pcard->data.type & TYPE_MONSTER) && pcard->is_releasable_by_nonsummon(playerid))
 			material->insert(pcard);
 	for(auto& pcard : player[playerid].list_grave)
-		if((pcard->data.type & TYPE_MONSTER) && pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid))
+		if((pcard->data.type & TYPE_MONSTER) && pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid, POS_FACEUP, REASON_EFFECT))
 			material->insert(pcard);
 	for(auto& pcard : player[playerid].list_extra)
 		if(pcard && (pcard->get_level() || pcard->is_affected_by_effect(EFFECT_MINIATURE_GARDEN_GIRL)) && (pcard->data.type & TYPE_MONSTER) && pcard->is_affected_by_effect(EFFECT_MAP_OF_HEAVEN) && pcard->is_capable_send_to_grave(playerid))
@@ -2997,6 +2952,8 @@ int32 field::is_player_can_spsummon(effect* peffect, uint32 sumtype, uint8 sumpo
 		return FALSE;
 	if(pcard->is_status(STATUS_FORBIDDEN))
 		return FALSE;
+	if((pcard->data.type & TYPE_TOKEN) && (pcard->current.location & LOCATION_ONFIELD))
+		return FALSE;
 	if(pcard->data.type & TYPE_LINK)
 		sumpos &= POS_FACEUP_ATTACK;
 	if(sumpos == 0)
@@ -3193,7 +3150,7 @@ int32 field::is_player_can_send_to_deck(uint8 playerid, card * pcard) {
 	}
 	return TRUE;
 }
-int32 field::is_player_can_remove(uint8 playerid, card * pcard) {
+int32 field::is_player_can_remove(uint8 playerid, card * pcard, uint32 reason) {
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_CANNOT_REMOVE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
@@ -3202,7 +3159,9 @@ int32 field::is_player_can_remove(uint8 playerid, card * pcard) {
 		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		if (pduel->lua->check_condition(eset[i]->target, 3))
+		pduel->lua->add_param(reason, PARAM_TYPE_INT);
+		pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
+		if(pduel->lua->check_condition(eset[i]->target, 5))
 			return FALSE;
 	}
 	return TRUE;
@@ -3258,11 +3217,11 @@ int32 field::is_chain_disabled(uint8 chaincount) {
 	if(pchain->flag & CHAIN_DISABLE_EFFECT)
 		return TRUE;
 	card* pcard = pchain->triggering_effect->get_handler();
-	effect_set eset;
-	pcard->filter_effect(EFFECT_DISABLE_CHAIN, &eset);
-	for(int32 i = 0; i < eset.size(); ++i) {
-		if(eset[i]->get_value() == pchain->chain_id) {
-			eset[i]->reset_flag |= RESET_CHAIN;
+	auto rg = pcard->single_effect.equal_range(EFFECT_DISABLE_CHAIN);
+	for(; rg.first != rg.second; ++rg.first) {
+		effect* peffect = rg.first->second;
+		if(peffect->get_value() == pchain->chain_id) {
+			peffect->reset_flag |= RESET_CHAIN;
 			return TRUE;
 		}
 	}

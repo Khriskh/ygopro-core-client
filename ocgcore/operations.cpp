@@ -2391,13 +2391,13 @@ int32 field::sset(uint16 step, uint8 setplayer, uint8 toplayer, card * target, e
 	}
 	return TRUE;
 }
-int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget, uint8 confirm, effect* reason_effect) {
+int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget, uint8 confirm, effect* reason_effect, uint32 zone) {
 	switch(step) {
 	case 0: {
 		card_set* set_cards = new card_set;
 		core.operated_set.clear();
 		for(auto& target : ptarget->container) {
-			if((!(target->data.type & TYPE_FIELD) && get_useable_count(NULL, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD) <= 0)
+			if((!(target->data.type & TYPE_FIELD) && get_useable_count(NULL, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD, zone ? zone : 0xff) <= 0)
 			        || (target->data.type & TYPE_MONSTER && !target->is_affected_by_effect(EFFECT_MONSTER_SSET))
 			        || (target->current.location == LOCATION_SZONE)
 			        || (!is_player_can_sset(setplayer, target))
@@ -2411,6 +2411,17 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 			returns.ivalue[0] = 0;
 			return TRUE;
 		}
+		effect_set eset;
+ 		for(auto& pcard : *set_cards) {
+			eset.clear();
+			pcard->filter_effect(EFFECT_SSET_COST, &eset);
+			for(int32 i = 0; i < eset.size(); ++i) {
+				if(eset[i]->operation) {
+					core.sub_solving_event.push_back(nil_event);
+					add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, setplayer, 0);
+				}
+			}
+		}
 		core.set_group_pre_set.clear();
 		core.set_group_set.clear();
 		core.set_group_used_zones = 0;
@@ -2422,7 +2433,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		card_set* set_cards = (card_set*)ptarget;
 		card* target = *set_cards->begin();
 		uint32 flag;
-		int32 ct = get_useable_count(target, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD, 0xff, &flag);
+		int32 ct = get_useable_count(target, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD, zone ? zone : 0xff, &flag);
 		if(ct <= 0) {
 			core.units.begin()->step = 2;
 			return FALSE;
@@ -2546,7 +2557,6 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		return FALSE;
 	}
 	case 7: {
-		returns.ivalue[0] = core.operated_set.size();
 		adjust_instant();
 		raise_event(&core.operated_set, EVENT_SSET, reason_effect, 0, setplayer, setplayer, 0);
 		process_instant_event();
@@ -2555,6 +2565,10 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 			core.hint_timing[setplayer] |= TIMING_SSET;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, FALSE);
 		}
+		return FALSE;
+	}
+	case 8: {
+		returns.ivalue[0] = core.operated_set.size();
 		return TRUE;
 	}
 	}
@@ -3434,7 +3448,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				dest = LOCATION_GRAVE;
 			if((dest == LOCATION_HAND && !pcard->is_capable_send_to_hand(reason_player))
 			        || (dest == LOCATION_DECK && !pcard->is_capable_send_to_deck(reason_player))
-			        || (dest == LOCATION_REMOVED && !pcard->is_removeable(reason_player)))
+			        || (dest == LOCATION_REMOVED && !pcard->is_removeable(reason_player, pcard->sendto_param.position, reason)))
 				dest = LOCATION_GRAVE;
 			pcard->sendto_param.location = dest;
 		}
@@ -3730,7 +3744,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			         || (!(pcard->current.reason & REASON_COST) && !pcard->is_affect_by_effect(pcard->current.reason_effect))
 			         || (dest == LOCATION_HAND && !pcard->is_capable_send_to_hand(core.reason_player))
 			         || (dest == LOCATION_DECK && !pcard->is_capable_send_to_deck(core.reason_player))
-			         || (dest == LOCATION_REMOVED && !pcard->is_removeable(core.reason_player))
+			         || (dest == LOCATION_REMOVED && !pcard->is_removeable(core.reason_player, pcard->sendto_param.position, reason))
 			         || (dest == LOCATION_GRAVE && !pcard->is_capable_send_to_grave(core.reason_player))
 			         || (dest == LOCATION_EXTRA && !pcard->is_capable_send_to_extra(core.reason_player)))) {
 				pcard->current.reason = pcard->temp.reason;
@@ -4748,7 +4762,7 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 	}
 	case 1: {
 		if (returns.ivalue[0]) {
-			if(!target->current.reason_effect->is_self_destroy_related()) {
+			if(!(target->current.reason_effect && target->current.reason_effect->is_self_destroy_related())) {
 				targets->container.erase(target);
 				target->current.reason = target->temp.reason;
 				target->current.reason_effect = target->temp.reason_effect;
@@ -4814,7 +4828,7 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 		if (returns.ivalue[0]) {
 			for (auto cit = targets->container.begin(); cit != targets->container.end();) {
 				auto rm = cit++;
-				if (replace_effect->get_value(*rm) && !(*rm)->current.reason_effect->is_self_destroy_related()) {
+				if(replace_effect->get_value(*rm) && !((*rm)->current.reason_effect && (*rm)->current.reason_effect->is_self_destroy_related())) {
 					(*rm)->current.reason = (*rm)->temp.reason;
 					(*rm)->current.reason_effect = (*rm)->temp.reason_effect;
 					(*rm)->current.reason_player = (*rm)->temp.reason_player;
