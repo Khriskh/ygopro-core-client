@@ -5226,8 +5226,6 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		uint32 must_use_zone_flag = 0;
 		filter_must_use_mzone(playerid, playerid, LOCATION_REASON_TOFIELD, pcard, &must_use_zone_flag);
 		uint32 handover_zone = get_rule_zone_fromex(playerid, pcard) & ~must_use_zone_flag;
-		if(is_player_affected_by_effect(playerid, EFFECT_EXTRA_TOMAIN_KOISHI) || pcard->is_affected_by_effect(EFFECT_EXTRA_TOMAIN_KOISHI))
-			linked_zone = 0x7f;
 		get_cards_in_zone(&handover_zone_cards, handover_zone, playerid, LOCATION_MZONE);
 		if(handover_zone_cards.find(tuner) != handover_zone_cards.end())
 			ct++;
@@ -5458,8 +5456,6 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 			uint32 must_use_zone_flag = 0;
 			filter_must_use_mzone(playerid, playerid, LOCATION_REASON_TOFIELD, scard, &must_use_zone_flag);
 			uint32 handover_zone = get_rule_zone_fromex(playerid, scard) & ~must_use_zone_flag;
-			if(is_player_affected_by_effect(playerid, EFFECT_EXTRA_TOMAIN_KOISHI) || scard->is_affected_by_effect(EFFECT_EXTRA_TOMAIN_KOISHI))
-				linked_zone = 0x7f;
 			get_cards_in_zone(&handover_zone_cards, handover_zone, playerid, LOCATION_MZONE);
 		}
 		for(auto& pcard : core.operated_set) {
@@ -5547,8 +5543,6 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		uint32 must_use_zone_flag = 0;
 		filter_must_use_mzone(playerid, playerid, LOCATION_REASON_TOFIELD, scard, &must_use_zone_flag);
 		uint32 handover_zone = get_rule_zone_fromex(playerid, scard) & ~must_use_zone_flag;
-		if(is_player_affected_by_effect(playerid, EFFECT_EXTRA_TOMAIN_KOISHI) || scard->is_affected_by_effect(EFFECT_EXTRA_TOMAIN_KOISHI))
-			linked_zone = 0x7f;
 		get_cards_in_zone(&handover_zone_cards, handover_zone, playerid, LOCATION_MZONE);
 		int32 ft = ct + std::count_if(core.operated_set.begin(), core.operated_set.end(),
 			[=](card* pcard) { return handover_zone_cards.find(pcard) != handover_zone_cards.end(); });
@@ -5734,8 +5728,6 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		uint32 must_use_zone_flag = 0;
 		filter_must_use_mzone(playerid, playerid, LOCATION_REASON_TOFIELD, scard, &must_use_zone_flag);
 		uint32 handover_zone = get_rule_zone_fromex(playerid, scard) & ~must_use_zone_flag;
-		if(is_player_affected_by_effect(playerid, EFFECT_EXTRA_TOMAIN_KOISHI) || scard->is_affected_by_effect(EFFECT_EXTRA_TOMAIN_KOISHI))
-			linked_zone = 0x7f;
 		get_cards_in_zone(&handover_zone_cards, handover_zone, playerid, LOCATION_MZONE);
 		int32 ft = ct + std::count_if(core.operated_set.begin(), core.operated_set.end(),
 			[=](card* pcard) { return handover_zone_cards.find(pcard) != handover_zone_cards.end(); });

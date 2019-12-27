@@ -2726,8 +2726,6 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 		uint32 must_use_zone_flag = 0;
 		filter_must_use_mzone(playerid, playerid, LOCATION_REASON_TOFIELD, scard, &must_use_zone_flag);
 		uint32 handover_zone = get_rule_zone_fromex(playerid, scard) & ~must_use_zone_flag;
-		if(is_player_affected_by_effect(playerid, EFFECT_EXTRA_TOMAIN_KOISHI) || scard->is_affected_by_effect(EFFECT_EXTRA_TOMAIN_KOISHI))
-			linked_zone = 0x7f;
 		get_cards_in_zone(&handover_zone_cards, handover_zone, playerid, LOCATION_MZONE);
 		for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
 			card* pcard = cit->second;
