@@ -37,6 +37,7 @@ struct Config {
 	int chkWaitChain;
 	int chkIgnore1;
 	int chkIgnore2;
+	int default_rule;
 	int hide_setname;
 	int hide_hint_button;
 	int control_mode;
@@ -108,6 +109,7 @@ struct BotInfo {
 	wchar_t desc[256];
 	bool support_master_rule_3;
 	bool support_new_master_rule;
+	bool support_master_rule_2020;
 };
 
 struct FadingUnit {
@@ -339,45 +341,50 @@ public:
 	irr::gui::IGUIEditBox* ebNickName;
 	irr::gui::IGUIListBox* lstHostList;
 	irr::gui::IGUIButton* btnLanRefresh;
-	irr::gui::IGUIButton* btnIA;
-	irr::gui::IGUIButton* btnListRooms;
 	irr::gui::IGUIEditBox* ebJoinHost;
 	irr::gui::IGUIEditBox* ebJoinPort;
 	irr::gui::IGUIEditBox* ebJoinPass;
+	irr::gui::IGUIButton* btnJoinHost;
+	irr::gui::IGUIButton* btnJoinCancel;
+	irr::gui::IGUIButton* btnCreateHost;
+	//ygoproes
+	irr::gui::IGUIButton* btnIA;
+	irr::gui::IGUIButton* btnListRooms;
 	irr::gui::IGUIEditBox* ebJoinPassO;
 	irr::gui::IGUIEditBox* ebJoinCondO;
 	irr::gui::IGUIEditBox* ebJoinLista;
-	irr::gui::IGUIButton* btnJoinHost;
 	irr::gui::IGUIButton* btnJoinServer;
-	irr::gui::IGUIButton* btnJoinCancel;
-	irr::gui::IGUIButton* btnCreateHost;
 	irr::gui::IGUIButton* btnCreateHostO;
 	irr::gui::IGUIComboBox* cbServer;
 	irr::gui::IGUIButton* btnOcgRanked;
 	irr::gui::IGUIButton* btnTcgRanked;
+	
 	//create host
 	irr::gui::IGUIWindow* wCreateHost;
-	irr::gui::IGUIWindow* wCreateHostO;
 	irr::gui::IGUIComboBox* cbLFlist;
-	irr::gui::IGUIComboBox* cbLFlistO;
 	irr::gui::IGUIComboBox* cbMatchMode;
-	irr::gui::IGUIComboBox* cbMatchModeO;
 	irr::gui::IGUIComboBox* cbRule;
-	irr::gui::IGUIComboBox* cbRuleO;
 	irr::gui::IGUIEditBox* ebTimeLimit;
 	irr::gui::IGUIEditBox* ebStartLP;
 	irr::gui::IGUIEditBox* ebStartHand;
 	irr::gui::IGUIEditBox* ebDrawCount;
-	irr::gui::IGUIEditBox* ebServerNameO;
 	irr::gui::IGUIEditBox* ebServerName;
 	irr::gui::IGUIEditBox* ebServerPass;
 	irr::gui::IGUIComboBox* cbDuelRule;
 	irr::gui::IGUICheckBox* chkNoCheckDeck;
 	irr::gui::IGUICheckBox* chkNoShuffleDeck;
-	irr::gui::IGUIButton* btnHostConfirmO;
 	irr::gui::IGUIButton* btnHostConfirm;
-	irr::gui::IGUIButton* btnHostCancelO;
 	irr::gui::IGUIButton* btnHostCancel;
+	//create host ygoproes
+	irr::gui::IGUIWindow* wCreateHostO;
+	irr::gui::IGUIComboBox* cbLFlistO;
+	irr::gui::IGUIComboBox* cbMatchModeO;
+	irr::gui::IGUIComboBox* cbRuleO;
+	irr::gui::IGUIEditBox* ebServerNameO;
+	irr::gui::IGUIButton* btnHostConfirmO;
+	irr::gui::IGUIButton* btnHostCancelO;
+	irr::gui::IGUIStaticText* stRanked;
+	
 	//host panel
 	irr::gui::IGUIWindow* wHostPrepare;
 	irr::gui::IGUIButton* btnHostPrepDuelist;
@@ -389,7 +396,6 @@ public:
 	irr::gui::IGUIComboBox* cbDeckSelect;
 	irr::gui::IGUIStaticText* stHostPrepRule;
 	irr::gui::IGUIStaticText* stHostPrepOB;
-	irr::gui::IGUIStaticText* stRanked;
 	irr::gui::IGUIButton* btnHostPrepReady;
 	irr::gui::IGUIButton* btnHostPrepNotReady;
 	irr::gui::IGUIButton* btnHostPrepStart;
@@ -410,7 +416,7 @@ public:
 	irr::gui::IGUIStaticText* stBotInfo;
 	irr::gui::IGUIButton* btnStartBot;
 	irr::gui::IGUIButton* btnBotCancel;
-	irr::gui::IGUICheckBox* chkBotOldRule;
+	irr::gui::IGUIComboBox* cbBotRule;
 	irr::gui::IGUICheckBox* chkBotHand;
 	irr::gui::IGUICheckBox* chkBotNoCheckDeck;
 	irr::gui::IGUICheckBox* chkBotNoShuffleDeck;
@@ -685,7 +691,7 @@ extern Game* mainGame;
 #define BUTTON_CANCEL_SINGLEPLAY	152
 #define LISTBOX_BOT_LIST			153
 #define BUTTON_BOT_START			154
-#define CHECKBOX_BOT_OLD_RULE		155
+#define COMBOBOX_BOT_RULE			155
 #define EDITBOX_CHAT				199
 
 #define BUTTON_MSG_OK				200
@@ -790,7 +796,6 @@ extern Game* mainGame;
 #define BUTTON_MARKS_FILTER			322
 #define BUTTON_MARKERS_OK			323
 #define COMBOBOX_SORTTYPE			324
-
 #define WINDOW_DECK_MANAGE			330
 #define BUTTON_NEW_CATEGORY			331
 #define BUTTON_RENAME_CATEGORY		332
@@ -848,7 +853,7 @@ extern Game* mainGame;
 #define TEXTURE_ACTIVATE			6
 
 #ifndef DEFAULT_DUEL_RULE
-#define DEFAULT_DUEL_RULE			4
+#define DEFAULT_DUEL_RULE			5
 #endif
 
 #define CARD_ARTWORK_VERSIONS_OFFSET	10
