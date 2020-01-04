@@ -586,20 +586,10 @@ int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer
 		pcard->current.location = LOCATION_EXTRA;
 	}
 	int32 useable_count = 0;
-	if(core.duel_rule >= 4 && !is_player_affected_by_effect(playerid, EFFECT_EXTRA_TOMAIN_KOISHI) && !pcard->is_affected_by_effect(EFFECT_EXTRA_TOMAIN_KOISHI))
+	if(core.duel_rule >= 4)
 		useable_count = get_useable_count_fromex_rule4(pcard, playerid, uplayer, zone, list);
 	else
-	{
 		useable_count = get_useable_count_other(pcard, playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone, list);
-		if(core.duel_rule >= 4) {
-			uint32 temp_list = 0;
-			get_useable_count_fromex_rule4(pcard, playerid, uplayer, zone, &temp_list);
-			if(~temp_list & ((1u << 5) | (1u << 6)))
-				useable_count++;
-			if(list)
-				*list &= temp_list;
-		}
-	}
 	if(use_temp_card)
 		pcard->current.location = 0;
 	return useable_count;
@@ -765,6 +755,8 @@ uint32 field::get_linked_zone(int32 playerid) {
 uint32 field::get_rule_zone_fromex(int32 playerid, card* pcard) {
 	if(core.duel_rule >= 4) {
 		if(core.duel_rule >= 5 && pcard && pcard->is_position(POS_FACEDOWN) && (pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)))
+			return 0x7f;
+		if(is_player_affected_by_effect(playerid, EFFECT_EXTRA_TOMAIN_KOISHI) || pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_TOMAIN_KOISHI))
 			return 0x7f;
 		else
 			return get_linked_zone(playerid) | (1u << 5) | (1u << 6);
