@@ -66,33 +66,36 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				wchar_t Servidor[40];
 				myswprintf(Servidor, L"%ls", mainGame->cbServer->getText());
 				
-				if ( wcscmp(Servidor,L"Koishi Server TCG") == 0 ){
-					mainGame->ebJoinHost->setText(L"222.73.218.25");
+				if ( wcscmp(Servidor,L"Koishi Server MR2020") == 0 ){
+					mainGame->ebJoinHost->setText(L"koishi.moecube.com");
+					mainGame->ebJoinPort->setText(L"5555");
+				} else if ( wcscmp(Servidor,L"Koishi Server TCG") == 0 ){
+					mainGame->ebJoinHost->setText(L"koishi.moecube.com");
 					mainGame->ebJoinPort->setText(L"1311");
 				} else if ( wcscmp(Servidor,L"Koishi Server OCG") == 0 ){
-					mainGame->ebJoinHost->setText(L"222.73.218.25");
+					mainGame->ebJoinHost->setText(L"koishi.moecube.com");
 					mainGame->ebJoinPort->setText(L"7210");
-				} else if ( wcscmp(Servidor,L"SzefoServer TCG") == 0 ){
+				} else if ( wcscmp(Servidor,L"SzefoServer TCG-OCG") == 0 ){
 					mainGame->ebJoinHost->setText(L"szefoserver.ddns.net");
 					mainGame->ebJoinPort->setText(L"7210");
 				} else if ( wcscmp(Servidor,L"Mercury233 Server OCG") == 0 ){
 					mainGame->ebJoinHost->setText(L"118.178.111.167");
 					mainGame->ebJoinPort->setText(L"233");
-				} else if ( wcscmp(Servidor,L"Mercury233 Server OCG Beta Cards") == 0 ){
-					mainGame->ebJoinHost->setText(L"118.178.111.167");
-					mainGame->ebJoinPort->setText(L"23333");
-				} else if ( wcscmp(Servidor,L"Terra Server") == 0 ){
-					mainGame->ebJoinHost->setText(L"23.254.201.48");
-					mainGame->ebJoinPort->setText(L"7911");
-				} else if ( wcscmp(Servidor,L"Moon Server") == 0 ){
-					mainGame->ebJoinHost->setText(L"23.254.201.48");
-					mainGame->ebJoinPort->setText(L"7999");
-				} else if ( wcscmp(Servidor,L"Korean Server") == 0 ){
-					mainGame->ebJoinHost->setText(L"cygopro.fun25.co.kr");
-					mainGame->ebJoinPort->setText(L"17225");
-				} else if ( wcscmp(Servidor,L"Nanahira Server") == 0 ){
-					mainGame->ebJoinHost->setText(L"213.159.202.230");
-					mainGame->ebJoinPort->setText(L"7210");
+				} else if ( wcscmp(Servidor,L"YGOPRO 233 Server") == 0 ){
+					mainGame->ebJoinHost->setText(L"s1.ygo233.com");
+					mainGame->ebJoinPort->setText(L"233");
+				} else if ( wcscmp(Servidor,L"YGOPRO Goat") == 0 ){
+					mainGame->ebJoinHost->setText(L"koishi.moecube.com");
+					mainGame->ebJoinPort->setText(L"2005");
+				} else if ( wcscmp(Servidor,L"YGOPRO Doom Bots of Doom") == 0 ){
+					mainGame->ebJoinHost->setText(L"koishi.moecube.com");
+					mainGame->ebJoinPort->setText(L"573");
+				} else if ( wcscmp(Servidor,L"YGOPRO Speed Duel") == 0 ){
+					mainGame->ebJoinHost->setText(L"koishi.moecube.com");
+					mainGame->ebJoinPort->setText(L"7373");
+				} else if ( wcscmp(Servidor,L"YGOPro 2Pick") == 0 ){
+					mainGame->ebJoinHost->setText(L"2pick.mycard.moe");
+					mainGame->ebJoinPort->setText(L"765");
 				} 
 				
 				break;

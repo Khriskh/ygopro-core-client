@@ -163,15 +163,16 @@ bool Game::Initialize() {
 	
 	env->addStaticText(L"Password:", rect<s32>(10, 400, 90, 420), false, false, wLanWindow);
 	cbServer = env->addComboBox(rect<s32>(90, 25, 260, 50), wLanWindow);
+	cbServer->addItem(L"Koishi Server MR2020");
 	cbServer->addItem(L"Koishi Server TCG");
 	cbServer->addItem(L"Koishi Server OCG");
-	cbServer->addItem(L"SzefoServer TCG");
+	cbServer->addItem(L"SzefoServer TCG-OCG");
 	cbServer->addItem(L"Mercury233 Server OCG");
-	cbServer->addItem(L"Mercury233 Server OCG Beta Cards");
-	cbServer->addItem(L"Terra Server");
-	cbServer->addItem(L"Moon Server");
-	cbServer->addItem(L"Korean Server");
-	cbServer->addItem(L"Nanahira Server");
+	cbServer->addItem(L"YGOPRO 233 Server");
+	cbServer->addItem(L"YGOPRO Goat");
+	cbServer->addItem(L"YGOPRO Speed Duel");
+	cbServer->addItem(L"YGOPRO Doom Bots of Doom");
+	cbServer->addItem(L"YGOPro 2Pick");
 	btnJoinServer = env->addButton(rect<s32>(270, 25, 295, 50), wLanWindow, BUTTON_JOIN_SERVER, L">>"); //ok
 	//create host
 	wCreateHost = env->addWindow(rect<s32>(320, 100, 700, 520), false, dataManager.GetSysString(1224));
