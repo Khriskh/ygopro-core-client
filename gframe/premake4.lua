@@ -11,7 +11,7 @@ project "ygopro"
     if USE_IRRKLANG then
         defines { "YGOPRO_USE_IRRKLANG" }
         links { "ikpmp3" }
-        includedirs { "../irrklang/include" }
+        includedirs { "../irrklangk/include" }
         if IRRKLANG_PRO then
             defines { "IRRKLANG_STATIC" }
         end
@@ -32,15 +32,15 @@ project "ygopro"
         if USE_IRRKLANG then
             links { "irrKlang" }
             if not IRRKLANG_PRO then
-                libdirs { "../irrklang/lib/Win32-visualStudio" }
+                libdirs { "../irrklangk/lib/Win32-visualStudio" }
             end
         end
         links { "opengl32", "ws2_32", "winmm", "gdi32", "kernel32", "user32", "imm32" }
     if IRRKLANG_PRO then
         configuration { "windows", "not vs2017" }
-            libdirs { "../irrklang/lib/Win32-visualStudio" }
+            libdirs { "../irrklangk/lib/Win32-visualStudio" }
         configuration { "windows", "vs2017" }
-            libdirs { "../irrklang/lib/Win32-vs2017" }
+            libdirs { "../irrklangk/lib/Win32-vs2017" }
     end
     configuration {"windows", "not vs*"}
         includedirs { "/mingw/include/irrlicht", "/mingw/include/freetype2" }
@@ -56,11 +56,11 @@ project "ygopro"
         if USE_IRRKLANG then
             links { "IrrKlang" }
             linkoptions{ "-Wl,-rpath=./" }
-            libdirs { "../irrklang/bin/linux-gcc-64" }
+            libdirs { "../irrklangk/bin/linux-gcc-64" }
         end
     configuration "macosx"
         includedirs { "/usr/include/irrlicht" }
         if USE_IRRKLANG then
             links { "irrklang" }
-            libdirs { "../irrklang/bin/macosx-gcc" }
+            libdirs { "../irrklangk/bin/macosx-gcc" }
         end
