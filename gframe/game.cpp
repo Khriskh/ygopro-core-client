@@ -318,14 +318,17 @@ bool Game::Initialize() {
 	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
-	imgCard2 = env->addImage(rect<s32>(0, 33, 285, 345), wInfos);
+
+	
+	//info
+	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
+	
+	imgCard2 = env->addImage(rect<s32>(0, 33, 285, 345), tabInfo);
 	imgCard2->setImage(imageManager.cTab);
 	showingcode = 0;
 	imgCard2->setScaleImage(true);
 	imgCard2->setUseAlphaChannel(true);
 	
-	//info
-	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
@@ -2233,7 +2236,7 @@ void Game::OnResize() {
 	//imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0)); BORRAR AL FINAL
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
-	imgCard2->setRelativePosition(Resize(0, 33, 285, 345)); //FONDO DE TAB
+	imgCard2->setRelativePosition(Resize(0, 0, 285, 345)); //FONDO DE TAB
 	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
