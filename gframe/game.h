@@ -287,6 +287,7 @@ public:
 	irr::gui::CGUITTFont* adFont;
 	irr::gui::CGUITTFont* lpcFont;
 	irr::gui::CGUITTFont* turnFont;
+	irr::gui::CGUITTFont* nturnFont;
 	std::map<irr::gui::CGUIImageButton*, int> imageLoading;
 	//card image
 	irr::gui::IGUIStaticText* wCardImg;

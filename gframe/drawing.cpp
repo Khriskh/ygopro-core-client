@@ -634,7 +634,7 @@ void Game::DrawMisc() {
 	//driver->draw2DRectangle(Resize(632, 30, 688, 50), 0xffffffff, 0xffffffff, 0x00000000, 0x00000000);
 	driver->draw2DImage(imageManager.tTurn, Resize(631, 5, 689, 49), recti(0, 0, 60, 46), 0, 0, true);
 	DrawShadowText(turnFont, L"TURN", Resize(634, 7, 686, 20), Resize(0, 0, 2, 0), 0xffffffff, 0x80000000, true, false, 0);
-	DrawShadowText(lpcFont, dataManager.GetNumString(dInfo.turn), Resize(634, 20, 686, 46), Resize(0, 0, 2, 0), 0xffffffff, 0x80000000, true, false, 0);
+	DrawShadowText(nturnFont, dataManager.GetNumString(dInfo.turn), Resize(634, 20, 686, 46), Resize(0, 0, 2, 0), 0xffffffff, 0x80000000, true, false, 0);
 	
 	
 	ClientCard* pcard;
