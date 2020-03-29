@@ -2242,8 +2242,8 @@ void Game::OnResize() {
 	//imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0)); BORRAR AL FINAL
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
-	imgBorderTab->setRelativePosition(Resize(0, 0, 285, 310)); //FONDO DE TAB
-	imgBorderTab2->setRelativePosition(Resize(0, 0, 285, 310)); //FONDO DE TAB
+	imgBorderTab->setRelativePosition(Resize(0, 0, 284, 308)); //FONDO DE TAB
+	imgBorderTab2->setRelativePosition(Resize(0, 0, 284, 308)); //FONDO DE TAB
 	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
