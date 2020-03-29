@@ -2157,8 +2157,8 @@ void Game::OnResize() {
 	wHostPrepare->setRelativePosition(ResizeWin(270, 120, 750, 440));
 	wReplay->setRelativePosition(ResizeWin(220, 100, 800, 520));
 	wSinglePlay->setRelativePosition(ResizeWin(220, 100, 800, 520));
-
-	wHand->setRelativePosition(ResizeWin(500, 450, 825, 605));
+	
+	wHand->setRelativePosition(ResizeWin(500, 450, 825, 565));
 	wFTSelect->setRelativePosition(ResizeWin(550, 240, 780, 340));
 	wMessage->setRelativePosition(ResizeWin(490, 200, 840, 340));
 	wACMessage->setRelativePosition(ResizeWin(490, 240, 840, 300));
