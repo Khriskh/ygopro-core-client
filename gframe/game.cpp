@@ -319,16 +319,17 @@ bool Game::Initialize() {
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
 
-	
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
+	
 	imgBorderTab = env->addImage(rect<s32>(0, 0, 285, 345), tabInfo);
 	imgBorderTab->setImage(imageManager.cTab);
 	showingcode = 0;
 	imgBorderTab->setScaleImage(true);
 	imgBorderTab->setUseAlphaChannel(true);
+	
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
-	//stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
+	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stName->setOverrideColor(SColor(255, 255, 255, 255));
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
 	stInfo->setOverrideColor(SColor(255, 255, 255, 255));
@@ -344,7 +345,6 @@ bool Game::Initialize() {
 	scrCardText->setVisible(false);
 	//log
 	irr::gui::IGUITab* tabLog = wInfos->addTab(dataManager.GetSysString(1271));
-	imgBorderTab = env->addImage(rect<s32>(0, 0, 285, 345), tabLog);
 	lstLog = env->addListBox(rect<s32>(10, 10, 290, 290), tabLog, LISTBOX_LOG, false);
 	lstLog->setItemHeight(18);
 	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLog, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
@@ -2237,7 +2237,7 @@ void Game::OnResize() {
 	//imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0)); BORRAR AL FINAL
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
-	imgBorderTab->setRelativePosition(Resize(0, 0, 285, 345)); //FONDO DE TAB
+	imgBorderTab->setRelativePosition(Resize(0, 0, 283, 343)); //FONDO DE TAB
 	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
