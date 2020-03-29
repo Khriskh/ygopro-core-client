@@ -321,7 +321,6 @@ bool Game::Initialize() {
 
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
-	
 	imgBorderTab = env->addImage(rect<s32>(0, 0, 285, 345), tabInfo);
 	imgBorderTab->setImage(imageManager.cTab);
 	showingcode = 0;
@@ -345,6 +344,12 @@ bool Game::Initialize() {
 	scrCardText->setVisible(false);
 	//log
 	irr::gui::IGUITab* tabLog = wInfos->addTab(dataManager.GetSysString(1271));
+	imgBorderTab2 = env->addImage(rect<s32>(0, 0, 285, 345), tabLog);
+	imgBorderTab2->setImage(imageManager.cTab);
+	showingcode = 0;
+	imgBorderTab2->setScaleImage(true);
+	imgBorderTab2->setUseAlphaChannel(true);
+	
 	lstLog = env->addListBox(rect<s32>(10, 10, 290, 290), tabLog, LISTBOX_LOG, false);
 	lstLog->setItemHeight(18);
 	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLog, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
@@ -2237,7 +2242,8 @@ void Game::OnResize() {
 	//imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0)); BORRAR AL FINAL
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
-	imgBorderTab->setRelativePosition(Resize(0, 0, 283, 343)); //FONDO DE TAB
+	imgBorderTab->setRelativePosition(Resize(0, 0, 285, 310)); //FONDO DE TAB
+	imgBorderTab2->setRelativePosition(Resize(0, 0, 285, 310)); //FONDO DE TAB
 	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
