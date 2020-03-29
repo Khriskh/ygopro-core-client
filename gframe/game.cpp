@@ -289,12 +289,10 @@ bool Game::Initialize() {
 	btnHostPrepStart = env->addButton(rect<s32>(230, 280, 340, 305), wHostPrepare, BUTTON_HP_START, dataManager.GetSysString(1215));
 	btnHostPrepCancel = env->addButton(rect<s32>(350, 280, 460, 305), wHostPrepare, BUTTON_HP_CANCEL, dataManager.GetSysString(1210));
 	//img
-	//wCardImg = env->addStaticText(L"", rect<s32>(1, 1, 1 + CARD_IMG_WIDTH + 20, 1 + CARD_IMG_HEIGHT + 18), true, false, 0, -1, true); BORRAR AL FINAL
-	wCardImg = env->addStaticText(L"", rect<s32>(0, 0, 0, 0), true, false, 0, -1, true); //border de la carta plomo
+	wCardImg = env->addStaticText(L"", rect<s32>(1, 1, 1 + CARD_IMG_WIDTH + 20, 1 + CARD_IMG_HEIGHT + 18), true, false, 0, -1, true);
 	wCardImg->setBackgroundColor(0xc0c0c0c0);
 	wCardImg->setVisible(false);
-	// imgCard = env->addImage(rect<s32>(10, 9, 10 + CARD_IMG_WIDTH, 9 + CARD_IMG_HEIGHT), wCardImg); //border de la carta plomo
-	imgCard = env->addImage(rect<s32>(13, 12, 13 + CARD_IMG_WIDTH, 12 + CARD_IMG_HEIGHT), wCardImg); 
+	imgCard = env->addImage(rect<s32>(10, 9, 10 + CARD_IMG_WIDTH, 9 + CARD_IMG_HEIGHT), wCardImg);
 	imgCard->setImage(imageManager.tCover[0]);
 	showingcode = 0;
 	imgCard->setScaleImage(true);
@@ -2162,9 +2160,11 @@ void Game::OnResize() {
 		btnReset->setRelativePosition(recti(1, 1, width, height));
 	}
 	//description 
-	wCardImg->setRelativePosition(ResizeCardImgWin(1, 1, 20, 18));
-	imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0));
-	wInfos->setRelativePosition(Resize(5, 275, 301, 634));
+	//wCardImg->setRelativePosition(ResizeCardImgWin(1, 1, 20, 18)); BORRAR AL FINAL
+	wCardImg->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
+	//imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0)); BORRAR AL FINAL
+	imgCard->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
+	wInfos->setRelativePosition(Resize(10, 275, 301, 630));
 	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
