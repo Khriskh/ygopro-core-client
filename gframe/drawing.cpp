@@ -554,7 +554,7 @@ void Game::DrawMisc() {
 		driver->draw2DImage(imageManager.tLPBar, Resize(697, 14, 909, 41), recti(0, 27, 212, 54), 0, 0, true);
 	else if(dInfo.lp[1] >= dInfo.start_lp[1])
 		driver->draw2DImage(imageManager.tLPBar, Resize(697, 14, 909, 41), recti(0, 27, 212, 54), 0, 0, true);
-	else driver->draw2DImage(imageManager.tLPBar, Resize(909 - 212 * dInfo.lp[1] / dInfo.start_lp[1], 14, 909, 41), recti(0, 27, 212 * dInfo.lp[1] / dInfo.start_lp[1], 54), 0, 0, true);
+	else driver->draw2DImage(imageManager.tLPBar, Resize(909 - 212 * dInfo.lp[1] / dInfo.start_lp[1], 14, 909, 41), recti(212 - (212 * dInfo.lp[1] / dInfo.start_lp[1]), 27, 212, 54), 0, 0, true);
 	
 	if(lpframe) {
 		dInfo.lp[lpplayer] -= lpd;
