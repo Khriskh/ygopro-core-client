@@ -98,6 +98,7 @@ bool Game::Initialize() {
 	turnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont2, 15);
 	nturnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont3, 40);
 	nicknameFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont4, 25);
+	lifepointsFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont5, 30);
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	if(!numFont || !textFont) {
@@ -2081,6 +2082,7 @@ void Game::OnResize() {
 	turnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont2, 15 * yScale);
 	nturnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont3, 40 * yScale);
 	nicknameFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont4, 25 * yScale);
+	lifepointsFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont5, 30 * yScale);
 	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, (yScale > 0.642 ? gameConf.textfontsize * yScale : 9));
 	old_numFont->drop();
 	old_adFont->drop();

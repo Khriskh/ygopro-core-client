@@ -595,21 +595,21 @@ void Game::DrawMisc() {
 	}
 	
 	//LP
-	recti lp1size = Resize(414, 16, 564, 39);
-	recti Lp2size = Resize(906, 16, 1018, 39);
+	recti lp1size = Resize(413, 16, 563, 39);
+	recti Lp2size = Resize(907, 16, 1010, 39);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
-		textFont->draw(dInfo.strLP[0], lp1size, 0xffffff00, false, false, 0);
+		lifepointsFont->draw(dInfo.strLP[0], lp1size, 0xffffff00, false, false, 0);
 	else
-		textFont->draw(dInfo.strLP[0], lp1size, 0xffffff00, false, false, 0);
+		lifepointsFont->draw(dInfo.strLP[0], lp1size, 0xffffff00, false, false, 0);
 	
 	if(!dInfo.isTag || !dInfo.tag_player[1]) {
-		auto cld = textFont->getDimension(dInfo.strLP[1]);
+		auto cld = lifepointsFont->getDimension(dInfo.strLP[1]);
 		Lp2size.UpperLeftCorner.X -= cld.Width;
-		textFont->draw(dInfo.strLP[1], Lp2size, 0xffffff00, false, false, 0);
+		lifepointsFont->draw(dInfo.strLP[1], Lp2size, 0xffffff00, false, false, 0);
 	} else {
-		auto cld = textFont->getDimension(dInfo.strLP[1]);
+		auto cld = lifepointsFont->getDimension(dInfo.strLP[1]);
 		Lp2size.UpperLeftCorner.X -= cld.Width;
-		textFont->draw(dInfo.strLP[1], Lp2size, 0xffffff00, false, false, 0);
+		lifepointsFont->draw(dInfo.strLP[1], Lp2size, 0xffffff00, false, false, 0);
 	}
 	
 	//NAME
