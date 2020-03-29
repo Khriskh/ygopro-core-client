@@ -442,13 +442,13 @@ bool Game::Initialize() {
 	RefreshLocales();
 	elmTabSystemLast = cbLocale;
 	//
-	wHand = env->addWindow(rect<s32>(500, 450, 825, 605), false, L"");
+	wHand = env->addWindow(rect<s32>(500, 450, 825, 565), false, L"");
 	wHand->getCloseButton()->setVisible(false);
 	wHand->setDraggable(false);
 	wHand->setDrawTitlebar(false);
 	wHand->setVisible(false);
 	for(int i = 0; i < 3; ++i) {
-		btnHand[i] = env->addButton(rect<s32>(10 + 105 * i, 10, 105 + 105 * i, 144), wHand, BUTTON_HAND1 + i, L"");
+		btnHand[i] = env->addButton(rect<s32>(10 + 105 * i, 10, 105 + 105 * i, 105), wHand, BUTTON_HAND1 + i, L"");
 		btnHand[i]->setImage(imageManager.tHand[i]);
 	}
 	//

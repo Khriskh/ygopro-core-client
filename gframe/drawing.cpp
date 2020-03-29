@@ -595,8 +595,8 @@ void Game::DrawMisc() {
 	}
 	
 	//LP
-	recti lp1size = Resize(413, 16, 563, 39);
-	recti Lp2size = Resize(907, 16, 1010, 39);
+	recti lp1size = Resize(413, 11, 563, 34);
+	recti Lp2size = Resize(907, 11, 1010, 34);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
 		lifepointsFont->draw(dInfo.strLP[0], lp1size, 0xffffff00, false, false, 0);
 	else
