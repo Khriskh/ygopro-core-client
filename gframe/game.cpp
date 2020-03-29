@@ -2161,7 +2161,7 @@ void Game::OnResize() {
 	}
 	//description 
 	//wCardImg->setRelativePosition(ResizeCardImgWin(1, 1, 20, 18)); BORRAR AL FINAL
-	wCardImg->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
+	wCardImg->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
 	//imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0)); BORRAR AL FINAL
 	imgCard->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
 	wInfos->setRelativePosition(Resize(10, 275, 301, 630));
