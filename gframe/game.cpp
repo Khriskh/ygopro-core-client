@@ -318,8 +318,7 @@ bool Game::Initialize() {
 	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
-	
-	imgCard2 = env->addImage(rect<s32>(0, 30, 10 + CARD_IMG_WIDTH, 9 + CARD_IMG_HEIGHT), wInfos);
+	imgCard2 = env->addImage(rect<s32>(0, 32, 285, 345), wInfos);
 	imgCard2->setImage(imageManager.cTab);
 	showingcode = 0;
 	imgCard2->setScaleImage(true);
