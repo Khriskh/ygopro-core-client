@@ -616,17 +616,17 @@ void Game::DrawMisc() {
 	recti p1size = Resize(414, 50, 526, 71);
 	recti p2size = Resize(906, 50, 1018, 71);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
-		textFont->draw(dInfo.hostname, p1size, 0xffffffff, false, false, 0);
+		nicknameFont->draw(dInfo.hostname, p1size, 0xffffffff, false, false, 0);
 	else
-		textFont->draw(dInfo.hostname_tag, p1size, 0xffffffff, false, false, 0);
+		nicknameFont->draw(dInfo.hostname_tag, p1size, 0xffffffff, false, false, 0);
 	if(!dInfo.isTag || !dInfo.tag_player[1]) {
-		auto cld = textFont->getDimension(dInfo.clientname);
+		auto cld = nicknameFont->getDimension(dInfo.clientname);
 		p2size.UpperLeftCorner.X -= cld.Width;
-		textFont->draw(dInfo.clientname, p2size, 0xffffffff, false, false, 0);
+		nicknameFont->draw(dInfo.clientname, p2size, 0xffffffff, false, false, 0);
 	} else {
-		auto cld = textFont->getDimension(dInfo.clientname_tag);
+		auto cld = nicknameFont->getDimension(dInfo.clientname_tag);
 		p2size.UpperLeftCorner.X -= cld.Width;
-		textFont->draw(dInfo.clientname_tag, p2size, 0xffffffff, false, false, 0);
+		nicknameFont->draw(dInfo.clientname_tag, p2size, 0xffffffff, false, false, 0);
 	}
 	
 	//turn
@@ -635,7 +635,6 @@ void Game::DrawMisc() {
 	driver->draw2DImage(imageManager.tTurn, Resize(630, 4, 690, 58), recti(0, 0, 60, 54), 0, 0, true);
 	DrawShadowText(turnFont, L"TURN", Resize(634, 7, 686, 20), Resize(0, 0, 2, 0), 0xffffffff, 0x80000000, true, false, 0);
 	DrawShadowText(nturnFont, dataManager.GetNumString(dInfo.turn), Resize(634, 20, 686, 46), Resize(0, 0, 2, 0), 0xffffffff, 0x80000000, true, false, 0);
-	
 	
 	ClientCard* pcard;
 	for(int i = 0; i < 5; ++i) {
