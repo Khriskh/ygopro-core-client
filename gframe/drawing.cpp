@@ -521,6 +521,18 @@ void Game::DrawMisc() {
 	//finish button
 	if(btnCancelOrFinish->isVisible() && dField.select_ready)
 		DrawSelectionLine(btnCancelOrFinish, 2, 0xffffff00);
+	
+	//avatar image
+	driver->draw2DImage(imageManager.tAvatar[0], Resize(335, 16, 400, 80), recti(0, 0, 128, 128), 0, 0, true);
+	driver->draw2DImage(imageManager.tAvatar[1], Resize(920, 16, 985, 80), recti(0, 0, 128, 128), 0, 0, true);
+	if((dInfo.turn % 2 && dInfo.isFirst) || (!(dInfo.turn % 2) && !dInfo.isFirst)) {
+		driver->draw2DImage(imageManager.tLPBarFrame, Resize(327, 8, 625, 88), recti(0, 0, 298, 80), 0, 0, true);
+		driver->draw2DImage(imageManager.tLPBarFrame, Resize(695, 8, 993, 88), recti(0, 80, 298, 160), 0, 0, true);
+	} else {
+		driver->draw2DImage(imageManager.tLPBarFrame, Resize(327, 8, 625, 88), recti(0, 0, 298, 80), 0, 0, true);
+		driver->draw2DImage(imageManager.tLPBarFrame, Resize(695, 8, 993, 88), recti(0, 80, 298, 160), 0, 0, true);
+	}
+	
 	//lp bar
 	if((dInfo.turn % 2 && dInfo.isFirst && !dInfo.is_swapped) || (!(dInfo.turn % 2) && !dInfo.isFirst && !dInfo.is_swapped) || (!(dInfo.turn % 2) && dInfo.isFirst && dInfo.is_swapped) || (dInfo.turn % 2 && !dInfo.isFirst && dInfo.is_swapped)) {
 		//driver->draw2DRectangle(0xa0000000, Resize(327, 8, 630, 51));
@@ -533,16 +545,16 @@ void Game::DrawMisc() {
 	//driver->draw2DImage(imageManager.tLPFrame, Resize(691, 10, 990, 30), recti(0, 0, 200, 20), 0, 0, true);
 	
 	if(!dInfo.start_lp[0])
-		driver->draw2DImage(imageManager.tLPBar, Resize(411, 14, 623, 41), recti(0, 0, 16, 16), 0, 0, true);
+		driver->draw2DImage(imageManager.tLPBar, Resize(411, 14, 623, 41), recti(0, 0, 212, 27), 0, 0, true);
 	else if(dInfo.lp[0] >= dInfo.start_lp[0])
-		driver->draw2DImage(imageManager.tLPBar, Resize(411, 14, 623, 41), recti(0, 0, 16, 16), 0, 0, true);
-	else driver->draw2DImage(imageManager.tLPBar, Resize(411, 14, 411 + 212 * dInfo.lp[0] / dInfo.start_lp[0], 41), recti(0, 0, 16, 16), 0, 0, true);
+		driver->draw2DImage(imageManager.tLPBar, Resize(411, 14, 623, 41), recti(0, 0, 212, 27), 0, 0, true);
+	else driver->draw2DImage(imageManager.tLPBar, Resize(411, 14, 411 + 212 * dInfo.lp[0] / dInfo.start_lp[0], 41), recti(0, 0, 212, 27), 0, 0, true);
 	
 	if(!dInfo.start_lp[1])
-		driver->draw2DImage(imageManager.tLPBar, Resize(697, 14, 909, 41), recti(0, 0, 16, 16), 0, 0, true);
+		driver->draw2DImage(imageManager.tLPBar, Resize(697, 14, 909, 41), recti(0, 27, 212, 54), 0, 0, true);
 	else if(dInfo.lp[1] >= dInfo.start_lp[1])
-		driver->draw2DImage(imageManager.tLPBar, Resize(697, 14, 909, 41), recti(0, 0, 16, 16), 0, 0, true);
-	else driver->draw2DImage(imageManager.tLPBar, Resize(909 - 212 * dInfo.lp[1] / dInfo.start_lp[1], 14, 909, 41), recti(0, 0, 16, 16), 0, 0, true);
+		driver->draw2DImage(imageManager.tLPBar, Resize(697, 14, 909, 41), recti(0, 27, 212, 54), 0, 0, true);
+	else driver->draw2DImage(imageManager.tLPBar, Resize(909 - 212 * dInfo.lp[1] / dInfo.start_lp[1], 14, 909, 41), recti(0, 27, 212, 54), 0, 0, true);
 	
 	if(lpframe) {
 		dInfo.lp[lpplayer] -= lpd;
@@ -556,17 +568,6 @@ void Game::DrawMisc() {
 		} else {
 			DrawShadowText(lpcFont, lpcstring, Resize(400, 162, 922, 210), Resize(0, 2, 2, 0), lpccolor, lpccolor | 0x00ffffff, true, false, 0);
 		}
-	}
-	//avatar image
-	driver->draw2DImage(imageManager.tAvatar[0], Resize(335, 16, 400, 80), recti(0, 0, 128, 128), 0, 0, true);
-	driver->draw2DImage(imageManager.tAvatar[1], Resize(920, 16, 985, 80), recti(0, 0, 128, 128), 0, 0, true);
-	if((dInfo.turn % 2 && dInfo.isFirst) || (!(dInfo.turn % 2) && !dInfo.isFirst)) {
-		driver->draw2DImage(imageManager.tLPBarFrame, Resize(327, 8, 625, 88), recti(0, 0, 298, 80), 0, 0, true);
-		//driver->draw2DImage(imageManager.tLPBarFrame, Resize(689, 8, 991, 78), recti(0, 210, 305, 280), 0, 0, true);	
-		driver->draw2DImage(imageManager.tLPBarFrame, Resize(695, 8, 993, 88), recti(0, 81, 298, 160), 0, 0, true);
-	} else {
-		//driver->draw2DImage(imageManager.tLPBarFrame, Resize(695, 8, 993, 88), recti(0, 81, 298, 160), 0, 0, true);
-		//driver->draw2DImage(imageManager.tLPBarFrame, Resize(689, 8, 991, 78), recti(0, 140, 305, 210), 0, 0, true);
 	}
 	//Time Display // QUITAR TODO MENOS RELOJ
 	if(!dInfo.isReplay && dInfo.player_type < 7 && dInfo.time_limit) {
