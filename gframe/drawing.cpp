@@ -612,8 +612,25 @@ void Game::DrawMisc() {
 	}
 	
 	//LP
-	DrawShadowText(numFont, dInfo.strLP[0], Resize(414, 16, 564, 39), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
-	DrawShadowText(numFont, dInfo.strLP[1], Resize(756, 16, 906, 39), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
+	//DrawShadowText(numFont, dInfo.strLP[0], Resize(414, 16, 564, 39), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, false, false, 0);
+	//DrawShadowText(numFont, dInfo.strLP[1], Resize(756, 16, 906, 39), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, false, false, 0);
+	
+	recti lp1size = Resize(414, 16, 564, 39);
+	recti Lp2size = Resize(906, 16, 1018, 39);
+	if(!dInfo.isTag || !dInfo.tag_player[0])
+		textFont->draw(dInfo.strLP[0], lp1size, 0xffffff00, false, false, 0);
+	else
+		textFont->draw(dInfo.strLP[0], lp1size, 0xffffff00, false, false, 0);
+	
+	if(!dInfo.isTag || !dInfo.tag_player[1]) {
+		auto cld = textFont->getDimension(dInfo.strLP[1]);
+		Lp2size.UpperLeftCorner.X -= cld.Width;
+		textFont->draw(dInfo.strLP[1], Lp2size, 0xffffff00, false, false, 0);
+	} else {
+		auto cld = textFont->getDimension(dInfo.strLP[1]);
+		Lp2size.UpperLeftCorner.X -= cld.Width;
+		textFont->draw(dInfo.strLP[1], Lp2size, 0xffffff00, false, false, 0);
+	}
 	
 	//NAME
 	recti p1size = Resize(414, 50, 526, 71);
