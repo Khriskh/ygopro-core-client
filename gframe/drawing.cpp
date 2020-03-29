@@ -613,8 +613,8 @@ void Game::DrawMisc() {
 	}
 	
 	//NAME
-	recti p1size = Resize(414, 50, 526, 71);
-	recti p2size = Resize(906, 50, 1018, 71);
+	recti p1size = Resize(412, 48, 524, 73);
+	recti p2size = Resize(908, 48, 1018, 73);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
 		nicknameFont->draw(dInfo.hostname, p1size, 0xffffffff, false, false, 0);
 	else
