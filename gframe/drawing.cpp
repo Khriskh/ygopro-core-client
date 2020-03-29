@@ -610,11 +610,14 @@ void Game::DrawMisc() {
 		//driver->draw2DImage(imageManager.tAttack, ResizeCardMid(527, 32, 536, 50, 536, 41), recti(32, 0, 96, 128), 0, 0, true);
 		//driver->draw2DImage(imageManager.tAttack, ResizeCardMid(734, 32, 743, 50, 743, 41), recti(32, 0, 96, 128), 0, 0, true);
 	}
-	DrawShadowText(numFont, dInfo.strLP[0], Resize(305, 49, 614, 68), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
-	DrawShadowText(numFont, dInfo.strLP[1], Resize(711, 49, 1010, 68), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
-
-	recti p1size = Resize(400, 18, 629, 37);
-	recti p2size = Resize(920, 18, 986, 37);
+	
+	//LP
+	DrawShadowText(numFont, dInfo.strLP[0], Resize(414, 16, 564, 39), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
+	DrawShadowText(numFont, dInfo.strLP[1], Resize(756, 16, 906, 39), Resize(0, 1, 2, 0), 0xffffff00, 0xff000000, true, false, 0);
+	
+	//NAME
+	recti p1size = Resize(414, 50, 526, 71);
+	recti p2size = Resize(906, 50, 1018, 71);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
 		textFont->draw(dInfo.hostname, p1size, 0xffffffff, false, false, 0);
 	else
