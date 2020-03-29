@@ -319,11 +319,11 @@ bool Game::Initialize() {
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
 	
-	imgCard = env->addImage(rect<s32>(10, 9, 10 + CARD_IMG_WIDTH, 9 + CARD_IMG_HEIGHT), wInfos);
-	imgCard->setImage(imageManager.tCover[0]);
+	imgCard2 = env->addImage(rect<s32>(10, 9, 10 + CARD_IMG_WIDTH, 9 + CARD_IMG_HEIGHT), wInfos);
+	imgCard2->setImage(imageManager.tAvatar[0]);
 	showingcode = 0;
-	imgCard->setScaleImage(true);
-	imgCard->setUseAlphaChannel(true);
+	imgCard2->setScaleImage(true);
+	imgCard2->setUseAlphaChannel(true);
 	
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
