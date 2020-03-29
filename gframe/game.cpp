@@ -328,7 +328,7 @@ bool Game::Initialize() {
 	imgBorderTab->setUseAlphaChannel(true);
 	
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
-	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
+	//stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stName->setOverrideColor(SColor(255, 255, 255, 255));
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
 	stInfo->setOverrideColor(SColor(255, 255, 255, 255));
@@ -344,23 +344,11 @@ bool Game::Initialize() {
 	scrCardText->setVisible(false);
 	//log
 	irr::gui::IGUITab* tabLog = wInfos->addTab(dataManager.GetSysString(1271));
-	imgBorderTab2 = env->addImage(rect<s32>(0, 0, 285, 345), tabLog);
-	imgBorderTab2->setImage(imageManager.cTab);
-	showingcode = 0;
-	imgBorderTab2->setScaleImage(true);
-	imgBorderTab2->setUseAlphaChannel(true);
-	
 	lstLog = env->addListBox(rect<s32>(10, 10, 290, 290), tabLog, LISTBOX_LOG, false);
 	lstLog->setItemHeight(18);
 	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLog, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
 	//helper
 	irr::gui::IGUITab* _tabHelper = wInfos->addTab(dataManager.GetSysString(1298));
-	imgBorderTab3 = env->addImage(rect<s32>(0, 0, 285, 345), _tabHelper);
-	imgBorderTab3->setImage(imageManager.cTab);
-	showingcode = 0;
-	imgBorderTab3->setScaleImage(true);
-	imgBorderTab3->setUseAlphaChannel(true);
-	
 	_tabHelper->setRelativePosition(recti(16, 49, 299, 362));
 	tabHelper = env->addWindow(recti(0, 0, 250, 300), false, L"", _tabHelper);
 	tabHelper->setDrawTitlebar(false);
@@ -396,12 +384,6 @@ bool Game::Initialize() {
 	elmTabHelperLast = chkAutoSaveReplay;
 	//system
 	irr::gui::IGUITab* _tabSystem = wInfos->addTab(dataManager.GetSysString(1273));
-	imgBorderTab4 = env->addImage(rect<s32>(0, 0, 285, 345), _tabSystem);
-	imgBorderTab4->setImage(imageManager.cTab);
-	showingcode = 0;
-	imgBorderTab4->setScaleImage(true);
-	imgBorderTab4->setUseAlphaChannel(true);
-	
 	_tabSystem->setRelativePosition(recti(16, 49, 299, 362));
 	tabSystem = env->addWindow(recti(0, 0, 250, 300), false, L"", _tabSystem);
 	tabSystem->setDrawTitlebar(false);
@@ -1868,11 +1850,11 @@ void Game::ShowCardInfo(int code, bool resize) {
 		dtxt = mainGame->guiFont->getDimension(formatBuffer);
 		if(dtxt.Width > (300 * xScale - 13) - 15)
 			offset_arrows += 15;
-		stInfo->setRelativePosition(rect<s32>(15, 37, 296 * xScale, 98));
-		stDataInfo->setRelativePosition(rect<s32>(15, 90, 300 * xScale - 13, (115 + offset_arrows)));
-		stSetName->setRelativePosition(rect<s32>(15, (115 + offset_arrows), 296 * xScale, (115 + offset_arrows) + offset));
-		stText->setRelativePosition(rect<s32>(15, (115 + offset_arrows) + offset, 287 * xScale, 324 * yScale));
-		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, (115 + offset_arrows) + offset, 287 * xScale, 324 * yScale));
+		stInfo->setRelativePosition(rect<s32>(15, 37, 296 * xScale, 98)); //descripcion de tipo y arquetipo
+		stDataInfo->setRelativePosition(rect<s32>(15, 90, 300 * xScale - 13, (115 + offset_arrows))); // estreyas y nivel
+		stSetName->setRelativePosition(rect<s32>(15, (115 + offset_arrows), 296 * xScale, (115 + offset_arrows) + offset)); //setname arquetipo
+		stText->setRelativePosition(rect<s32>(15, (115 + offset_arrows) + offset, 287 * xScale, 324 * yScale)); //texto de la carta
+		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, (115 + offset_arrows) + offset, 287 * xScale, 324 * yScale)); //scroll del texto
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
@@ -1884,7 +1866,7 @@ void Game::ShowCardInfo(int code, bool resize) {
 	showingcode = code;
 	showingtext = dataManager.GetText(code);
 	const auto& tsize = stText->getRelativePosition();
-	InitStaticText(stText, tsize.getWidth(), tsize.getHeight(), guiFont, showingtext);
+	InitStaticText(stText, tsize.getWidth(), tsize.getHeight(), nicknameFont, showingtext);
 }
 void Game::ClearCardInfo(int player) {
 	imgCard->setImage(imageManager.tCover[player]);
@@ -2249,16 +2231,14 @@ void Game::OnResize() {
 		btnReset->setRelativePosition(recti(1, 1, width, height));
 	}
 	//description 
-	//wCardImg->setRelativePosition(ResizeCardImgWin(1, 1, 20, 18)); BORRAR AL FINAL
 	wCardImg->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
-	//imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0)); BORRAR AL FINAL
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
 	imgBorderTab->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
-	imgBorderTab2->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
-	imgBorderTab3->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
-	imgBorderTab4->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
-	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
+	//imgBorderTab2->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
+	//imgBorderTab3->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
+	//imgBorderTab4->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
+	stName->setRelativePosition(recti(10, 10, 287 * xScale - 13, 10 + 22)); //nombre de carta
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
 		ShowCardInfo(showingcode, true);
