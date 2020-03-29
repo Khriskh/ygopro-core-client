@@ -148,9 +148,9 @@ gui::CImageGUISkin* CGUISkinSystem::loadSkinFromFile(const c8 *skinname) {
     ParseGUIElementStyle(skinConfig.Window, "Window");
     ParseGUIElementStyle(skinConfig.ProgressBar, "ProgressBar",true);
     ParseGUIElementStyle(skinConfig.ProgressBarFilled, "ProgressBar/Filled",true);
-	//ParseGUIElementStyle(skinConfig.TabBody,"TabControl");
-	//ParseGUIElementStyle(skinConfig.TabButton,"TabControl/TabButton");
-	//ParseGUIElementStyle(skinConfig.TabButtonPressed,"TabControl/TabButtonPressed");
+	ParseGUIElementStyle(skinConfig.TabBody,"TabControl");
+	ParseGUIElementStyle(skinConfig.TabButton,"TabControl/TabButton");
+	ParseGUIElementStyle(skinConfig.TabButtonPressed,"TabControl/TabButtonPressed");
 	ParseGUIElementStyle(skinConfig.MenuBar,"MenuBar");
 	ParseGUIElementStyle(skinConfig.MenuPane,"MenuBar/MenuPane");
 	ParseGUIElementStyle(skinConfig.MenuPressed,"MenuBar/MenuPressed");
