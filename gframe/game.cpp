@@ -321,6 +321,7 @@ bool Game::Initialize() {
 	
 	imgCard2 = env->addImage(rect<s32>(0, 30, 10 + CARD_IMG_WIDTH, 9 + CARD_IMG_HEIGHT), wInfos);
 	imgCard2->setImage(imageManager.cTab);
+	showingcode = 0;
 	imgCard2->setScaleImage(true);
 	imgCard2->setUseAlphaChannel(true);
 	
