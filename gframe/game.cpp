@@ -318,7 +318,7 @@ bool Game::Initialize() {
 	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
-	imgCard2 = env->addImage(rect<s32>(0, 32, 285, 345), wInfos);
+	imgCard2 = env->addImage(rect<s32>(0, 33, 285, 345), wInfos);
 	imgCard2->setImage(imageManager.cTab);
 	showingcode = 0;
 	imgCard2->setScaleImage(true);
@@ -329,11 +329,11 @@ bool Game::Initialize() {
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
-	stInfo->setOverrideColor(SColor(255, 0, 0, 255));
+	stInfo->setOverrideColor(SColor(255, 255, 255, 255));
 	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
-	stDataInfo->setOverrideColor(SColor(255, 0, 0, 255));
+	stDataInfo->setOverrideColor(SColor(255, 255, 255, 255));
 	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, tabInfo, -1, false);
-	stSetName->setOverrideColor(SColor(255, 0, 0, 255));
+	stSetName->setOverrideColor(SColor(255, 255, 255, 255));
 	stText = env->addStaticText(L"", rect<s32>(15, 106, 287, 324), false, true, tabInfo, -1, false);
 	scrCardText = env->addScrollBar(false, rect<s32>(267, 106, 287, 324), tabInfo, SCROLL_CARDTEXT);
 	scrCardText->setLargeStep(1);
@@ -2233,6 +2233,7 @@ void Game::OnResize() {
 	//imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0)); BORRAR AL FINAL
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
+	imgCard2->setRelativePosition(Resize(0, 33, 285, 345)); //FONDO DE TAB
 	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
