@@ -26,6 +26,12 @@ struct Config {
 	wchar_t lastdeck[64];
 	wchar_t textfont[256];
 	wchar_t numfont[256];
+	wchar_t numfont2[256];
+	wchar_t numfont3[256];
+	wchar_t numfont4[256];
+	wchar_t numfont5[256];
+	wchar_t numfont6[256];
+	wchar_t numfont7[256];
 	wchar_t roompass[20];
 	wchar_t locale[64];
 	wchar_t bot_deck_path[64];
