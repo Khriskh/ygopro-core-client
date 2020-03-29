@@ -355,11 +355,11 @@ bool Game::Initialize() {
 	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLog, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
 	//helper
 	irr::gui::IGUITab* _tabHelper = wInfos->addTab(dataManager.GetSysString(1298));
-	imgBorderTab2 = env->addImage(rect<s32>(0, 0, 285, 345), _tabHelper);
-	imgBorderTab2->setImage(imageManager.cTab);
+	imgBorderTab3 = env->addImage(rect<s32>(0, 0, 285, 345), _tabHelper);
+	imgBorderTab3->setImage(imageManager.cTab);
 	showingcode = 0;
-	imgBorderTab2->setScaleImage(true);
-	imgBorderTab2->setUseAlphaChannel(true);
+	imgBorderTab3->setScaleImage(true);
+	imgBorderTab3->setUseAlphaChannel(true);
 	
 	_tabHelper->setRelativePosition(recti(16, 49, 299, 362));
 	tabHelper = env->addWindow(recti(0, 0, 250, 300), false, L"", _tabHelper);
@@ -396,11 +396,11 @@ bool Game::Initialize() {
 	elmTabHelperLast = chkAutoSaveReplay;
 	//system
 	irr::gui::IGUITab* _tabSystem = wInfos->addTab(dataManager.GetSysString(1273));
-	imgBorderTab2 = env->addImage(rect<s32>(0, 0, 285, 345), _tabSystem);
-	imgBorderTab2->setImage(imageManager.cTab);
+	imgBorderTab4 = env->addImage(rect<s32>(0, 0, 285, 345), _tabSystem);
+	imgBorderTab4->setImage(imageManager.cTab);
 	showingcode = 0;
-	imgBorderTab2->setScaleImage(true);
-	imgBorderTab2->setUseAlphaChannel(true);
+	imgBorderTab4->setScaleImage(true);
+	imgBorderTab4->setUseAlphaChannel(true);
 	
 	_tabSystem->setRelativePosition(recti(16, 49, 299, 362));
 	tabSystem = env->addWindow(recti(0, 0, 250, 300), false, L"", _tabSystem);
