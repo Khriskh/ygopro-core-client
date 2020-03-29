@@ -2226,7 +2226,7 @@ void Game::OnResize() {
 	wCardImg->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
 	//imgCard->setRelativePosition(ResizeCardImgWin(10, 9, 0, 0)); BORRAR AL FINAL
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
-	wInfos->setRelativePosition(Resize(10, 275, 301, 630));
+	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
 	stName->setRelativePosition(recti(10, 10, 300 * xScale - 13, 10 + 22));
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
