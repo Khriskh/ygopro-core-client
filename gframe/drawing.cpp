@@ -564,7 +564,7 @@ void Game::DrawMisc() {
 		driver->draw2DImage(imageManager.tLPBarFrame, Resize(327, 8, 630, 78), recti(0, 70, 305, 140), 0, 0, true);
 		driver->draw2DImage(imageManager.tLPBarFrame, Resize(689, 8, 991, 78), recti(0, 140, 305, 210), 0, 0, true);
 	}
-	//Time Display
+	//Time Display // QUITAR TODO MENOS RELOJ
 	if(!dInfo.isReplay && dInfo.player_type < 7 && dInfo.time_limit) {
 		if(imageManager.tClock) {
 			driver->draw2DImage(imageManager.tClock, Resize(577, 50, 595, 68), recti(0, 0, 128, 128), 0, 0, true);
