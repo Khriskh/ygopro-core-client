@@ -95,6 +95,7 @@ bool Game::Initialize() {
 	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 16);
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 12);
 	lpcFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 48);
+	turnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont1, 10);
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	if(!numFont || !textFont) {
@@ -1277,6 +1278,12 @@ void Game::LoadConfig() {
 	gameConf.lastcategory[0] = 0;
 	gameConf.lastdeck[0] = 0;
 	gameConf.numfont[0] = 0;
+	gameConf.numfont2[0] = 0;
+	gameConf.numfont3[0] = 0;
+	gameConf.numfont4[0] = 0;
+	gameConf.numfont5[0] = 0;
+	gameConf.numfont6[0] = 0;
+	gameConf.numfont7[0] = 0;
 	gameConf.textfont[0] = 0;
 	gameConf.lasthost[0] = 0;
 	gameConf.lastport[0] = 0;
@@ -1337,6 +1344,24 @@ void Game::LoadConfig() {
 			} else if(!strcmp(strbuf, "numfont")) {
 				BufferIO::DecodeUTF8(valbuf, wstr);
 				BufferIO::CopyWStr(wstr, gameConf.numfont, 256);
+			} else if(!strcmp(strbuf, "numfont2")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont2, 256);
+			} else if(!strcmp(strbuf, "numfont3")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont3, 256);
+			} else if(!strcmp(strbuf, "numfont4")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont4, 256);
+			} else if(!strcmp(strbuf, "numfont5")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont5, 256);
+			} else if(!strcmp(strbuf, "numfont6")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont6, 256);
+			} else if(!strcmp(strbuf, "numfont7")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont7, 256);
 			} else if(!strcmp(strbuf, "serverport")) {
 				gameConf.serverport = atoi(valbuf);
 			} else if(!strcmp(strbuf, "lasthost")) {
@@ -1467,6 +1492,24 @@ void Game::LoadConfig() {
 			} else if(!strcmp(strbuf, "numfont")) {
 				BufferIO::DecodeUTF8(valbuf, wstr);
 				BufferIO::CopyWStr(wstr, gameConf.numfont, 256);
+			} else if(!strcmp(strbuf, "numfont1")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont1, 256);
+			} else if(!strcmp(strbuf, "numfont2")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont2, 256);
+			} else if(!strcmp(strbuf, "numfont3")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont3, 256);
+			} else if(!strcmp(strbuf, "numfont4")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont4, 256);
+			} else if(!strcmp(strbuf, "numfont5")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont5, 256);
+			} else if(!strcmp(strbuf, "numfont6")) {
+				BufferIO::DecodeUTF8(valbuf, wstr);
+				BufferIO::CopyWStr(wstr, gameConf.numfont6, 256);
 			} else if(!strcmp(strbuf, "serverport")) {
 				gameConf.serverport = atoi(valbuf);
 			} else if(!strcmp(strbuf, "lasthost")) {
@@ -1657,6 +1700,18 @@ void Game::SaveConfig() {
 	fprintf(fp, "textfont = %s %d\n", linebuf, gameConf.textfontsize);
 	BufferIO::EncodeUTF8(gameConf.numfont, linebuf);
 	fprintf(fp, "numfont = %s\n", linebuf);
+	BufferIO::EncodeUTF8(gameConf.numfont2, linebuf);
+	fprintf(fp, "numfont2 = %s\n", linebuf);
+	BufferIO::EncodeUTF8(gameConf.numfont3, linebuf);
+	fprintf(fp, "numfont3 = %s\n", linebuf);
+	BufferIO::EncodeUTF8(gameConf.numfont4, linebuf);
+	fprintf(fp, "numfont4 = %s\n", linebuf);
+	BufferIO::EncodeUTF8(gameConf.numfont5, linebuf);
+	fprintf(fp, "numfont5 = %s\n", linebuf);
+	BufferIO::EncodeUTF8(gameConf.numfont6, linebuf);
+	fprintf(fp, "numfont6 = %s\n", linebuf);
+	BufferIO::EncodeUTF8(gameConf.numfont7, linebuf);
+	fprintf(fp, "numfont7 = %s\n", linebuf);
 	fprintf(fp, "serverport = %d\n", gameConf.serverport);
 	BufferIO::EncodeUTF8(gameConf.lasthost, linebuf);
 	fprintf(fp, "lasthost = %s\n", linebuf);
@@ -2021,6 +2076,7 @@ void Game::OnResize() {
 	numFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, (yScale > 0.5 ? 16 * yScale : 8));
 	adFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, (yScale > 0.75 ? 12 * yScale : 9));
 	lpcFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 48 * yScale);
+	turnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont, 10 * yScale);
 	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, (yScale > 0.642 ? gameConf.textfontsize * yScale : 9));
 	old_numFont->drop();
 	old_adFont->drop();
