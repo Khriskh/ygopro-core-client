@@ -60,6 +60,7 @@ public:
 	irr::video::ITexture* tClock;
 	irr::video::ITexture* tAvatar[2];
 	irr::video::ITexture* tLPBarFrame;
+	irr::video::ITexture* tTurn;
 	std::list<std::string> support_types;
 };
 
