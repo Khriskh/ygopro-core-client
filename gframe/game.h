@@ -294,7 +294,7 @@ public:
 	//card image
 	irr::gui::IGUIStaticText* wCardImg;
 	irr::gui::IGUIImage* imgCard;
-	irr::gui::IGUIImage* imgCard2;
+	irr::gui::IGUIImage* imgBorderTab;
 	//hint text
 	irr::gui::IGUIStaticText* stHintMsg;
 	irr::gui::IGUIStaticText* stTip;
