@@ -896,11 +896,6 @@ bool Game::Initialize() {
 	//leave/surrender/exit
 	btnLeaveGame = env->addButton(rect<s32>(205, 5, 295, 80), 0, BUTTON_LEAVE_GAME, L"");
 	btnLeaveGame->setVisible(false);
-	//joder
-	btnTest = irr::gui::CGUIImageButton::addImageButton(env, rect<s32>(296, 5, 310, 80), 0, BUTTON_LEAVE_GAME);
-	btnTest->setImageSize(10, 10));
-	btnTest->setImage(imageManager.tTurn);
-	
 	//tip
 	stTip = env->addStaticText(L"", rect<s32>(0, 0, 150, 150), false, true, 0, -1, true);
 	stTip->setBackgroundColor(0xc0ffffff);
