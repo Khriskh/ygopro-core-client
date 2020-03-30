@@ -597,8 +597,8 @@ void Game::DrawMisc() {
 
 	}
 	//LP TEXT
-	DrawShadowText(lifepointsFont2, L"LP", Resize(584, 15, 622, 40), Resize(0, 0, 0, 0), 0xffffff00, 0x00000000, true, false, 0);
-	DrawShadowText(lifepointsFont2, L"LP", Resize(699, 15, 737, 40), Resize(0, 0, 0, 0), 0xffffff00, 0x00000000, true, false, 0);
+	DrawShadowText(lifepointsFont2, L"LP", Resize(584, 16, 622, 41), Resize(0, 0, 0, 0), 0xffffff00, 0x00000000, true, false, 0);
+	DrawShadowText(lifepointsFont2, L"LP", Resize(699, 16, 737, 41), Resize(0, 0, 0, 0), 0xffffff00, 0x00000000, true, false, 0);
 	
 	//LP
 	recti lp1size = Resize(413, 11, 563, 34);
