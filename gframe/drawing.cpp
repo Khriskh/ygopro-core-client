@@ -1221,7 +1221,7 @@ void Game::DrawDeckBd() {
 	0% — 00
 	*/
 	driver->draw2DRectangle(Resize(11, 281, 296, 625), 0x99000000, 0x99000000, 0x99000000, 0x99000000);
-	driver->draw2DRectangleOutline(Resize(11, 312, 296, 625));
+	driver->draw2DRectangleOutline(Resize(11, 281, 296, 625));
 	
 	wchar_t textBuffer[64];
 	//main deck
