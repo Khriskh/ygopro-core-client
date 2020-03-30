@@ -444,6 +444,9 @@ void Game::DrawShadowText(CGUITTFont * font, const core::stringw & text, const c
 	font->draw(text, position, color, hcenter, vcenter, clip);
 }
 void Game::DrawMisc() {
+	driver->draw2DRectangle(Resize(11, 281, 296, 625), 0x99000000, 0x99000000, 0x99000000, 0x99000000);
+	driver->draw2DRectangleOutline(Resize(11, 281, 296, 625));
+	
 	static irr::core::vector3df act_rot(0, 0, 0);
 	int rule = (dInfo.duel_rule >= 4) ? 1 : 0;
 	irr::core::matrix4 im, ic, it;

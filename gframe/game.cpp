@@ -322,12 +322,6 @@ bool Game::Initialize() {
 	
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
-	//imgBorderTab = env->addImage(rect<s32>(0, 0, 285, 345), tabInfo);
-	//imgBorderTab->setImage(imageManager.cTab);
-	//showingcode = 0;
-	//imgBorderTab->setScaleImage(true);
-	//imgBorderTab->setUseAlphaChannel(true);
-	
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stName->setOverrideColor(SColor(255, 240, 240, 240));
@@ -2253,10 +2247,6 @@ void Game::OnResize() {
 	wCardImg->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
-	//imgBorderTab->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
-	//imgBorderTab2->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
-	//imgBorderTab3->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
-	//imgBorderTab4->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
 	stName->setRelativePosition(recti(10, 10, 287 * xScale - 13, 10 + 22)); //nombre de carta
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
