@@ -335,8 +335,7 @@ bool Game::Initialize() {
 	//stName->setOverrideFont(textCards);
 	
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
-	stInfo->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
-	stInfo->setOverrideColor(SColor(255, 87, 217, 0));
+	stInfo->setOverrideColor(SColor(255, 240, 240, 240));
 	//stInfo->setOverrideColor(SColor(255, 87, 217, 0));
 	//stInfo->setOverrideFont(textCards);
 	
