@@ -330,19 +330,19 @@ bool Game::Initialize() {
 	
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
 	stName->setOverrideColor(SColor(255, 244, 225, 3));
-	stName->setOverrideFont(textCards);
+	//stName->setOverrideFont(textCards);
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
 	stInfo->setOverrideColor(SColor(255, 87, 217, 0));
-	stInfo->setOverrideFont(textCards);
+	//stInfo->setOverrideFont(textCards);
 	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
 	stDataInfo->setOverrideColor(SColor(255, 87, 217, 0));
-	stDataInfo->setOverrideFont(textCards);
+	//stDataInfo->setOverrideFont(textCards);
 	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, tabInfo, -1, false);
 	stSetName->setOverrideColor(SColor(255, 87, 217, 0));
-	stSetName->setOverrideFont(textCards);
+	//stSetName->setOverrideFont(textCards);
 	stText = env->addStaticText(L"", rect<s32>(15, 106, 287, 324), false, true, tabInfo, -1, false);
 	stText->setOverrideColor(SColor(255, 240, 240, 240));
-	stText->setOverrideFont(textCards);
+	//stText->setOverrideFont(textCards);
 	scrCardText = env->addScrollBar(false, rect<s32>(267, 106, 287, 324), tabInfo, SCROLL_CARDTEXT);
 	scrCardText->setLargeStep(1);
 	scrCardText->setSmallStep(1);
@@ -1855,18 +1855,18 @@ void Game::ShowCardInfo(int code, bool resize) {
 		dtxt = mainGame->guiFont->getDimension(formatBuffer);
 		if(dtxt.Width > (300 * xScale - 13) - 15)
 			offset_arrows += 15;
-		stInfo->setRelativePosition(rect<s32>(10, 37, 254 * xScale, 98)); //descripcion de tipo y arquetipo
+		stInfo->setRelativePosition(rect<s32>(10, 37, 274 * xScale, 98)); //descripcion de tipo y arquetipo
 		stDataInfo->setRelativePosition(rect<s32>(10, 90, 300 * xScale - 13, (115 + offset_arrows))); // estreyas y nivel
 		stSetName->setRelativePosition(rect<s32>(10, (115 + offset_arrows), 296 * xScale, (115 + offset_arrows) + offset)); //setname arquetipo
-		stText->setRelativePosition(rect<s32>(10, (115 + offset_arrows) + offset, 287 * xScale, 324 * yScale)); //texto de la carta
-		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, (115 + offset_arrows) + offset, 287 * xScale, 324 * yScale)); //scroll del texto
+		stText->setRelativePosition(rect<s32>(10, (115 + offset_arrows) + offset, 274 * xScale, 304 * yScale)); //texto de la carta
+		scrCardText->setRelativePosition(rect<s32>(274 * xScale - 20, (115 + offset_arrows) + offset, 274 * xScale, 304 * yScale)); //scroll del texto
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
 		stDataInfo->setText(L"");
 		stSetName->setRelativePosition(rect<s32>(15, 60, 296 * xScale, 60 + offset));
-		stText->setRelativePosition(rect<s32>(15, 60 + offset, 287 * xScale, 324 * yScale));
-		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, 60 + offset, 287 * xScale, 324 * yScale));
+		stText->setRelativePosition(rect<s32>(10, 60 + offset, 274 * xScale, 304 * yScale));
+		scrCardText->setRelativePosition(rect<s32>(274 * xScale - 20, 60 + offset, 274 * xScale, 304 * yScale));
 	}
 	showingcode = code;
 	showingtext = dataManager.GetText(code);
