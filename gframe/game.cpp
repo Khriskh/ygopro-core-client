@@ -316,17 +316,20 @@ bool Game::Initialize() {
 	btnEP = env->addButton(rect<s32>(320, 0, 370, 20), wPhase, BUTTON_EP, L"\xff25\xff30");
 	btnEP->setVisible(false);
 	//tab
+	driver->draw2DRectangle(Resize(11, 280, 296, 625), 0x40000000, 0x40000000, 0x40000000, 0x40000000);
+	driver->draw2DRectangleOutline(Resize(11, 280, 296, 625));
+	
 	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
 	
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
-	imgBorderTab = env->addImage(rect<s32>(0, 0, 285, 345), tabInfo);
-	imgBorderTab->setImage(imageManager.cTab);
-	showingcode = 0;
-	imgBorderTab->setScaleImage(true);
-	imgBorderTab->setUseAlphaChannel(true);
+	//imgBorderTab = env->addImage(rect<s32>(0, 0, 285, 345), tabInfo);
+	//imgBorderTab->setImage(imageManager.cTab);
+	//showingcode = 0;
+	//imgBorderTab->setScaleImage(true);
+	//imgBorderTab->setUseAlphaChannel(true);
 	
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
@@ -1877,7 +1880,7 @@ void Game::ShowCardInfo(int code, bool resize) {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
 		stInfo->setText(formatBuffer);
 		stDataInfo->setText(L"");
-		stSetName->setRelativePosition(rect<s32>(15, 60, 296 * xScale, 60 + offset));
+		stSetName->setRelativePosition(rect<s32>(10, 60, 296 * xScale, 60 + offset));
 		stText->setRelativePosition(rect<s32>(10, 60 + offset, 274 * xScale, 304 * yScale));
 		scrCardText->setRelativePosition(rect<s32>(274 * xScale - 20, 60 + offset, 274 * xScale, 304 * yScale));
 	}
@@ -2253,7 +2256,7 @@ void Game::OnResize() {
 	wCardImg->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
-	imgBorderTab->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
+	//imgBorderTab->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
 	//imgBorderTab2->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
 	//imgBorderTab3->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
 	//imgBorderTab4->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
