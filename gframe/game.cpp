@@ -99,7 +99,7 @@ bool Game::Initialize() {
 	nturnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont3, 40);
 	nicknameFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont4, 25);
 	lifepointsFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont5, 30);
-	textCards = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont6, 18);
+	textCards = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont6, 17);
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	if(!numFont || !textFont) {
@@ -329,19 +329,19 @@ bool Game::Initialize() {
 	imgBorderTab->setUseAlphaChannel(true);
 	
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
-	stName->setOverrideColor(SColor(255, 255, 255, 0));
+	stName->setOverrideColor(SColor(255, 244, 225, 3));
 	stName->setOverrideFont(textCards);
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
-	stInfo->setOverrideColor(SColor(255, 54, 217, 0));
+	stInfo->setOverrideColor(SColor(255, 87, 217, 0));
 	stInfo->setOverrideFont(textCards);
 	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
-	stDataInfo->setOverrideColor(SColor(255, 255, 255, 255));
+	stDataInfo->setOverrideColor(SColor(255, 87, 217, 0));
 	stDataInfo->setOverrideFont(textCards);
 	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, tabInfo, -1, false);
-	stSetName->setOverrideColor(SColor(255, 255, 255, 255));
+	stSetName->setOverrideColor(SColor(255, 87, 217, 0));
 	stSetName->setOverrideFont(textCards);
 	stText = env->addStaticText(L"", rect<s32>(15, 106, 287, 324), false, true, tabInfo, -1, false);
-	stText->setOverrideColor(SColor(255, 255, 255, 255));
+	stText->setOverrideColor(SColor(255, 240, 240, 240));
 	stText->setOverrideFont(textCards);
 	scrCardText = env->addScrollBar(false, rect<s32>(267, 106, 287, 324), tabInfo, SCROLL_CARDTEXT);
 	scrCardText->setLargeStep(1);
@@ -1794,8 +1794,8 @@ void Game::ShowCardInfo(int code, bool resize) {
 	imgCard->setImage(imageManager.GetTexture(code, true));
 	imgCard->setScaleImage(true);
 	if(cd.alias != 0 && (cd.alias - code < CARD_ARTWORK_VERSIONS_OFFSET || code - cd.alias < CARD_ARTWORK_VERSIONS_OFFSET))
-		myswprintf(formatBuffer, L"%ls[%08d]", dataManager.GetName(cd.alias), cd.alias);
-	else myswprintf(formatBuffer, L"%ls[%08d]", dataManager.GetName(code), code);
+		myswprintf(formatBuffer, L"%ls [%08d]", dataManager.GetName(cd.alias), cd.alias);
+	else myswprintf(formatBuffer, L"%ls [%08d]", dataManager.GetName(code), code);
 	stName->setText(formatBuffer);
 	int offset = 0;
 	if(!gameConf.hide_setname) {
@@ -1855,10 +1855,10 @@ void Game::ShowCardInfo(int code, bool resize) {
 		dtxt = mainGame->guiFont->getDimension(formatBuffer);
 		if(dtxt.Width > (300 * xScale - 13) - 15)
 			offset_arrows += 15;
-		stInfo->setRelativePosition(rect<s32>(15, 37, 296 * xScale, 98)); //descripcion de tipo y arquetipo
-		stDataInfo->setRelativePosition(rect<s32>(15, 90, 300 * xScale - 13, (115 + offset_arrows))); // estreyas y nivel
-		stSetName->setRelativePosition(rect<s32>(15, (115 + offset_arrows), 296 * xScale, (115 + offset_arrows) + offset)); //setname arquetipo
-		stText->setRelativePosition(rect<s32>(15, (115 + offset_arrows) + offset, 287 * xScale, 324 * yScale)); //texto de la carta
+		stInfo->setRelativePosition(rect<s32>(10, 37, 254 * xScale, 98)); //descripcion de tipo y arquetipo
+		stDataInfo->setRelativePosition(rect<s32>(10, 90, 300 * xScale - 13, (115 + offset_arrows))); // estreyas y nivel
+		stSetName->setRelativePosition(rect<s32>(10, (115 + offset_arrows), 296 * xScale, (115 + offset_arrows) + offset)); //setname arquetipo
+		stText->setRelativePosition(rect<s32>(10, (115 + offset_arrows) + offset, 287 * xScale, 324 * yScale)); //texto de la carta
 		scrCardText->setRelativePosition(rect<s32>(287 * xScale - 20, (115 + offset_arrows) + offset, 287 * xScale, 324 * yScale)); //scroll del texto
 	} else {
 		myswprintf(formatBuffer, L"[%ls]", dataManager.FormatType(cd.type));
@@ -2097,7 +2097,7 @@ void Game::OnResize() {
 	nturnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont3, 40 * yScale);
 	nicknameFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont4, 25 * yScale);
 	lifepointsFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont5, 30 * yScale);
-	textCards = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont6, 18 * yScale);
+	textCards = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont6, 17 * yScale);
 	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, (yScale > 0.642 ? gameConf.textfontsize * yScale : 9));
 	old_numFont->drop();
 	old_adFont->drop();
