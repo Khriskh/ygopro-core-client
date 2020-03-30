@@ -322,6 +322,8 @@ bool Game::Initialize() {
 
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
+	wInfos->setOverrideColor(SColor(255, 240, 240, 240));
+	
 	imgBorderTab = env->addImage(rect<s32>(0, 0, 285, 345), tabInfo);
 	imgBorderTab->setImage(imageManager.cTab);
 	showingcode = 0;
@@ -891,7 +893,10 @@ bool Game::Initialize() {
 	btnCancelOrFinish->setVisible(false);
 	//leave/surrender/exit
 	btnLeaveGame = env->addButton(rect<s32>(205, 5, 295, 80), 0, BUTTON_LEAVE_GAME, L"");
+	//btnLeaveGame->setImage(imageManager.tTurn);
 	btnLeaveGame->setVisible(false);
+	//joder
+	
 	//tip
 	stTip = env->addStaticText(L"", rect<s32>(0, 0, 150, 150), false, true, 0, -1, true);
 	stTip->setBackgroundColor(0xc0ffffff);
