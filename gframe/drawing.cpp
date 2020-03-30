@@ -597,25 +597,25 @@ void Game::DrawMisc() {
 
 	}
 	//LP TEXT
-	DrawShadowText(lifepointsFont2, L"LP", Resize(584, 16, 622, 41), Resize(0, 0, 0, 0), 0xffffff00, 0x00000000, true, false, 0);
-	DrawShadowText(lifepointsFont2, L"LP", Resize(699, 16, 737, 41), Resize(0, 0, 0, 0), 0xffffff00, 0x00000000, true, false, 0);
-	
+	DrawShadowText(lifepointsFont2, L"LP", Resize(584, 16, 622, 41), Resize(0, 0, 0, 0), 0xFFFFD800, 0x00000000, true, false, 0);
+	DrawShadowText(lifepointsFont2, L"LP", Resize(698, 16, 736, 41), Resize(0, 0, 0, 0), 0xFFFFD800, 0x00000000, true, false, 0);
+
 	//LP
 	recti lp1size = Resize(413, 11, 563, 34);
 	recti Lp2size = Resize(907, 11, 1010, 34);
 	if(!dInfo.isTag || !dInfo.tag_player[0])
-		lifepointsFont->draw(dInfo.strLP[0], lp1size, 0xffffff00, false, false, 0);
+		lifepointsFont->draw(dInfo.strLP[0], lp1size, 0xFFFFD800, false, false, 0);
 	else
-		lifepointsFont->draw(dInfo.strLP[0], lp1size, 0xffffff00, false, false, 0);
+		lifepointsFont->draw(dInfo.strLP[0], lp1size, 0xFFFFD800, false, false, 0);
 	
 	if(!dInfo.isTag || !dInfo.tag_player[1]) {
 		auto cld = lifepointsFont->getDimension(dInfo.strLP[1]);
 		Lp2size.UpperLeftCorner.X -= cld.Width;
-		lifepointsFont->draw(dInfo.strLP[1], Lp2size, 0xffffff00, false, false, 0);
+		lifepointsFont->draw(dInfo.strLP[1], Lp2size, 0xFFFFD800, false, false, 0);
 	} else {
 		auto cld = lifepointsFont->getDimension(dInfo.strLP[1]);
 		Lp2size.UpperLeftCorner.X -= cld.Width;
-		lifepointsFont->draw(dInfo.strLP[1], Lp2size, 0xffffff00, false, false, 0);
+		lifepointsFont->draw(dInfo.strLP[1], Lp2size, 0xFFFFD800, false, false, 0);
 	}
 	
 	//NAME
@@ -639,8 +639,8 @@ void Game::DrawMisc() {
 	//driver->draw2DRectangle(Resize(632, 10, 688, 30), 0x00000000, 0x00000000, 0xffffffff, 0xffffffff);
 	//driver->draw2DRectangle(Resize(632, 30, 688, 50), 0xffffffff, 0xffffffff, 0x00000000, 0x00000000);
 	driver->draw2DImage(imageManager.tTurn, Resize(630, 4, 690, 58), recti(0, 0, 60, 54), 0, 0, true);
-	DrawShadowText(turnFont, L"TURN", Resize(634, 7, 686, 20), Resize(0, 0, 2, 0), 0xffffffff, 0x80000000, true, false, 0);
-	DrawShadowText(nturnFont, dataManager.GetNumString(dInfo.turn), Resize(634, 20, 686, 46), Resize(0, 0, 2, 0), 0xffffffff, 0x80000000, true, false, 0);
+	DrawShadowText(turnFont, L"TURN", Resize(634, 7, 686, 20), Resize(0, 0, 0, 0), 0xffffffff, 0x80000000, true, false, 0);
+	DrawShadowText(nturnFont, dataManager.GetNumString(dInfo.turn), Resize(634, 20, 686, 46), Resize(0, 0, 0, 0), 0xffffffff, 0x80000000, true, false, 0);
 	
 	ClientCard* pcard;
 	for(int i = 0; i < 5; ++i) {
