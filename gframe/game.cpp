@@ -2243,7 +2243,6 @@ void Game::OnResize() {
 	wCardImg->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
-	imgBorderTab1->setRelativePosition(Resize(0, 0, 283, 27)); //FONDO DE TAB SELEC
 	imgBorderTab->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
 	//imgBorderTab2->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
 	//imgBorderTab3->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
