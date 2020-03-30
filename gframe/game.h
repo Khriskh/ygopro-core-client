@@ -296,6 +296,7 @@ public:
 	irr::gui::IGUIStaticText* wCardImg;
 	irr::gui::IGUIImage* imgCard;
 	irr::gui::IGUIImage* imgBorderTab;
+	irr::gui::IGUIImage* imgBorderTab1;
 	irr::gui::IGUIImage* imgBorderTab2;
 	irr::gui::IGUIImage* imgBorderTab3;
 	irr::gui::IGUIImage* imgBorderTab4;

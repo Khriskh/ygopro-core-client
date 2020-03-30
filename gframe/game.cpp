@@ -319,11 +319,14 @@ bool Game::Initialize() {
 	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
-
-	//info
-	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));
-	wInfos->setOverrideColor(SColor(255, 240, 240, 240));
+	imgBorderTab1 = env->addImage(rect<s32>(0, 0, 285, 27), wInfos);
+	imgBorderTab1->setImage(imageManager.cTab2);
+	showingcode = 0;
+	imgBorderTab1->setScaleImage(true);
+	imgBorderTab1->setUseAlphaChannel(true);
 	
+	//info
+	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
 	imgBorderTab = env->addImage(rect<s32>(0, 0, 285, 345), tabInfo);
 	imgBorderTab->setImage(imageManager.cTab);
 	showingcode = 0;
@@ -2245,6 +2248,7 @@ void Game::OnResize() {
 	wCardImg->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
 	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
+	imgBorderTab1->setRelativePosition(Resize(0, 0, 283, 27)); //FONDO DE TAB SELEC
 	imgBorderTab->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
 	//imgBorderTab2->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
 	//imgBorderTab3->setRelativePosition(Resize(0, 0, 283, 307)); //FONDO DE TAB
