@@ -329,20 +329,31 @@ bool Game::Initialize() {
 	imgBorderTab->setUseAlphaChannel(true);
 	
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
-	stName->setOverrideColor(SColor(255, 244, 225, 3));
+	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
+	stName->setOverrideColor(SColor(255, 240, 240, 240));
+	//stName->setOverrideColor(SColor(255, 244, 225, 3));
 	//stName->setOverrideFont(textCards);
+	
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
+	stInfo->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stInfo->setOverrideColor(SColor(255, 87, 217, 0));
+	//stInfo->setOverrideColor(SColor(255, 87, 217, 0));
 	//stInfo->setOverrideFont(textCards);
+	
 	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
-	stDataInfo->setOverrideColor(SColor(255, 87, 217, 0));
+	stDataInfo->setOverrideColor(SColor(255, 240, 240, 240));
+	//stDataInfo->setOverrideColor(SColor(255, 87, 217, 0));
 	//stDataInfo->setOverrideFont(textCards);
+	
 	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, tabInfo, -1, false);
-	stSetName->setOverrideColor(SColor(255, 87, 217, 0));
+	stSetName->setOverrideColor(SColor(255, 240, 240, 240));
+	//stSetName->setOverrideColor(SColor(255, 87, 217, 0));
 	//stSetName->setOverrideFont(textCards);
+	
 	stText = env->addStaticText(L"", rect<s32>(15, 106, 287, 324), false, true, tabInfo, -1, false);
 	stText->setOverrideColor(SColor(255, 240, 240, 240));
 	//stText->setOverrideFont(textCards);
+	
 	scrCardText = env->addScrollBar(false, rect<s32>(267, 106, 287, 324), tabInfo, SCROLL_CARDTEXT);
 	scrCardText->setLargeStep(1);
 	scrCardText->setSmallStep(1);
