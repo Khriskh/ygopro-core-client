@@ -99,7 +99,7 @@ bool Game::Initialize() {
 	nturnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont3, 40);
 	nicknameFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont4, 25);
 	lifepointsFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont5, 30);
-	textCards = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont6, 25);
+	textCards = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont6, 18);
 	guiFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, gameConf.textfontsize);
 	if(!numFont || !textFont) {
@@ -329,10 +329,10 @@ bool Game::Initialize() {
 	imgBorderTab->setUseAlphaChannel(true);
 	
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), true, false, tabInfo, -1, false);
-	stName->setOverrideColor(SColor(255, 255, 255, 255));
+	stName->setOverrideColor(SColor(255, 255, 255, 0));
 	stName->setOverrideFont(textCards);
 	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
-	stInfo->setOverrideColor(SColor(255, 255, 255, 255));
+	stInfo->setOverrideColor(SColor(255, 54, 217, 0));
 	stInfo->setOverrideFont(textCards);
 	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
 	stDataInfo->setOverrideColor(SColor(255, 255, 255, 255));
@@ -2097,7 +2097,7 @@ void Game::OnResize() {
 	nturnFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont3, 40 * yScale);
 	nicknameFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont4, 25 * yScale);
 	lifepointsFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont5, 30 * yScale);
-	textCards = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont6, 25 * yScale);
+	textCards = irr::gui::CGUITTFont::createTTFont(env, gameConf.numfont6, 18 * yScale);
 	textFont = irr::gui::CGUITTFont::createTTFont(env, gameConf.textfont, (yScale > 0.642 ? gameConf.textfontsize * yScale : 9));
 	old_numFont->drop();
 	old_adFont->drop();
