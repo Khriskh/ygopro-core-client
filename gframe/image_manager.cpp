@@ -50,7 +50,6 @@ bool ImageManager::Initial() {
 	tLPBarFrame = driver->getTexture("textures/lpbarf.png");
 	tTurn = driver->getTexture("textures/turn.png");
 	cTab = driver->getTexture("textures/cTab.png");
-	cTab2 = driver->getTexture("textures/cTab2.png");
 	tField[0] = driver->getTexture("textures/field2.png");
 	tFieldTransparent[0] = driver->getTexture("textures/field-transparent2.png");
 	tField[1] = driver->getTexture("textures/field3.png");

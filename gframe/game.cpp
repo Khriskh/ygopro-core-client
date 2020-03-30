@@ -319,11 +319,6 @@ bool Game::Initialize() {
 	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
-	imgBorderTab1 = env->addImage(rect<s32>(0, 0, 285, 27), wInfos);
-	imgBorderTab1->setImage(imageManager.cTab2);
-	showingcode = 0;
-	imgBorderTab1->setScaleImage(true);
-	imgBorderTab1->setUseAlphaChannel(true);
 	
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
