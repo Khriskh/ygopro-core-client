@@ -316,9 +316,6 @@ bool Game::Initialize() {
 	btnEP = env->addButton(rect<s32>(320, 0, 370, 20), wPhase, BUTTON_EP, L"\xff25\xff30");
 	btnEP->setVisible(false);
 	//tab
-	driver->draw2DRectangle(Resize(11, 280, 296, 625), 0x40000000, 0x40000000, 0x40000000, 0x40000000);
-	driver->draw2DRectangleOutline(Resize(11, 280, 296, 625));
-	
 	wInfos = env->addTabControl(rect<s32>(1, 275, 301, 639), 0, true);
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
