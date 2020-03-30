@@ -596,6 +596,9 @@ void Game::DrawMisc() {
 		//DrawShadowText(numFont, dInfo.str_card_count[1], Resize(710, 51, 735, 70), Resize(0, 1, 2, 0), dInfo.card_count_color[1], 0xff000000, true, false, 0);
 
 	}
+	//LP TEXT
+	DrawShadowText(lifepointsFont2, L"LP", Resize(582, 15, 620, 40), Resize(0, 0, 2, 0), 0xffffff00, 0xFF000000, true, false, 0);
+	DrawShadowText(lifepointsFont2, L"LP", Resize(699, 15, 737, 40), Resize(0, 0, 2, 0), 0xffffff00, 0xFF000000, true, false, 0);
 	
 	//LP
 	recti lp1size = Resize(413, 11, 563, 34);

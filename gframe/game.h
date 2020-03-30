@@ -290,7 +290,7 @@ public:
 	irr::gui::CGUITTFont* nturnFont;
 	irr::gui::CGUITTFont* nicknameFont;
 	irr::gui::CGUITTFont* lifepointsFont;
-	irr::gui::CGUITTFont* textCards;
+	irr::gui::CGUITTFont* lifepointsFont2;
 	std::map<irr::gui::CGUIImageButton*, int> imageLoading;
 	//card image
 	irr::gui::IGUIStaticText* wCardImg;
