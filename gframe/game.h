@@ -473,7 +473,7 @@ public:
 	irr::gui::CGUIImageButton* btnPSAD;
 	irr::gui::CGUIImageButton* btnPSDU;
 	irr::gui::CGUIImageButton* btnPSDD;
-	irr::gui::CGUIImageButton* btnTest
+	irr::gui::CGUIImageButton* btnTest;
 	//card selection
 	irr::gui::IGUIWindow* wCardSelect;
 	irr::gui::CGUIImageButton* btnCardSelect[5];
