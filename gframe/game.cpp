@@ -895,7 +895,8 @@ bool Game::Initialize() {
 	btnCancelOrFinish->setVisible(false);
 	//leave/surrender/exit
 	btnLeaveGame = env->addButton(rect<s32>(205, 5, 295, 80), 0, BUTTON_LEAVE_GAME, L"");
-	btnLeaveGame->setImage(imageManager.tTurn);
+	//btnLeaveGame->setImage(true);
+	btnLeaveGame->setOverrideColor(SColor(255, 240, 240, 240));
 	btnLeaveGame->setVisible(false);
 	//tip
 	stTip = env->addStaticText(L"", rect<s32>(0, 0, 150, 150), false, true, 0, -1, true);
