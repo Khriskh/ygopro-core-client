@@ -896,6 +896,7 @@ bool Game::Initialize() {
 	//leave/surrender/exit
 	btnLeaveGame = env->addButton(rect<s32>(205, 5, 295, 80), 0, BUTTON_LEAVE_GAME, L"");
 	btnLeaveGame->setImage(imageManager.tBtn1);
+	btnLeaveGame->setScaleImage(true);
 	btnLeaveGame->setUseAlphaChannel(true);
 	btnLeaveGame->setVisible(false);
 	//tip
