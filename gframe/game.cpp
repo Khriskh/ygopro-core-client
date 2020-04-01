@@ -898,6 +898,7 @@ bool Game::Initialize() {
 	btnLeaveGame->setImage(imageManager.tBtn1);
 	btnLeaveGame->setScaleImage(true);
 	btnLeaveGame->setUseAlphaChannel(true);
+	btnLeaveGame->setDrawBorder(false);
 	btnLeaveGame->setVisible(false);
 	//tip
 	stTip = env->addStaticText(L"", rect<s32>(0, 0, 150, 150), false, true, 0, -1, true);
