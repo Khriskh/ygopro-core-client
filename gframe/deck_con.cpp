@@ -133,6 +133,7 @@ void DeckBuilder::Initialize() {
 	mainGame->wSort->setVisible(true);
 	mainGame->btnLeaveGame->setVisible(true);
 	mainGame->btnLeaveGame->setText(L"");
+	mainGame->btnLeaveGame->setImage(imageManager.tBtn1);
 	mainGame->btnSideOK->setVisible(false);
 	mainGame->btnSideShuffle->setVisible(false);
 	mainGame->btnSideSort->setVisible(false);

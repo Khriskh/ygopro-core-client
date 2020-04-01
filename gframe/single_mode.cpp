@@ -91,6 +91,7 @@ int SingleMode::SinglePlayThread() {
 	mainGame->wInfos->setVisible(true);
 	mainGame->btnLeaveGame->setVisible(true);
 	mainGame->btnLeaveGame->setText(L"");
+	mainGame->btnLeaveGame->setImage(imageManager.tBtn1);
 	mainGame->wPhase->setVisible(true);
 	mainGame->dField.Clear();
 	mainGame->dInfo.isFirst = true;

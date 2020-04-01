@@ -767,6 +767,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			if(selftype > 1) {
 				mainGame->dInfo.player_type = 7;
 				mainGame->btnLeaveGame->setText(L"");
+				mainGame->btnLeaveGame->setImage(imageManager.tBtn6);
 				mainGame->btnLeaveGame->setVisible(true);
 				mainGame->btnSpectatorSwap->setVisible(true);
 			}
@@ -781,6 +782,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 			if(selftype > 3) {
 				mainGame->dInfo.player_type = 7;
 				mainGame->btnLeaveGame->setText(L"");
+				mainGame->btnLeaveGame->setImage(imageManager.tBtn6);
 				mainGame->btnLeaveGame->setVisible(true);
 				mainGame->btnSpectatorSwap->setVisible(true);
 			}
@@ -2622,6 +2624,7 @@ int DuelClient::ClientAnalyze(char * msg, unsigned int len) {
 			mainGame->HideElement(mainGame->wSurrender);
 		if(!mainGame->dInfo.isReplay && mainGame->dInfo.player_type < 7) {
 			mainGame->btnLeaveGame->setText(L"");
+			mainGame->btnLeaveGame->setImage(imageManager.tBtn5);
 			mainGame->btnLeaveGame->setVisible(true);
 			if(mainGame->gameConf.control_mode == 0) {
 				mainGame->btnChainIgnore->setVisible(true);

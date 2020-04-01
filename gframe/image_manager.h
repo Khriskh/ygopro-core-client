@@ -65,6 +65,8 @@ public:
 	irr::video::ITexture* tBtn2;
 	irr::video::ITexture* tBtn3;
 	irr::video::ITexture* tBtn4;
+	irr::video::ITexture* tBtn5;
+	irr::video::ITexture* tBtn6;
 	std::list<std::string> support_types;
 };
 
