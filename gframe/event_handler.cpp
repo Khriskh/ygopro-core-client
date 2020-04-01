@@ -2328,11 +2328,13 @@ void ClientField::ShowCancelOrFinishButton(int buttonOp) {
 	if (!mainGame->gameConf.hide_hint_button && !mainGame->dInfo.isReplay) {
 		switch (buttonOp) {
 		case 1:
-			mainGame->btnCancelOrFinish->setText(dataManager.GetSysString(1295));
+			mainGame->btnCancelOrFinish->setText(L"");
+			mainGame->btnCancelOrFinish->setImage(imageManager.tBtn2);
 			mainGame->btnCancelOrFinish->setVisible(true);
 			break;
 		case 2:
-			mainGame->btnCancelOrFinish->setText(dataManager.GetSysString(1296));
+			mainGame->btnCancelOrFinish->setText(L"");
+			mainGame->btnCancelOrFinish->setImage(imageManager.tBtn4);
 			mainGame->btnCancelOrFinish->setVisible(true);
 			break;
 		case 0:

@@ -52,6 +52,7 @@ bool ImageManager::Initial() {
 	tBtn1 = driver->getTexture("textures/btn1.png");
 	tBtn2 = driver->getTexture("textures/btn2.png");
 	tBtn3 = driver->getTexture("textures/btn3.png");
+	tBtn3 = driver->getTexture("textures/btn4.png");
 	tField[0] = driver->getTexture("textures/field2.png");
 	tFieldTransparent[0] = driver->getTexture("textures/field-transparent2.png");
 	tField[1] = driver->getTexture("textures/field3.png");
