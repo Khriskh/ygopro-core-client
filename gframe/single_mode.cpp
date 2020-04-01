@@ -1,3 +1,4 @@
+#include "image_manager.h"
 #include "single_mode.h"
 #include "duelclient.h"
 #include "game.h"
