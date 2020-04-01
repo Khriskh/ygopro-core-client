@@ -62,6 +62,8 @@ public:
 	irr::video::ITexture* tLPBarFrame;
 	irr::video::ITexture* tTurn;
 	irr::video::ITexture* tBtn1;
+	irr::video::ITexture* tBtn2;
+	irr::video::ITexture* tBtn3;
 	std::list<std::string> support_types;
 };
 

@@ -1229,8 +1229,6 @@ void Game::DrawDeckBd() {
 	driver->draw2DRectangle(Resize(11, 281, 296, 625), 0x99000000, 0x99000000, 0x99000000, 0x99000000);
 	driver->draw2DRectangleOutline(Resize(11, 281, 296, 625));
 	
-	//driver->draw2DImage(imageManager.tBtn1, Resize(205, 5, 295, 80), recti(0, 0, 90, 75), 0, 0, true);
-	
 	wchar_t textBuffer[64];
 	//main deck
 	driver->draw2DRectangle(Resize(310, 137, 410, 157), 0x99000000, 0x99000000, 0x99000000, 0x99000000);

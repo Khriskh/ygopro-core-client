@@ -888,10 +888,18 @@ bool Game::Initialize() {
 	btnChainAlways->setVisible(false);
 	btnChainWhenAvail->setVisible(false);
 	//shuffle
-	btnShuffle = env->addButton(rect<s32>(205, 230, 295, 265), 0, BUTTON_CMD_SHUFFLE, dataManager.GetSysString(1297));
+	btnShuffle = env->addButton(rect<s32>(205, 230, 295, 265), 0, BUTTON_CMD_SHUFFLE, L"");
+	btnShuffle->setImage(imageManager.tBtn3);
+	btnShuffle->setScaleImage(true);
+	btnShuffle->setUseAlphaChannel(true);
+	btnShuffle->setDrawBorder(false);
 	btnShuffle->setVisible(false);
 	//cancel or finish
-	btnCancelOrFinish = env->addButton(rect<s32>(205, 230, 295, 265), 0, BUTTON_CANCEL_OR_FINISH, dataManager.GetSysString(1295));
+	btnCancelOrFinish = env->addButton(rect<s32>(205, 230, 295, 265), 0, BUTTON_CANCEL_OR_FINISH, L"");
+	btnCancelOrFinish->setImage(imageManager.tBtn2);
+	btnCancelOrFinish->setScaleImage(true);
+	btnCancelOrFinish->setUseAlphaChannel(true);
+	btnCancelOrFinish->setDrawBorder(false);
 	btnCancelOrFinish->setVisible(false);
 	//leave/surrender/exit
 	btnLeaveGame = env->addButton(rect<s32>(205, 5, 295, 80), 0, BUTTON_LEAVE_GAME, L"");
