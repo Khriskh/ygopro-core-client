@@ -2275,7 +2275,7 @@ void Game::OnResize() {
 	ebChatInput->setRelativePosition(recti(3, 2, window_size.Width - wChat->getRelativePosition().UpperLeftCorner.X - 6, 22));
 
 	btnLeaveGame->setRelativePosition(Resize(205, 5, 295, 80));
-	wReplayControl->setRelativePosition(Resize(205, 143, 285, 272));
+	wReplayControl->setRelativePosition(Resize(205, 143, 295, 272));
 	btnReplayStart->setRelativePosition(Resize(0, 0, 90, 25));
 	btnReplayPause->setRelativePosition(Resize(0, 0, 90, 25));
 	btnReplayStep->setRelativePosition(Resize(0, 52, 90, 77));
