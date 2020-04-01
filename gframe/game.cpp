@@ -860,7 +860,7 @@ bool Game::Initialize() {
 	btnRSNo = env->addButton(rect<s32>(170, 80, 240, 105), wReplaySave, BUTTON_REPLAY_CANCEL, dataManager.GetSysString(1212));
 	//replay control
 	wReplayControl = env->addStaticText(L"", rect<s32>(205, 118, 295, 273), true, false, 0, -1, true);
-	wReplayControl->setBackgroundColor(0x000fffff);
+	wReplayControl->setBackgroundColor(0x00FFFFFF);
 	wReplayControl->setVisible(false);
 	btnReplayStart = env->addButton(rect<s32>(5, 5, 85, 25), wReplayControl, BUTTON_REPLAY_START, dataManager.GetSysString(1343));
 	btnReplayPause = env->addButton(rect<s32>(5, 30, 85, 50), wReplayControl, BUTTON_REPLAY_PAUSE, dataManager.GetSysString(1344));
@@ -2275,13 +2275,13 @@ void Game::OnResize() {
 	ebChatInput->setRelativePosition(recti(3, 2, window_size.Width - wChat->getRelativePosition().UpperLeftCorner.X - 6, 22));
 
 	btnLeaveGame->setRelativePosition(Resize(205, 5, 295, 80));
-	wReplayControl->setRelativePosition(Resize(205, 143, 295, 273));
-	btnReplayStart->setRelativePosition(Resize(5, 5, 85, 25));
-	btnReplayPause->setRelativePosition(Resize(5, 5, 85, 25));
-	btnReplayStep->setRelativePosition(Resize(5, 55, 85, 75));
-	btnReplayUndo->setRelativePosition(Resize(5, 80, 85, 100));
-	btnReplaySwap->setRelativePosition(Resize(5, 30, 85, 50));
-	btnReplayExit->setRelativePosition(Resize(5, 105, 85, 125));
+	wReplayControl->setRelativePosition(Resize(205, 143, 285, 272));
+	btnReplayStart->setRelativePosition(Resize(0, 0, 90, 25));
+	btnReplayPause->setRelativePosition(Resize(0, 0, 90, 25));
+	btnReplayStep->setRelativePosition(Resize(0, 52, 90, 77));
+	btnReplayUndo->setRelativePosition(Resize(0, 78, 90, 103));
+	btnReplaySwap->setRelativePosition(Resize(0, 26, 90, 51));
+	btnReplayExit->setRelativePosition(Resize(0, 104, 90, 129));
 
 	btnSpectatorSwap->setRelativePosition(Resize(205, 100, 295, 135));
 	btnChainAlways->setRelativePosition(Resize(205, 140, 295, 175));
