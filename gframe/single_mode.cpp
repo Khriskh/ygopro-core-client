@@ -90,6 +90,16 @@ int SingleMode::SinglePlayThread() {
 	mainGame->ClearCardInfo();
 	mainGame->wCardImg->setVisible(true);
 	mainGame->wInfos->setVisible(false); // Cambiar wInfos true
+	//ygopro
+	mainGame->tabInfoES->setVisible(true);
+	mainGame->tabLogES->setVisible(false);
+	mainGame->_tabHelperES->setVisible(false);
+	mainGame->_tabSystemES->setVisible(false);
+	mainGame->btnInfoES ->setVisible(true);
+	mainGame->btnLogES->setVisible(true);
+	mainGame->btn_tabHelperES->setVisible(true);
+	mainGame->btn_tabSystemES->setVisible(true);
+	//end ygoproes
 	mainGame->btnLeaveGame->setVisible(true);
 	mainGame->btnLeaveGame->setText(L"");
 	mainGame->btnLeaveGame->setImage(imageManager.tBtn1);

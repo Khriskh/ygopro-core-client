@@ -127,6 +127,16 @@ void DeckBuilder::Initialize() {
 	mainGame->is_siding = false;
 	mainGame->ClearCardInfo();
 	mainGame->wInfos->setVisible(false); // Cambiar wInfos true
+	//ygopro
+	mainGame->tabInfoES->setVisible(true);
+	mainGame->tabLogES->setVisible(false);
+	mainGame->_tabHelperES->setVisible(false);
+	mainGame->_tabSystemES->setVisible(false);
+	mainGame->btnInfoES ->setVisible(true);
+	mainGame->btnLogES->setVisible(true);
+	mainGame->btn_tabHelperES->setVisible(true);
+	mainGame->btn_tabSystemES->setVisible(true);
+	//end ygoproes
 	mainGame->wCardImg->setVisible(true);
 	mainGame->wDeckEdit->setVisible(true);
 	mainGame->wFilter->setVisible(true);
@@ -167,6 +177,16 @@ void DeckBuilder::Terminate() {
 	mainGame->wSort->setVisible(false);
 	mainGame->wCardImg->setVisible(false);
 	mainGame->wInfos->setVisible(false);
+	//ygoproes
+	mainGame->tabInfoES->setVisible(false);
+	mainGame->tabLogES->setVisible(false);
+	mainGame->_tabHelperES->setVisible(false);
+	mainGame->_tabSystemES->setVisible(false);
+	mainGame->btnInfoES ->setVisible(false);
+	mainGame->btnLogES->setVisible(false);
+	mainGame->btn_tabHelperES->setVisible(false);
+	mainGame->btn_tabSystemES->setVisible(false);
+	//end ygoproes
 	mainGame->btnLeaveGame->setVisible(false);
 	mainGame->PopupElement(mainGame->wMainMenu);
 	mainGame->device->setEventReceiver(&mainGame->menuHandler);

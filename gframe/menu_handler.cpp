@@ -603,6 +603,16 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				mainGame->ClearCardInfo();
 				mainGame->wCardImg->setVisible(true);
 				mainGame->wInfos->setVisible(false); // Cambiar wInfos true
+				//ygopro
+				mainGame->tabInfoES->setVisible(true);
+				mainGame->tabLogES->setVisible(false);
+				mainGame->_tabHelperES->setVisible(false);
+				mainGame->_tabSystemES->setVisible(false);
+				mainGame->btnInfoES ->setVisible(true);
+				mainGame->btnLogES->setVisible(true);
+				mainGame->btn_tabHelperES->setVisible(true);
+				mainGame->btn_tabSystemES->setVisible(true);
+				//end ygoproes
 				mainGame->wReplay->setVisible(true);
 				mainGame->wReplayControl->setVisible(true);
 				mainGame->btnReplayStart->setVisible(false);

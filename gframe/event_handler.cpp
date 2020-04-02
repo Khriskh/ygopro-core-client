@@ -51,25 +51,31 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				break;
 			}
 			case BUTTON_PROES_INFO: {
-				mainGame->tabInfoES->setVisible(true);
 				mainGame->tabLogES->setVisible(false);
 				mainGame->_tabHelperES->setVisible(false);
+				mainGame->_tabSystemES->setVisible(false);
+				mainGame->tabInfoES->setVisible(true);
 				break;
 			}
 			case BUTTON_PROES_LOG: {
 				mainGame->tabInfoES->setVisible(false);
-				mainGame->tabLogES->setVisible(true);
 				mainGame->_tabHelperES->setVisible(false);
+				mainGame->_tabSystemES->setVisible(false);
+				mainGame->tabLogES->setVisible(true);
 				break;
 			}
 			case BUTTON_PROES_HELP: {
 				mainGame->tabInfoES->setVisible(false);
 				mainGame->tabLogES->setVisible(false);
+				mainGame->_tabSystemES->setVisible(false);
 				mainGame->_tabHelperES->setVisible(true);
 				break;
 			}
 			case BUTTON_PROES_SYSTEM: {
 				mainGame->tabInfoES->setVisible(false);
+				mainGame->tabLogES->setVisible(false);
+				mainGame->_tabHelperES->setVisible(false);
+				mainGame->_tabSystemES->setVisible(true);
 				break;
 			}
 			case BUTTON_REPLAY_START: {
@@ -154,6 +160,16 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					mainGame->stTip->setVisible(false);
 					mainGame->wCardImg->setVisible(false);
 					mainGame->wInfos->setVisible(false);
+					//ygoproes
+					mainGame->tabInfoES->setVisible(false);
+					mainGame->tabLogES->setVisible(false);
+					mainGame->_tabHelperES->setVisible(false);
+					mainGame->_tabSystemES->setVisible(false);
+					mainGame->btnInfoES ->setVisible(false);
+					mainGame->btnLogES->setVisible(false);
+					mainGame->btn_tabHelperES->setVisible(false);
+					mainGame->btn_tabSystemES->setVisible(false);
+					//end ygoproes
 					mainGame->wPhase->setVisible(false);
 					mainGame->btnLeaveGame->setVisible(false);
 					mainGame->btnSpectatorSwap->setVisible(false);
