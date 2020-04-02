@@ -616,6 +616,8 @@ public:
 	irr::gui::IGUIEditBox* ebRSName;
 	irr::gui::IGUIButton* btnRSYes;
 	irr::gui::IGUIButton* btnRSNo;
+	//ygoproes
+	irr::gui::IGUIStaticText* infoCardsES;
 	//replay control
 	irr::gui::IGUIStaticText* wReplayControl;
 	irr::gui::IGUIButton* btnReplayStart;

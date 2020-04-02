@@ -322,35 +322,40 @@ bool Game::Initialize() {
 	
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
-	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), false, true, tabInfo, -1, false);
+	
+	infoCardsES = env->addStaticText(L"", rect<s32>(0, 0, 274, 300), true, false, tabInfo, -1, true);
+	
+	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), false, true, infoCardsES, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stName->setOverrideColor(SColor(255, 240, 240, 240));
 	//stName->setOverrideColor(SColor(255, 244, 225, 3));
 	//stName->setOverrideFont(textCards);
 	
-	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfo, -1, false);
+	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, infoCardsES, -1, false);
 	stInfo->setOverrideColor(SColor(255, 240, 240, 240));
 	//stInfo->setOverrideColor(SColor(255, 87, 217, 0));
 	//stInfo->setOverrideFont(textCards);
 	
-	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfo, -1, false);
+	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, infoCardsES, -1, false);
 	stDataInfo->setOverrideColor(SColor(255, 240, 240, 240));
 	//stDataInfo->setOverrideColor(SColor(255, 87, 217, 0));
 	//stDataInfo->setOverrideFont(textCards);
 	
-	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, tabInfo, -1, false);
+	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, infoCardsES, -1, false);
 	stSetName->setOverrideColor(SColor(255, 240, 240, 240));
 	//stSetName->setOverrideColor(SColor(255, 87, 217, 0));
 	//stSetName->setOverrideFont(textCards);
 	
-	stText = env->addStaticText(L"", rect<s32>(15, 106, 287, 324), false, true, tabInfo, -1, false);
+	stText = env->addStaticText(L"", rect<s32>(15, 106, 287, 324), false, true, infoCardsES, -1, false);
 	stText->setOverrideColor(SColor(255, 240, 240, 240));
 	//stText->setOverrideFont(textCards);
 	
-	scrCardText = env->addScrollBar(false, rect<s32>(267, 106, 287, 324), tabInfo, SCROLL_CARDTEXT);
+	scrCardText = env->addScrollBar(false, rect<s32>(267, 106, 287, 324), infoCardsES, SCROLL_CARDTEXT);
 	scrCardText->setLargeStep(1);
 	scrCardText->setSmallStep(1);
 	scrCardText->setVisible(false);
+	
+	
 	//log
 	irr::gui::IGUITab* tabLog = wInfos->addTab(dataManager.GetSysString(1271));
 	lstLog = env->addListBox(rect<s32>(10, 10, 290, 290), tabLog, LISTBOX_LOG, false);
@@ -371,7 +376,6 @@ bool Game::Initialize() {
 	int posX = 0;
 	int posY = 0;
 	chkMAutoPos = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabHelper, -1, dataManager.GetSysString(1274));
-	chkMAutoPos->setOverrideColor(SColor(255, 240, 240, 240));
 	chkMAutoPos->setChecked(gameConf.chkMAutoPos != 0);
 	posY += 30;
 	chkSTAutoPos = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabHelper, -1, dataManager.GetSysString(1278));
