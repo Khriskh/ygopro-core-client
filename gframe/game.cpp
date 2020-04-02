@@ -366,22 +366,22 @@ bool Game::Initialize() {
 	lstLog = env->addListBox(rect<s32>(10, 10, 290, 290), tabLogES, LISTBOX_LOG, false);
 	lstLog->setItemHeight(18);
 	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLogES, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
-	
-	//info
-	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
-	
-	//log
-	irr::gui::IGUITab* tabLog = wInfos->addTab(dataManager.GetSysString(1271));
 
-	//helper
-	irr::gui::IGUITab* _tabHelper = wInfos->addTab(dataManager.GetSysString(1298));
-	_tabHelper->setRelativePosition(recti(16, 49, 299, 362));
-	tabHelper = env->addWindow(recti(0, 0, 250, 300), false, L"", _tabHelper);
+	//HELP YGOPROES
+	btn_tabHelperES = env->addButton(rect<s32>(33, 606, 58, 631), 0, BUTTON_PROES_HELP, L"");
+	btn_tabHelperES->setImage(imageManager.btnHelper);
+	btn_tabHelperES->setScaleImage(true);
+	btn_tabHelperES->setUseAlphaChannel(true);
+	btn_tabHelperES->setDrawBorder(false);
+	
+	_tabHelperES = env->addStaticText(L"", rect<s32>(5, 285, 296, 635), false, true, 0, -1, true);
+	_tabHelperES->setVisible(false);
+	tabHelper = env->addWindow(recti(0, 0, 250, 300), false, L"", _tabHelperES);
 	tabHelper->setDrawTitlebar(false);
 	tabHelper->getCloseButton()->setVisible(false);
 	tabHelper->setDrawBackground(false);
 	tabHelper->setDraggable(false);
-	scrTabHelper = env->addScrollBar(false, rect<s32>(252, 0, 272, 300), _tabHelper, SCROLL_TAB_HELPER);
+	scrTabHelper = env->addScrollBar(false, rect<s32>(252, 0, 272, 300), _tabHelperES, SCROLL_TAB_HELPER);
 	scrTabHelper->setLargeStep(1);
 	scrTabHelper->setSmallStep(1);
 	scrTabHelper->setVisible(false);
@@ -408,6 +408,17 @@ bool Game::Initialize() {
 	chkAutoSaveReplay = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabHelper, -1, dataManager.GetSysString(1366));
 	chkAutoSaveReplay->setChecked(gameConf.auto_save_replay != 0);
 	elmTabHelperLast = chkAutoSaveReplay;
+	
+	//info
+	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
+	
+	//log
+	irr::gui::IGUITab* tabLog = wInfos->addTab(dataManager.GetSysString(1271));
+
+	//helper
+	irr::gui::IGUITab* _tabHelper = wInfos->addTab(dataManager.GetSysString(1298));
+	_tabHelper->setRelativePosition(recti(16, 49, 299, 362));
+	
 	//system
 	irr::gui::IGUITab* _tabSystem = wInfos->addTab(dataManager.GetSysString(1273));
 	_tabSystem->setRelativePosition(recti(16, 49, 299, 362));
@@ -2332,10 +2343,12 @@ void Game::OnResize() {
 	btnCancelOrFinish->setRelativePosition(Resize(205, 230, 295, 265));
 	
 	//ygoproes
-	tabInfoES->setRelativePosition(Resize(5, 270, 296, 620));
-	tabLogES->setRelativePosition(Resize(5, 270, 296, 620));
+	tabInfoES->setRelativePosition(Resize(5, 280, 295, 600));
+	tabLogES->setRelativePosition(Resize(5, 280, 295, 600));
+	_tabHelperES->setRelativePosition(Resize(5, 280, 295, 600));
 	btnInfoES ->setRelativePosition(Resize(6, 606, 31, 631));
 	btnLogES->setRelativePosition(Resize(33, 606, 58, 631));
+	btn_tabHelperES->setRelativePosition(Resize(60, 606, 85, 631));
 }
 recti Game::Resize(s32 x, s32 y, s32 x2, s32 y2) {
 	x = x * xScale;
