@@ -445,8 +445,8 @@ void Game::DrawShadowText(CGUITTFont * font, const core::stringw & text, const c
 }
 void Game::DrawMisc() {
 	//driver->draw2DRectangle(Resize(11, 281, 296, 625), 0x99000000, 0x99000000, 0x99000000, 0x99000000);
-	driver->draw2DRectangle(Resize(0, 0, 302, 640), 0x80000000, 0x80000000, 0x80000000, 0x80000000);
-	driver->draw2DRectangleOutline(Resize(6, 281, 296, 631));
+	driver->draw2DRectangle(Resize(0, 0, 301, 640), 0x80000000, 0x80000000, 0x80000000, 0x80000000);
+	//driver->draw2DRectangleOutline(Resize(6, 281, 296, 631));
 	
 	static irr::core::vector3df act_rot(0, 0, 0);
 	int rule = (dInfo.duel_rule >= 4) ? 1 : 0;
@@ -1227,8 +1227,11 @@ void Game::DrawDeckBd() {
 	5% — 0D
 	0% — 00
 	*/
-	driver->draw2DRectangle(Resize(6, 281, 296, 631), 0x99000000, 0x99000000, 0x99000000, 0x99000000);
-	driver->draw2DRectangleOutline(Resize(6, 281, 296, 631));
+	//driver->draw2DRectangle(Resize(6, 281, 296, 631), 0x99000000, 0x99000000, 0x99000000, 0x99000000);
+	//driver->draw2DRectangleOutline(Resize(6, 281, 296, 631));
+	driver->draw2DRectangle(Resize(0, 0, 301, 640), 0x80000000, 0x80000000, 0x80000000, 0x80000000);
+	//driver->draw2DRectangleOutline(Resize(6, 281, 296, 631));
+	
 	
 	wchar_t textBuffer[64];
 	//main deck

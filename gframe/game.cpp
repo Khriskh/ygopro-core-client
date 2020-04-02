@@ -327,7 +327,7 @@ bool Game::Initialize() {
 	btnInfoES->setUseAlphaChannel(true);
 	btnInfoES->setDrawBorder(false);
 	
-	tabInfoES = env->addStaticText(L"", rect<s32>(5, 280, 296, 630), false, true, 0, -1, false);
+	tabInfoES = env->addStaticText(L"", rect<s32>(5, 285, 296, 635), false, true, 0, -1, false);
 	tabInfoES->setVisible(false);
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), false, true, tabInfoES, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
@@ -361,15 +361,18 @@ bool Game::Initialize() {
 	btnLogES->setUseAlphaChannel(true);
 	btnLogES->setDrawBorder(false);
 	
+	tabLogES = env->addStaticText(L"", rect<s32>(5, 285, 296, 635), false, true, 0, -1, true);
+	tabLogES->setVisible(false);
+	lstLog = env->addListBox(rect<s32>(10, 10, 290, 290), tabLogES, LISTBOX_LOG, false);
+	lstLog->setItemHeight(18);
+	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLogES, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
+	
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
 	
-	
 	//log
 	irr::gui::IGUITab* tabLog = wInfos->addTab(dataManager.GetSysString(1271));
-	lstLog = env->addListBox(rect<s32>(10, 10, 290, 290), tabLog, LISTBOX_LOG, false);
-	lstLog->setItemHeight(18);
-	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLog, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
+
 	//helper
 	irr::gui::IGUITab* _tabHelper = wInfos->addTab(dataManager.GetSysString(1298));
 	_tabHelper->setRelativePosition(recti(16, 49, 299, 362));
@@ -2329,7 +2332,8 @@ void Game::OnResize() {
 	btnCancelOrFinish->setRelativePosition(Resize(205, 230, 295, 265));
 	
 	//ygoproes
-	tabInfoES->setRelativePosition(Resize(5, 265, 296, 615));
+	tabInfoES->setRelativePosition(Resize(5, 270, 296, 620));
+	tabLogES->setRelativePosition(Resize(5, 270, 296, 620));
 	btnInfoES ->setRelativePosition(Resize(6, 606, 31, 631));
 	btnLogES->setRelativePosition(Resize(33, 606, 58, 631));
 }
