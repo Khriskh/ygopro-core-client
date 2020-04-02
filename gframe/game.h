@@ -865,9 +865,9 @@ extern Game* mainGame;
 #define BUTTON_DECK_CODE_CANCEL		391
 
 #define BUTTON_PROES_INFO			501
-#define BUTTON_PROES_LOG			501
-#define BUTTON_PROES_HELP			501
-#define BUTTON_PROES_SYSTEM			501
+#define BUTTON_PROES_LOG			502
+#define BUTTON_PROES_HELP			503
+#define BUTTON_PROES_SYSTEM			504
 
 #define TEXTURE_DUEL				0
 #define TEXTURE_DECK				1
