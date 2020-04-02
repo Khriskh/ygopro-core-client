@@ -52,10 +52,12 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_PROES_INFO: {
 				mainGame->tabInfoES->setVisible(true);
+				mainGame->tabLogES->setVisible(false);
 				break;
 			}
 			case BUTTON_PROES_LOG: {
 				mainGame->tabInfoES->setVisible(false);
+				mainGame->tabLogES->setVisible(true);
 				break;
 			}
 			case BUTTON_PROES_HELP: {
