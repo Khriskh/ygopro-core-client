@@ -323,7 +323,7 @@ bool Game::Initialize() {
 	//info
 	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
 	
-	infoCardsES = env->addStaticText(L"", rect<s32>(0, 0, 274, 300), true, false, tabInfo, -1, true);
+	infoCardsES = env->addStaticText(L"", rect<s32>(0, 0, 274, 300), false, true, tabInfo, -1, true);
 	
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), false, true, infoCardsES, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
