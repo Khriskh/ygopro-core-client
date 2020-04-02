@@ -371,6 +371,7 @@ bool Game::Initialize() {
 	int posX = 0;
 	int posY = 0;
 	chkMAutoPos = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabHelper, -1, dataManager.GetSysString(1274));
+	chkMAutoPos->setOverrideColor(SColor(255, 240, 240, 240));
 	chkMAutoPos->setChecked(gameConf.chkMAutoPos != 0);
 	posY += 30;
 	chkSTAutoPos = env->addCheckBox(false, rect<s32>(posX, posY, posX + 260, posY + 25), tabHelper, -1, dataManager.GetSysString(1278));
