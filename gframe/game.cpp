@@ -331,7 +331,7 @@ bool Game::Initialize() {
 	tabInfoES = env->addStaticText(L"", rect<s32>(5, 285, 296, 635), false, true, 0, -1, false);
 	tabInfoES->setVisible(false);
 	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), false, true, tabInfoES, -1, false);
-	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
+	//stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stName->setOverrideColor(SColor(255, 240, 240, 240));
 	//stName->setOverrideColor(SColor(255, 244, 225, 3));
 	//stName->setOverrideFont(textCards);
@@ -2372,10 +2372,10 @@ void Game::OnResize() {
 	tabLogES->setRelativePosition(Resize(5, 280, 295, 600));
 	_tabHelperES->setRelativePosition(Resize(5, 280, 295, 600));
 	_tabSystemES->setRelativePosition(Resize(5, 280, 295, 600));
-	btnInfoES ->setRelativePosition(Resize(6, 606, 31, 631));
-	btnLogES->setRelativePosition(Resize(33, 606, 58, 631));
-	btn_tabHelperES->setRelativePosition(Resize(60, 606, 85, 631));
-	btn_tabSystemES->setRelativePosition(Resize(60, 606, 85, 631));
+	btnInfoES ->setRelativePosition(Resize(6, 611, 26, 631));
+	btnLogES->setRelativePosition(Resize(28, 611, 48, 631));
+	btn_tabHelperES->setRelativePosition(Resize(50, 611, 70, 631));
+	btn_tabSystemES->setRelativePosition(Resize(72, 611, 92, 631));
 }
 recti Game::Resize(s32 x, s32 y, s32 x2, s32 y2) {
 	x = x * xScale;
