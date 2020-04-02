@@ -320,40 +320,49 @@ bool Game::Initialize() {
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
 	
-	//info
-	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
+	//INFO YGOPROES
+	btnInfoES = env->addButton(rect<s32>(6, 606, 31, 631), 0, BUTTON_PROES_INFO, L"");
+	btnInfoES->setImage(imageManager.btnInfo);
+	btnInfoES->setScaleImage(true);
+	btnInfoES->setUseAlphaChannel(true);
+	btnInfoES->setDrawBorder(false);
 	
-	infoCardsES = env->addStaticText(L"", rect<s32>(0, 0, 274, 300), false, true, tabInfo, -1, false);
-	
-	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), false, true, infoCardsES, -1, false);
+	tabInfoES = env->addStaticText(L"", rect<s32>(5, 280, 296, 630), false, true, 0, -1, false);
+	tabInfoES->setVisible(false);
+	stName = env->addStaticText(L"", rect<s32>(10, 10, 287, 32), false, true, tabInfoES, -1, false);
 	stName->setTextAlignment(irr::gui::EGUIA_CENTER, irr::gui::EGUIA_CENTER);
 	stName->setOverrideColor(SColor(255, 240, 240, 240));
 	//stName->setOverrideColor(SColor(255, 244, 225, 3));
 	//stName->setOverrideFont(textCards);
-	
-	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, infoCardsES, -1, false);
+	stInfo = env->addStaticText(L"", rect<s32>(15, 37, 296, 60), false, true, tabInfoES, -1, false);
 	stInfo->setOverrideColor(SColor(255, 240, 240, 240));
 	//stInfo->setOverrideColor(SColor(255, 87, 217, 0));
 	//stInfo->setOverrideFont(textCards);
-	
-	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, infoCardsES, -1, false);
+	stDataInfo = env->addStaticText(L"", rect<s32>(15, 60, 296, 83), false, true, tabInfoES, -1, false);
 	stDataInfo->setOverrideColor(SColor(255, 240, 240, 240));
 	//stDataInfo->setOverrideColor(SColor(255, 87, 217, 0));
 	//stDataInfo->setOverrideFont(textCards);
-	
-	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, infoCardsES, -1, false);
+	stSetName = env->addStaticText(L"", rect<s32>(15, 83, 296, 106), false, true, tabInfoES, -1, false);
 	stSetName->setOverrideColor(SColor(255, 240, 240, 240));
 	//stSetName->setOverrideColor(SColor(255, 87, 217, 0));
 	//stSetName->setOverrideFont(textCards);
-	
-	stText = env->addStaticText(L"", rect<s32>(15, 106, 287, 324), false, true, infoCardsES, -1, false);
+	stText = env->addStaticText(L"", rect<s32>(15, 106, 287, 324), false, true, tabInfoES, -1, false);
 	stText->setOverrideColor(SColor(255, 240, 240, 240));
 	//stText->setOverrideFont(textCards);
-	
-	scrCardText = env->addScrollBar(false, rect<s32>(267, 106, 287, 324), infoCardsES, SCROLL_CARDTEXT);
+	scrCardText = env->addScrollBar(false, rect<s32>(267, 106, 287, 324), tabInfoES, SCROLL_CARDTEXT);
 	scrCardText->setLargeStep(1);
 	scrCardText->setSmallStep(1);
 	scrCardText->setVisible(false);
+	
+	//LOGS YGOPROES
+	btnLogES = env->addButton(rect<s32>(33, 606, 58, 631), 0, BUTTON_PROES_LOG, L"");
+	btnLogES->setImage(imageManager.btnLog);
+	btnLogES->setScaleImage(true);
+	btnLogES->setUseAlphaChannel(true);
+	btnLogES->setDrawBorder(false);
+	
+	//info
+	irr::gui::IGUITab* tabInfo = wInfos->addTab(dataManager.GetSysString(1270));	
 	
 	
 	//log
@@ -2318,6 +2327,11 @@ void Game::OnResize() {
 	btnChainWhenAvail->setRelativePosition(Resize(205, 180, 295, 215));
 	btnShuffle->setRelativePosition(Resize(205, 230, 295, 265));
 	btnCancelOrFinish->setRelativePosition(Resize(205, 230, 295, 265));
+	
+	//ygoproes
+	tabInfoES->setRelativePosition(Resize(5, 265, 296, 615));
+	btnInfoES ->setRelativePosition(Resize(6, 606, 31, 631));
+	btnLogES->setRelativePosition(Resize(33, 606, 58, 631));
 }
 recti Game::Resize(s32 x, s32 y, s32 x2, s32 y2) {
 	x = x * xScale;

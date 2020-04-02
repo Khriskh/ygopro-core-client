@@ -126,7 +126,7 @@ void DeckBuilder::Initialize() {
 	mainGame->is_building = true;
 	mainGame->is_siding = false;
 	mainGame->ClearCardInfo();
-	mainGame->wInfos->setVisible(true);
+	mainGame->wInfos->setVisible(false); // Cambiar wInfos true
 	mainGame->wCardImg->setVisible(true);
 	mainGame->wDeckEdit->setVisible(true);
 	mainGame->wFilter->setVisible(true);

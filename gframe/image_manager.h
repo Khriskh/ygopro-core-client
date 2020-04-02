@@ -73,6 +73,13 @@ public:
 	irr::video::ITexture* tBtnr4;
 	irr::video::ITexture* tBtnr5;
 	irr::video::ITexture* tBtnr6;
+	
+	//YGOPROES
+	irr::video::ITexture* btnInfo;
+	irr::video::ITexture* btnLog;
+	irr::video::ITexture* btnHelper;
+	irr::video::ITexture* btnSystem;
+	
 	std::list<std::string> support_types;
 };
 

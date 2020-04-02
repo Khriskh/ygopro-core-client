@@ -50,6 +50,22 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				DuelClient::SendPacketToServer(CTOS_TP_RESULT, cstr);
 				break;
 			}
+			case BUTTON_PROES_INFO: {
+				mainGame->tabInfoES->setVisible(true);
+				break;
+			}
+			case BUTTON_PROES_LOG: {
+				mainGame->tabInfoES->setVisible(false);
+				break;
+			}
+			case BUTTON_PROES_HELP: {
+				mainGame->tabInfoES->setVisible(false);
+				break;
+			}
+			case BUTTON_PROES_SYSTEM: {
+				mainGame->tabInfoES->setVisible(false);
+				break;
+			}
 			case BUTTON_REPLAY_START: {
 				if(!mainGame->dInfo.isReplay)
 					break;

@@ -749,7 +749,7 @@ void DuelClient::HandleSTOCPacketLan(char* data, unsigned int len) {
 		mainGame->dInfo.announce_cache.clear();
 		mainGame->is_building = false;
 		mainGame->wCardImg->setVisible(true);
-		mainGame->wInfos->setVisible(true);
+		mainGame->wInfos->setVisible(false); // Cambiar wInfos true
 		mainGame->wPhase->setVisible(true);
 		mainGame->btnSideOK->setVisible(false);
 		mainGame->btnSideShuffle->setVisible(false);

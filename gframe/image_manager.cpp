@@ -61,6 +61,12 @@ bool ImageManager::Initial() {
 	tBtnr4 = driver->getTexture("textures/btnr4.png");
 	tBtnr5 = driver->getTexture("textures/btnr5.png");
 	tBtnr6 = driver->getTexture("textures/btnr6.png");
+	//YGOPROES
+	btnInfo = driver->getTexture("textures/btnInfo.png");
+	btnLog = driver->getTexture("textures/btnLog.png");
+	btnHelper = driver->getTexture("textures/btnHelper.png");
+	btnSystem = driver->getTexture("textures/btnSystem.png");
+	
 	tField[0] = driver->getTexture("textures/field2.png");
 	tFieldTransparent[0] = driver->getTexture("textures/field-transparent2.png");
 	tField[1] = driver->getTexture("textures/field3.png");

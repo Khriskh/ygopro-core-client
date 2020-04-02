@@ -617,7 +617,14 @@ public:
 	irr::gui::IGUIButton* btnRSYes;
 	irr::gui::IGUIButton* btnRSNo;
 	//ygoproes
-	irr::gui::IGUIStaticText* infoCardsES;
+	irr::gui::IGUIStaticText* tabInfoES;
+	irr::gui::IGUIStaticText* tabLogES;
+	irr::gui::IGUIStaticText* _tabHelperES;
+	irr::gui::IGUIStaticText* _tabSystemES;
+	irr::gui::IGUIButton* btnInfoES;
+	irr::gui::IGUIButton* btnLogES;
+	irr::gui::IGUIButton* btn_tabHelperES;
+	irr::gui::IGUIButton* btn_tabSystemES;
 	//replay control
 	irr::gui::IGUIStaticText* wReplayControl;
 	irr::gui::IGUIButton* btnReplayStart;
@@ -856,6 +863,11 @@ extern Game* mainGame;
 #define BUTTON_DECK_CODE			389
 #define BUTTON_DECK_CODE_SAVE		390
 #define BUTTON_DECK_CODE_CANCEL		391
+
+#define BUTTON_PROES_INFO			501
+#define BUTTON_PROES_LOG			501
+#define BUTTON_PROES_HELP			501
+#define BUTTON_PROES_SYSTEM			501
 
 #define TEXTURE_DUEL				0
 #define TEXTURE_DECK				1

@@ -89,7 +89,7 @@ int SingleMode::SinglePlayThread() {
 	mainGame->HideElement(mainGame->wSinglePlay);
 	mainGame->ClearCardInfo();
 	mainGame->wCardImg->setVisible(true);
-	mainGame->wInfos->setVisible(true);
+	mainGame->wInfos->setVisible(false); // Cambiar wInfos true
 	mainGame->btnLeaveGame->setVisible(true);
 	mainGame->btnLeaveGame->setText(L"");
 	mainGame->btnLeaveGame->setImage(imageManager.tBtn1);

@@ -602,7 +602,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				}
 				mainGame->ClearCardInfo();
 				mainGame->wCardImg->setVisible(true);
-				mainGame->wInfos->setVisible(true);
+				mainGame->wInfos->setVisible(false); // Cambiar wInfos true
 				mainGame->wReplay->setVisible(true);
 				mainGame->wReplayControl->setVisible(true);
 				mainGame->btnReplayStart->setVisible(false);
