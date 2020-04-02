@@ -2280,7 +2280,7 @@ void Game::OnResize() {
 	//description 
 	wCardImg->setRelativePosition(ResizeCardImgWin(13, 12, 0, 0));
 	imgCard->setRelativePosition(ResizeCardImgWin(0, 0, 0, 0));
-	wInfos->setRelativePosition(Resize(11, 280, 296, 625)); //INFORMACIÓN DE CARTAS
+	wInfos->setRelativePosition(Resize(5, 280, 296, 630)); //INFORMACIÓN DE CARTAS
 	stName->setRelativePosition(recti(10, 10, 287 * xScale - 13, 10 + 22)); //nombre de carta
 	lstLog->setRelativePosition(Resize(10, 10, 290, 290));
 	if(showingcode)
