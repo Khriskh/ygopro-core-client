@@ -50,34 +50,6 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				DuelClient::SendPacketToServer(CTOS_TP_RESULT, cstr);
 				break;
 			}
-			case BUTTON_PROES_INFO: {
-				mainGame->tabLogES->setVisible(false);
-				mainGame->_tabHelperES->setVisible(false);
-				mainGame->_tabSystemES->setVisible(false);
-				mainGame->tabInfoES->setVisible(true);
-				break;
-			}
-			case BUTTON_PROES_LOG: {
-				mainGame->tabInfoES->setVisible(false);
-				mainGame->_tabHelperES->setVisible(false);
-				mainGame->_tabSystemES->setVisible(false);
-				mainGame->tabLogES->setVisible(true);
-				break;
-			}
-			case BUTTON_PROES_HELP: {
-				mainGame->tabInfoES->setVisible(false);
-				mainGame->tabLogES->setVisible(false);
-				mainGame->_tabSystemES->setVisible(false);
-				mainGame->_tabHelperES->setVisible(true);
-				break;
-			}
-			case BUTTON_PROES_SYSTEM: {
-				mainGame->tabInfoES->setVisible(false);
-				mainGame->tabLogES->setVisible(false);
-				mainGame->_tabHelperES->setVisible(false);
-				mainGame->_tabSystemES->setVisible(true);
-				break;
-			}
 			case BUTTON_REPLAY_START: {
 				if(!mainGame->dInfo.isReplay)
 					break;
@@ -1869,6 +1841,34 @@ bool ClientField::OnCommonEvent(const irr::SEvent& event) {
 				mainGame->lstLog->clear();
 				mainGame->logParam.clear();
 				return true;
+				break;
+			}
+			case BUTTON_PROES_INFO: {
+				mainGame->tabLogES->setVisible(false);
+				mainGame->_tabHelperES->setVisible(false);
+				mainGame->_tabSystemES->setVisible(false);
+				mainGame->tabInfoES->setVisible(true);
+				break;
+			}
+			case BUTTON_PROES_LOG: {
+				mainGame->tabInfoES->setVisible(false);
+				mainGame->_tabHelperES->setVisible(false);
+				mainGame->_tabSystemES->setVisible(false);
+				mainGame->tabLogES->setVisible(true);
+				break;
+			}
+			case BUTTON_PROES_HELP: {
+				mainGame->tabInfoES->setVisible(false);
+				mainGame->tabLogES->setVisible(false);
+				mainGame->_tabSystemES->setVisible(false);
+				mainGame->_tabHelperES->setVisible(true);
+				break;
+			}
+			case BUTTON_PROES_SYSTEM: {
+				mainGame->tabInfoES->setVisible(false);
+				mainGame->tabLogES->setVisible(false);
+				mainGame->_tabHelperES->setVisible(false);
+				mainGame->_tabSystemES->setVisible(true);
 				break;
 			}
 			case BUTTON_WINDOW_RESIZE_S: {
