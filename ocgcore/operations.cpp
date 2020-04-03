@@ -1941,8 +1941,6 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		pduel->write_buffer8(MSG_SUMMONING);
 		pduel->write_buffer32(target->data.code);
 		pduel->write_buffer32(target->get_info_location());
-		core.summon_state_count[sumplayer]++;
-		core.normalsummon_state_count[sumplayer]++;
 		if (target->material_cards.size()) {
 			for (auto& mcard : target->material_cards)
 				raise_single_event(mcard, 0, EVENT_BE_PRE_MATERIAL, proc, REASON_SUMMON, sumplayer, sumplayer, 0);
@@ -2017,6 +2015,8 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		return FALSE;
 	}
 	case 17: {
+		core.summon_state_count[sumplayer]++;
+		core.normalsummon_state_count[sumplayer]++;
 		check_card_counter(target, 1, sumplayer);
 		check_card_counter(target, 2, sumplayer);
 		raise_single_event(target, 0, EVENT_SUMMON_SUCCESS, proc, 0, sumplayer, sumplayer, 0);
@@ -2057,7 +2057,6 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target) {
 		target->current.position = POS_FACEUP_ATTACK;
 		target->fieldid = infos.field_id++;
 		core.phase_action = TRUE;
-		core.flipsummon_state_count[sumplayer]++;
 		pduel->write_buffer8(MSG_FLIPSUMMONING);
 		pduel->write_buffer32(target->data.code);
 		pduel->write_buffer32(target->get_info_location());
@@ -2090,6 +2089,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target) {
 	}
 	case 4: {
 		pduel->write_buffer8(MSG_FLIPSUMMONED);
+		core.flipsummon_state_count[sumplayer]++;
 		check_card_counter(target, 4, sumplayer);
 		adjust_instant();
 		raise_single_event(target, 0, EVENT_FLIP, 0, 0, sumplayer, sumplayer, 0);
@@ -2780,7 +2780,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		target->current.reason_effect = peffect;
 		target->current.reason_player = sumplayer;
 		target->summon_player = sumplayer;
-		set_spsummon_counter(sumplayer);
 		break_effect();
 		return FALSE;
 	}
@@ -2889,6 +2888,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		return FALSE;
 	}
 	case 17: {
+		set_spsummon_counter(sumplayer);
 		check_card_counter(target, 3, sumplayer);
 		if(target->spsummon_code)
 			core.spsummon_once_map[sumplayer][target->spsummon_code]++;
@@ -2994,7 +2994,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	}
 	case 25: {
 		group* pgroup = core.units.begin()->ptarget;
-		set_spsummon_counter(sumplayer);
 		card_set cset;
 		for(auto& pcard : pgroup->container) {
 			pcard->set_status(STATUS_SUMMONING, TRUE);
@@ -3047,6 +3046,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	case 28: {
 		group* pgroup = core.units.begin()->ptarget;
 		pduel->write_buffer8(MSG_SPSUMMONED);
+		set_spsummon_counter(sumplayer);
 		check_card_counter(pgroup, 3, sumplayer);
 		std::set<uint32> spsummon_once_set;
 		for(auto& pcard : pgroup->container) {
@@ -4799,7 +4799,6 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				if((pcard->summon_info & SUMMON_TYPE_PENDULUM) == SUMMON_TYPE_PENDULUM)
 					pcard->summon_info &= 0xf000ffff;
 				pcard->spsummon_counter[0] = pcard->spsummon_counter[1] = 0;
-				pcard->spsummon_counter_rst[0] = pcard->spsummon_counter_rst[1] = 0;
 			}
 			if((npos & POS_FACEDOWN) && pcard->equiping_cards.size()) {
 				for(auto csit = pcard->equiping_cards.begin(); csit != pcard->equiping_cards.end();) {
