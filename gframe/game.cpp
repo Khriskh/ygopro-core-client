@@ -320,8 +320,12 @@ bool Game::Initialize() {
 	wInfos->setTabExtraWidth(16);
 	wInfos->setVisible(false);
 	
+	//gropup
+	btnGroupES = env->addStaticText(L"", rect<s32>(6, 611, 92, 631), true, false, 0, -1, true);
+	btnGroupES->setVisible(true);
+	
 	//INFO YGOPROES
-	btnInfoES = env->addButton(rect<s32>(6, 606, 31, 631), 0, BUTTON_PROES_INFO, L"");
+	btnInfoES = env->addButton(rect<s32>(6, 606, 31, 631), btnGroupES, BUTTON_PROES_INFO, L"");
 	btnInfoES->setImage(imageManager.btnInfo);
 	btnInfoES->setScaleImage(true);
 	btnInfoES->setUseAlphaChannel(true);
@@ -356,7 +360,7 @@ bool Game::Initialize() {
 	scrCardText->setVisible(false);
 	
 	//LOGS YGOPROES
-	btnLogES = env->addButton(rect<s32>(33, 606, 58, 631), 0, BUTTON_PROES_LOG, L"");
+	btnLogES = env->addButton(rect<s32>(33, 606, 58, 631), btnGroupES, BUTTON_PROES_LOG, L"");
 	btnLogES->setImage(imageManager.btnLog);
 	btnLogES->setScaleImage(true);
 	btnLogES->setUseAlphaChannel(true);
@@ -370,7 +374,7 @@ bool Game::Initialize() {
 	btnClearLog = env->addButton(rect<s32>(160, 300, 260, 325), tabLogES, BUTTON_CLEAR_LOG, dataManager.GetSysString(1272));
 
 	//HELP YGOPROES
-	btn_tabHelperES = env->addButton(rect<s32>(33, 606, 58, 631), 0, BUTTON_PROES_HELP, L"");
+	btn_tabHelperES = env->addButton(rect<s32>(33, 606, 58, 631), btnGroupES, BUTTON_PROES_HELP, L"");
 	btn_tabHelperES->setImage(imageManager.btnHelper);
 	btn_tabHelperES->setScaleImage(true);
 	btn_tabHelperES->setUseAlphaChannel(true);
@@ -413,7 +417,7 @@ bool Game::Initialize() {
 	elmTabHelperLast = chkAutoSaveReplay;
 	
 	//HELP SYSTEM
-	btn_tabSystemES = env->addButton(rect<s32>(33, 606, 58, 631), 0, BUTTON_PROES_SYSTEM, L"");
+	btn_tabSystemES = env->addButton(rect<s32>(33, 606, 58, 631), btnGroupES, BUTTON_PROES_SYSTEM, L"");
 	btn_tabSystemES->setImage(imageManager.btnSystem);
 	btn_tabSystemES->setScaleImage(true);
 	btn_tabSystemES->setUseAlphaChannel(true);
@@ -2372,10 +2376,13 @@ void Game::OnResize() {
 	tabLogES->setRelativePosition(Resize(5, 280, 295, 600));
 	_tabHelperES->setRelativePosition(Resize(5, 280, 295, 600));
 	_tabSystemES->setRelativePosition(Resize(5, 280, 295, 600));
-	btnInfoES ->setRelativePosition(Resize(6, 611, 26, 631));
-	btnLogES->setRelativePosition(Resize(28, 611, 48, 631));
-	btn_tabHelperES->setRelativePosition(Resize(50, 611, 70, 631));
-	btn_tabSystemES->setRelativePosition(Resize(72, 611, 92, 631));
+	
+	btnGroupES->setRelativePosition(Resize(6, 611, 92, 631));
+	btnInfoES ->setRelativePosition(Resize(0, 0, 20, 20));
+	btnLogES->setRelativePosition(Resize(22, 0, 42, 20));
+	btn_tabHelperES->setRelativePosition(Resize(44, 0, 64, 20));
+	btn_tabSystemES->setRelativePosition(Resize(66, 0, 86, 20));
+
 }
 recti Game::Resize(s32 x, s32 y, s32 x2, s32 y2) {
 	x = x * xScale;

@@ -625,6 +625,7 @@ public:
 	irr::gui::IGUIButton* btnLogES;
 	irr::gui::IGUIButton* btn_tabHelperES;
 	irr::gui::IGUIButton* btn_tabSystemES;
+	irr::gui::IGUIStaticText* btnGroupES;
 	//replay control
 	irr::gui::IGUIStaticText* wReplayControl;
 	irr::gui::IGUIButton* btnReplayStart;

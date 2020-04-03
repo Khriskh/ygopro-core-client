@@ -7,12 +7,6 @@
 #include "game.h"
 #include "duelclient.h"
 
-#include "client_card.h"
-#include "materials.h"
-#include "single_mode.h"
-#include "replay.h"
-#include "replay_mode.h"
-
 namespace ygo {
 
 static int parse_filter(const wchar_t* pstr, unsigned int* type) {
